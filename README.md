@@ -1,1 +1,24 @@
-# bd252-grupo2
+# Proyecto Grupal - Diseño de Bases de Datos
+
+## Tabla de Contenido
+- [0. Acerca del Grupo](./0/0.md)
+  - [0.0. Antecedentes: Proyecto del curso de Modelado / Diseño](./0/0.0/0.0.md)
+  - [0.1. Integrante 1](./0/0.1/0.1.md)
+  - [0.2. Integrante 2](./0/0.2/0.2.md)
+  - [0.3. Integrante 3](./0/0.3/0.3.md)
+  - [0.4. Integrante 4](./0/0.4/0.4.md)
+  - [0.5. Integrante 5](./0/0.5/0.5.md)
+- [1. Descripción de la Empresa Elegida](./1/1.md)
+  - [1.1. Datos de la Empresa](./1/1.1/1.1.md)
+  - [1.2. Modelo de Negocio](./1/1.2/1.2.md)
+  - [1.3. Procesos de Negocio identificados](./1/1.3/1.3.md)
+  - [1.4. Captura de Requerimientos: Entrevista con Usuario](./1/1.4/1.4.md)
+- [2. Especificación de Módulos](./2/2.md)
+  - [2.1. Diagrama de Paquetes](./2/2.1/2.1.md)
+  - [2.2. Listado y Descripción de Módulos](./2/2.2/2.2.md)
+- [3. Especificación de Requisitos y Prototipo](./3/3.md)
+  - [3.1. Módulo 1](./3/3.1/3.1.md)
+  - [3.2. Módulo 2](./3/3.2/3.2.md)
+  - [3.3. Módulo 3](./3/3.3/3.3.md)
+  - [3.4. Módulo 4](./3/3.4/3.4.md)
+  - [3.5. Módulo 5](./3/3.5/3.5.md)
