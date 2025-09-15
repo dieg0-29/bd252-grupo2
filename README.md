@@ -3,6 +3,7 @@
 ## Tabla de Contenido
 - [0. Acerca del Grupo](./0/0.md)
   - [0.0. Antecedentes: Proyecto del curso de Modelado / Diseño](./0/0.0/0.0.md)
+    - [0.0.1. Trabajo Final de MCD](./0/0.0/MCD_Trabajo_Final.pdf)
   - [0.1. Integrante 1](./0/0.1/0.1.md)
   - [0.2. Integrante 2](./0/0.2/0.2.md)
   - [0.3. Integrante 3](./0/0.3/0.3.md)
