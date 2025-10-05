@@ -1,0 +1,2421 @@
+{
+  "diagramType": 2,
+  "data": {
+    "nodes": [
+      {
+        "id": "62e95173-54ed-435e-852d-0fa01fd080a2",
+        "type": "Table",
+        "position": {
+          "x": 921.0926184351275,
+          "y": 1114.4469563164057
+        },
+        "data": {
+          "label": "CLIENTE",
+          "isConnectable": false,
+          "columns": [
+            {
+              "id": "37e09c67-4d97-433d-beb0-a17cb3218191",
+              "name": "cod_cliente",
+              "type": "INT",
+              "position": 0,
+              "isPrimaryKey": true,
+              "isOptional": false,
+              "isUnique": true
+            },
+            {
+              "id": "17bc10a8-69e5-4b80-b8a0-67d528ef8587",
+              "name": "fecha_registro_cliente",
+              "type": "INT",
+              "position": 0,
+              "isUnique": false,
+              "isPrimaryKey": false
+            },
+            {
+              "id": "fk_5d7a26c1-bf4d-435f-a7df-cabe8d86e577",
+              "name": "fk_PERSONA",
+              "type": "None",
+              "isForeignKey": true,
+              "foreignKeyProps": {
+                "foreignKeyGroupId": "895a25c9-ee61-468d-9d24-481406ae5a1b",
+                "sourceTableId": "3a349f0a-0506-4bad-a734-4103dbee2547",
+                "columns": [
+                  {
+                    "id": "fk_fa558ab3-b26a-40d1-8b79-24a48e2f37b5",
+                    "name": "cod_persona",
+                    "type": "INT"
+                  }
+                ]
+              },
+              "isUnique": true,
+              "isPrimaryKey": true,
+              "isOptional": false
+            }
+          ],
+          "numberOfGroups": 0,
+          "isSelected": false
+        },
+        "measured": {
+          "width": 240,
+          "height": 103
+        },
+        "selected": false,
+        "dragging": false
+      },
+      {
+        "id": "59f76331-03f1-418d-93e8-23970ec3ab9e",
+        "type": "Table",
+        "position": {
+          "x": -147.25379612189911,
+          "y": 741.323139094794
+        },
+        "data": {
+          "label": "CONTACTO",
+          "isConnectable": false,
+          "columns": [
+            {
+              "id": "b08583d5-19f2-4d88-a20a-773f8289a3ce",
+              "name": "cod_contacto",
+              "type": "INT",
+              "position": 0,
+              "isPrimaryKey": true,
+              "isOptional": false
+            },
+            {
+              "id": "1b196926-2afd-4a63-a1a7-926de109e0b3",
+              "name": "valor_contacto",
+              "type": "INT",
+              "position": 0
+            },
+            {
+              "id": "fk_f0069332-c3c4-4f33-bfee-9251575fad4f",
+              "name": "fk_TIPO_CONTACTO",
+              "type": "None",
+              "isForeignKey": true,
+              "foreignKeyProps": {
+                "foreignKeyGroupId": "7d520030-796d-443f-82d7-729ad5a2c037",
+                "sourceTableId": "f0dfb090-85a1-41c7-a581-8f8803d9ee3c",
+                "columns": [
+                  {
+                    "id": "fk_4908f3ff-1b0d-48bb-89a4-8859b57b2295",
+                    "name": "cod_tipo_contacto",
+                    "type": "INT"
+                  }
+                ]
+              }
+            }
+          ],
+          "numberOfGroups": 0,
+          "isSelected": false
+        },
+        "measured": {
+          "width": 240,
+          "height": 103
+        },
+        "selected": false,
+        "dragging": false
+      },
+      {
+        "id": "93e0127d-abe8-405f-bd93-a69700c873e2",
+        "type": "Table",
+        "position": {
+          "x": -126.78068556646106,
+          "y": 984.7614414344322
+        },
+        "data": {
+          "label": "DIRECCION",
+          "isConnectable": false,
+          "columns": [
+            {
+              "id": "68c3b26d-b635-4bfa-9deb-510030044f2f",
+              "name": "cod_direccion",
+              "type": "INT",
+              "position": 0,
+              "isPrimaryKey": true,
+              "isOptional": false
+            },
+            {
+              "id": "f0a4256e-5485-4c3d-a340-8fcd54fbbfef",
+              "name": "ciudad",
+              "type": "INT",
+              "position": 0
+            },
+            {
+              "id": "7ca215e3-b55e-4e67-897d-c677c6705296",
+              "name": "distrito",
+              "type": "INT",
+              "position": 0
+            },
+            {
+              "id": "751ed5d8-2b98-461f-9c45-efeb5f8b8cee",
+              "name": "via",
+              "type": "INT",
+              "position": 0
+            },
+            {
+              "id": "8e978f3b-2074-4e9a-a071-15cbf8eb9ad2",
+              "name": "numero",
+              "type": "INT",
+              "position": 0
+            }
+          ],
+          "numberOfGroups": 0,
+          "isSelected": false
+        },
+        "measured": {
+          "width": 240,
+          "height": 153
+        },
+        "selected": false,
+        "dragging": false
+      },
+      {
+        "id": "c7942885-f568-4c02-8b2f-3e0fd1ea98b5",
+        "type": "Table",
+        "position": {
+          "x": 193.04044036641767,
+          "y": 1072.3996563824478
+        },
+        "data": {
+          "label": "DOCUMENTO_PERSONA",
+          "isConnectable": false,
+          "columns": [
+            {
+              "id": "fk_244204b7-72fd-4816-ac68-5a4baaa83cdc",
+              "name": "fk_PERSONA",
+              "type": "None",
+              "isForeignKey": true,
+              "foreignKeyProps": {
+                "foreignKeyGroupId": "5486d02b-e319-45a7-a651-f3d363d0d621",
+                "sourceTableId": "3a349f0a-0506-4bad-a734-4103dbee2547",
+                "columns": [
+                  {
+                    "id": "fk_fa558ab3-b26a-40d1-8b79-24a48e2f37b5",
+                    "name": "cod_persona",
+                    "type": "INT"
+                  }
+                ]
+              },
+              "isPrimaryKey": true,
+              "isOptional": false
+            },
+            {
+              "id": "fc9a919c-766e-4591-ba0b-23b897658ace",
+              "name": "valor_documento",
+              "type": "INT",
+              "position": 0,
+              "isPrimaryKey": false
+            },
+            {
+              "id": "fk_d586f5a0-fed0-4658-bef0-b9c6498c66b4",
+              "name": "fk_TIPO_DOCUMENTO",
+              "type": "None",
+              "isForeignKey": true,
+              "foreignKeyProps": {
+                "foreignKeyGroupId": "5b59332b-56ad-4733-8bc7-003e0aa9ca40",
+                "sourceTableId": "dba7fdc2-e32b-496c-9d07-c71069c31424",
+                "columns": [
+                  {
+                    "id": "fk_2fb1af97-e292-48ad-a9db-215fc12b3034",
+                    "name": "cod_tipo_documento",
+                    "type": "INT"
+                  }
+                ]
+              },
+              "isPrimaryKey": true,
+              "isOptional": false
+            }
+          ],
+          "numberOfGroups": 0,
+          "isSelected": false
+        },
+        "measured": {
+          "width": 240,
+          "height": 103
+        },
+        "selected": false,
+        "dragging": false
+      },
+      {
+        "id": "aa35f177-deb7-4fd2-92ed-008b0475d280",
+        "type": "Table",
+        "position": {
+          "x": 194.829902571658,
+          "y": 978.3631552775144
+        },
+        "data": {
+          "label": "DIRECCION_PERSONA",
+          "isConnectable": false,
+          "columns": [
+            {
+              "id": "fk_992aea86-feea-42e6-a808-b2eb21c7fa76",
+              "name": "fk_DIRECCION",
+              "type": "None",
+              "isForeignKey": true,
+              "foreignKeyProps": {
+                "foreignKeyGroupId": "7b8a3d49-0646-466e-b821-1ab60ea2aabc",
+                "sourceTableId": "93e0127d-abe8-405f-bd93-a69700c873e2",
+                "columns": [
+                  {
+                    "id": "fk_68c3b26d-b635-4bfa-9deb-510030044f2f",
+                    "name": "cod_direccion",
+                    "type": "INT"
+                  }
+                ]
+              },
+              "isPrimaryKey": true,
+              "isOptional": false
+            },
+            {
+              "id": "fk_1763aba4-ecff-455b-af8b-b2acfb199d28",
+              "name": "fk_PERSONA",
+              "type": "None",
+              "isForeignKey": true,
+              "foreignKeyProps": {
+                "foreignKeyGroupId": "78f57c95-0168-4961-a5c4-5bf18d632bf9",
+                "sourceTableId": "3a349f0a-0506-4bad-a734-4103dbee2547",
+                "columns": [
+                  {
+                    "id": "fk_fa558ab3-b26a-40d1-8b79-24a48e2f37b5",
+                    "name": "cod_persona",
+                    "type": "INT"
+                  }
+                ]
+              },
+              "isPrimaryKey": true,
+              "isOptional": false
+            }
+          ],
+          "numberOfGroups": 0,
+          "isSelected": false
+        },
+        "measured": {
+          "width": 240,
+          "height": 79
+        },
+        "selected": false,
+        "dragging": false
+      },
+      {
+        "id": "c709b7d2-7b40-485d-b843-32168d0158d7",
+        "type": "Table",
+        "position": {
+          "x": 174.57795228141322,
+          "y": 721.2418187818184
+        },
+        "data": {
+          "label": "CONTACTO_PERSONA",
+          "isConnectable": false,
+          "columns": [
+            {
+              "id": "fk_ac00c0be-4556-48bd-a89c-7851ea1a8229",
+              "name": "fk_CONTACTO",
+              "type": "None",
+              "isForeignKey": true,
+              "foreignKeyProps": {
+                "foreignKeyGroupId": "c1ee1b69-977d-41d8-b296-5e0f9ea1d324",
+                "sourceTableId": "59f76331-03f1-418d-93e8-23970ec3ab9e",
+                "columns": [
+                  {
+                    "id": "fk_b08583d5-19f2-4d88-a20a-773f8289a3ce",
+                    "name": "cod_contacto",
+                    "type": "INT"
+                  }
+                ]
+              },
+              "isPrimaryKey": true,
+              "isOptional": false
+            },
+            {
+              "id": "fk_0efea448-de10-4d53-82e8-b83f759f3c56",
+              "name": "fk_PERSONA",
+              "type": "None",
+              "isForeignKey": true,
+              "foreignKeyProps": {
+                "foreignKeyGroupId": "01bc317b-4a9c-43c2-b296-2e30afe1d7d8",
+                "sourceTableId": "3a349f0a-0506-4bad-a734-4103dbee2547",
+                "columns": [
+                  {
+                    "id": "fk_fa558ab3-b26a-40d1-8b79-24a48e2f37b5",
+                    "name": "cod_persona",
+                    "type": "INT"
+                  }
+                ]
+              },
+              "isPrimaryKey": true,
+              "isOptional": false
+            }
+          ],
+          "numberOfGroups": 0,
+          "isSelected": false
+        },
+        "measured": {
+          "width": 240,
+          "height": 79
+        },
+        "selected": false,
+        "dragging": false
+      },
+      {
+        "id": "c20061ee-9458-4b62-8776-0aae1a81e5fb",
+        "type": "Table",
+        "position": {
+          "x": 1265.5772328163494,
+          "y": 1190.090081870065
+        },
+        "data": {
+          "label": "MAESTRO",
+          "isConnectable": false,
+          "columns": [
+            {
+              "id": "2fc02ca1-e3cc-4b41-a5b9-d8ef9fb6c552",
+              "name": "cod_maestro",
+              "type": "INT",
+              "position": 0,
+              "isPrimaryKey": true,
+              "isOptional": false
+            },
+            {
+              "id": "fk_97ade4b7-b2dd-46f3-a821-e58422d50eae",
+              "name": "fk_CLIENTE",
+              "type": "None",
+              "isForeignKey": true,
+              "foreignKeyProps": {
+                "foreignKeyGroupId": "7af6b3d7-76c8-4246-bc47-b2ab93bbeb15",
+                "sourceTableId": "62e95173-54ed-435e-852d-0fa01fd080a2",
+                "columns": [
+                  {
+                    "id": "fk_37e09c67-4d97-433d-beb0-a17cb3218191",
+                    "name": "cod_cliente",
+                    "type": "INT"
+                  },
+                  {
+                    "id": "fk_fk_fa558ab3-b26a-40d1-8b79-24a48e2f37b5",
+                    "name": "cod_persona",
+                    "type": "INT"
+                  }
+                ]
+              },
+              "isPrimaryKey": true,
+              "isOptional": false
+            },
+            {
+              "id": "a9039a52-dd61-43c5-bcb8-37621f8e842c",
+              "name": "ruc",
+              "type": "INT",
+              "position": 0
+            },
+            {
+              "id": "3fb9aaf0-f03c-4370-90c4-0a8812637c39",
+              "name": "puntos_maestro",
+              "type": "INT",
+              "position": 0
+            },
+            {
+              "id": "6e2d7bcb-c780-4626-a1ca-5cfeb98e2b5b",
+              "name": "fecha_registro_maestro",
+              "type": "INT",
+              "position": 0
+            },
+            {
+              "id": "fk_38b141cd-c9f2-4487-801c-80e523b9f84a",
+              "name": "fk_ESPECIALIDADES",
+              "type": "None",
+              "isForeignKey": true,
+              "foreignKeyProps": {
+                "foreignKeyGroupId": "2a04f9f9-daf1-4527-86d2-903e35036a58",
+                "sourceTableId": "1792f33f-e60b-46f0-aed2-16b95b8b9de0",
+                "columns": [
+                  {
+                    "id": "fk_05a511e1-bd6d-43f9-b4fd-f0920fd61f9e",
+                    "name": "cod_especialidad",
+                    "type": "VARCHAR(n)"
+                  }
+                ]
+              }
+            }
+          ],
+          "numberOfGroups": 0,
+          "isSelected": false,
+          "isFactTable": false
+        },
+        "measured": {
+          "width": 240,
+          "height": 196
+        },
+        "selected": false,
+        "dragging": false
+      },
+      {
+        "id": "1792f33f-e60b-46f0-aed2-16b95b8b9de0",
+        "type": "Table",
+        "position": {
+          "x": 931.9823674916015,
+          "y": 1293.5480831602263
+        },
+        "data": {
+          "label": "ESPECIALIDADES",
+          "isConnectable": false,
+          "columns": [
+            {
+              "id": "05a511e1-bd6d-43f9-b4fd-f0920fd61f9e",
+              "name": "cod_especialidad",
+              "type": "VARCHAR(n)",
+              "position": 0,
+              "isPrimaryKey": true,
+              "isOptional": false
+            },
+            {
+              "id": "a9217665-b5b4-4807-8614-e4c71aabf458",
+              "name": "valor_especialidad",
+              "type": "VARCHAR(n)",
+              "position": 0,
+              "isPrimaryKey": false
+            }
+          ],
+          "numberOfGroups": 0,
+          "isSelected": false
+        },
+        "measured": {
+          "width": 240,
+          "height": 77
+        },
+        "selected": false,
+        "dragging": false
+      },
+      {
+        "id": "1ab1fd52-7477-4ac6-8039-02dedfe8e6ab",
+        "type": "Table",
+        "position": {
+          "x": 1581.5300080158943,
+          "y": 897.8172593411624
+        },
+        "data": {
+          "label": "VENTA",
+          "isConnectable": false,
+          "columns": [
+            {
+              "id": "82ad8b20-9b22-4bd9-acd4-dab93846d1d7",
+              "name": "cod_venta",
+              "type": "INT",
+              "position": 0,
+              "isPrimaryKey": true,
+              "isOptional": false
+            },
+            {
+              "id": "79810fa7-3df1-49d3-8723-dfee2f19d5fc",
+              "name": "fecha_hora_venta",
+              "type": "INT",
+              "position": 0,
+              "isOptional": false
+            },
+            {
+              "id": "f95efa56-951e-448c-ba2d-437f22798f18",
+              "name": "igv",
+              "type": "INT",
+              "position": 0,
+              "isOptional": false
+            },
+            {
+              "id": "02c8c3f0-d70b-4459-968c-0f23b3f29f83",
+              "name": "monto_venta",
+              "type": "INT",
+              "position": 0,
+              "isOptional": false
+            },
+            {
+              "id": "7b6739b9-e2fe-4f60-a7a0-b736e0844e22",
+              "name": "puntos_venta",
+              "type": "INT",
+              "position": 0,
+              "isOptional": false
+            },
+            {
+              "id": "77dd7f8d-8fa7-4ade-93e1-4805b0c74b84",
+              "name": "cod_tipo_venta (FK)",
+              "type": "INT",
+              "position": 0,
+              "isOptional": false
+            },
+            {
+              "id": "12d7fc04-f30e-4c91-9b8b-c21d84eb78df",
+              "name": "cod_estado_venta (FK)",
+              "type": "INT",
+              "position": 0
+            },
+            {
+              "id": "e7113f64-f2e4-40e7-bf0e-9851a62088ed",
+              "name": "fecha_entrega",
+              "type": "INT",
+              "position": 0
+            },
+            {
+              "id": "fk_ea98f2d3-04ea-4527-b864-08a4a97b5ea6",
+              "name": "fk_CLIENTE",
+              "type": "None",
+              "isForeignKey": true,
+              "foreignKeyProps": {
+                "foreignKeyGroupId": "d8adcd8c-c014-4f15-b061-839902687b6f",
+                "sourceTableId": "62e95173-54ed-435e-852d-0fa01fd080a2",
+                "columns": [
+                  {
+                    "id": "fk_37e09c67-4d97-433d-beb0-a17cb3218191",
+                    "name": "cod_cliente",
+                    "type": "INT"
+                  },
+                  {
+                    "id": "fk_fk_fa558ab3-b26a-40d1-8b79-24a48e2f37b5",
+                    "name": "cod_persona",
+                    "type": "INT"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "fk_842a3e6b-b477-445d-a0f7-7dd675024fa0",
+              "name": "fk_USUARIO",
+              "type": "None",
+              "isForeignKey": true,
+              "foreignKeyProps": {
+                "foreignKeyGroupId": "763e44d5-a4cf-461b-a4f8-84c59479a09b",
+                "sourceTableId": "c57e6363-5df5-405c-ae37-2790de543db5",
+                "columns": [
+                  {
+                    "id": "fk_ade3eec2-a3c4-4d80-aad3-d7da30beccf2",
+                    "name": "cod_usuario",
+                    "type": "INT"
+                  },
+                  {
+                    "id": "fk_fk_fa558ab3-b26a-40d1-8b79-24a48e2f37b5",
+                    "name": "cod_persona",
+                    "type": "INT"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "fk_44228e78-2cb2-448f-9785-f3067387ce99",
+              "name": "fk_MAESTRO",
+              "type": "None",
+              "isForeignKey": true,
+              "foreignKeyProps": {
+                "foreignKeyGroupId": "190f7587-41c7-49df-8da6-c91240d7cc86",
+                "sourceTableId": "c20061ee-9458-4b62-8776-0aae1a81e5fb",
+                "columns": [
+                  {
+                    "id": "fk_2fc02ca1-e3cc-4b41-a5b9-d8ef9fb6c552",
+                    "name": "cod_maestro",
+                    "type": "INT"
+                  },
+                  {
+                    "id": "fk_fk_37e09c67-4d97-433d-beb0-a17cb3218191",
+                    "name": "cod_cliente",
+                    "type": "INT"
+                  },
+                  {
+                    "id": "fk_fk_fk_fa558ab3-b26a-40d1-8b79-24a48e2f37b5",
+                    "name": "cod_persona",
+                    "type": "INT"
+                  }
+                ]
+              }
+            }
+          ],
+          "numberOfGroups": 0,
+          "isSelected": false
+        },
+        "measured": {
+          "width": 240,
+          "height": 369
+        },
+        "selected": false,
+        "dragging": false
+      },
+      {
+        "id": "1fb56599-190c-491a-8773-5f9315d4c645",
+        "type": "Table",
+        "position": {
+          "x": 2561.3776252960747,
+          "y": 1121.9083670226025
+        },
+        "data": {
+          "label": "CATEGORIA",
+          "isConnectable": false,
+          "columns": [
+            {
+              "id": "49dd28db-bc3e-467d-abe4-9cda95791bb4",
+              "name": "cod_categoria",
+              "type": "INT",
+              "position": 0,
+              "isPrimaryKey": true,
+              "isOptional": false
+            },
+            {
+              "id": "ed7c525f-8ffc-43ad-b196-f7fac455c32a",
+              "name": "valor_categoria",
+              "type": "INT",
+              "position": 0
+            }
+          ],
+          "numberOfGroups": 0,
+          "isSelected": false
+        },
+        "measured": {
+          "width": 240,
+          "height": 77
+        },
+        "selected": false,
+        "dragging": false
+      },
+      {
+        "id": "606096b6-da08-47e0-819c-75d60251f4e8",
+        "type": "Table",
+        "position": {
+          "x": 1886.5198421442087,
+          "y": 1339.6904184822306
+        },
+        "data": {
+          "label": "CANJE",
+          "isConnectable": false,
+          "columns": [
+            {
+              "id": "a29c0431-f6f6-4fc9-b572-fb649d25cbf2",
+              "name": "cod_canje",
+              "type": "INT",
+              "position": 0,
+              "isPrimaryKey": true,
+              "isOptional": false
+            },
+            {
+              "id": "afeb3d2c-60e8-4e36-af13-4b0a708689d4",
+              "name": "fecha_hora_canje",
+              "type": "INT",
+              "position": 1
+            },
+            {
+              "id": "a8eb8c9e-46eb-4375-85d0-192ae355e5d6",
+              "name": "monto_canje",
+              "type": "INT",
+              "position": 2
+            },
+            {
+              "id": "a029e3e6-2ca3-45b1-898c-44238a676131",
+              "name": "fecha_entrega",
+              "type": "INT",
+              "position": 3
+            },
+            {
+              "id": "fk_b7b1df53-1f1f-44ec-96ae-86203c13ac67",
+              "name": "fk_USUARIO",
+              "type": "None",
+              "isForeignKey": true,
+              "foreignKeyProps": {
+                "foreignKeyGroupId": "ffbbbe21-808b-49af-bc9f-9b934c7aace5",
+                "sourceTableId": "c57e6363-5df5-405c-ae37-2790de543db5",
+                "columns": [
+                  {
+                    "id": "fk_ade3eec2-a3c4-4d80-aad3-d7da30beccf2",
+                    "name": "cod_usuario",
+                    "type": "INT"
+                  },
+                  {
+                    "id": "fk_fk_fa558ab3-b26a-40d1-8b79-24a48e2f37b5",
+                    "name": "cod_persona",
+                    "type": "INT"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "fk_7a870ed8-5f44-43cb-8cb6-cf8acde9f6ac",
+              "name": "fk_ESTADO_CANJE",
+              "type": "None",
+              "isForeignKey": true,
+              "foreignKeyProps": {
+                "foreignKeyGroupId": "04dce458-1b0b-416a-8e5f-2dc5142386c8",
+                "sourceTableId": "82413fff-8a46-45f2-8517-1a5ecb73ae89",
+                "columns": [
+                  {
+                    "id": "fk_61ac8ed0-e6c7-4dcb-a6eb-0c415d8ee550",
+                    "name": "cod_estado_canje",
+                    "type": "INT"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "fk_9d14d43f-4c7b-49c2-bfad-5fdea0d669a4",
+              "name": "fk_MAESTRO",
+              "type": "None",
+              "isForeignKey": true,
+              "foreignKeyProps": {
+                "foreignKeyGroupId": "c70bd5cf-76ba-48b6-8af8-d7596e1cb907",
+                "sourceTableId": "c20061ee-9458-4b62-8776-0aae1a81e5fb",
+                "columns": [
+                  {
+                    "id": "fk_2fc02ca1-e3cc-4b41-a5b9-d8ef9fb6c552",
+                    "name": "cod_maestro",
+                    "type": "INT"
+                  },
+                  {
+                    "id": "fk_fk_37e09c67-4d97-433d-beb0-a17cb3218191",
+                    "name": "cod_cliente",
+                    "type": "INT"
+                  },
+                  {
+                    "id": "fk_fk_fk_fa558ab3-b26a-40d1-8b79-24a48e2f37b5",
+                    "name": "cod_persona",
+                    "type": "INT"
+                  }
+                ]
+              }
+            }
+          ],
+          "numberOfGroups": 0,
+          "isSelected": false
+        },
+        "measured": {
+          "width": 240,
+          "height": 252
+        },
+        "selected": false,
+        "dragging": false
+      },
+      {
+        "id": "52b5a1f7-c303-441f-b356-f64c5752dab2",
+        "type": "Table",
+        "position": {
+          "x": 2498.9591340665706,
+          "y": 1366.1530198531311
+        },
+        "data": {
+          "label": "PREMIOS",
+          "isConnectable": false,
+          "columns": [
+            {
+              "id": "efb38a05-3bfc-4c1f-83f9-667e5b3a46aa",
+              "name": "cod_premio",
+              "type": "INT",
+              "position": 0,
+              "isPrimaryKey": true,
+              "isOptional": false
+            },
+            {
+              "id": "c080bcca-324a-488b-8c05-b4688a0b7177",
+              "name": "nombre_premio",
+              "type": "INT",
+              "position": 0
+            },
+            {
+              "id": "4a27319c-ff64-4a37-ae9a-188d0d6daa44",
+              "name": "descp_premio",
+              "type": "INT",
+              "position": 0
+            },
+            {
+              "id": "64a71035-6bc2-4993-b881-9be4f475c5c0",
+              "name": "puntos_premio",
+              "type": "INT",
+              "position": 0
+            },
+            {
+              "id": "36308909-4661-4e62-a555-1b31a4bbdeb9",
+              "name": "disponibilidad_premio",
+              "type": "INT",
+              "position": 0
+            }
+          ],
+          "numberOfGroups": 0,
+          "isSelected": false
+        },
+        "measured": {
+          "width": 240,
+          "height": 153
+        },
+        "selected": false,
+        "dragging": false
+      },
+      {
+        "id": "888a24ad-ea48-472e-a48b-e9911f2fcc0d",
+        "type": "Table",
+        "position": {
+          "x": 2192.2777900189208,
+          "y": 1340.7314851455337
+        },
+        "data": {
+          "label": "DETALLE_CANJE",
+          "isConnectable": false,
+          "columns": [
+            {
+              "id": "a0d73980-335b-4b1f-b7e6-50296afcfb58",
+              "name": "cantidad_premio",
+              "type": "INT",
+              "position": 0,
+              "isPrimaryKey": false
+            },
+            {
+              "id": "fk_6cdd3445-28b4-4ee9-a78a-85efccdfccad",
+              "name": "fk_CANJE",
+              "type": "None",
+              "isForeignKey": true,
+              "foreignKeyProps": {
+                "foreignKeyGroupId": "4dc75700-5b75-4e72-92ef-25fab90b84ed",
+                "sourceTableId": "606096b6-da08-47e0-819c-75d60251f4e8",
+                "columns": [
+                  {
+                    "id": "fk_a29c0431-f6f6-4fc9-b572-fb649d25cbf2",
+                    "name": "cod_canje",
+                    "type": "INT"
+                  }
+                ]
+              },
+              "isPrimaryKey": true,
+              "isOptional": false
+            },
+            {
+              "id": "fk_c8c285fa-19fb-47d5-9ca2-d931f996dcd1",
+              "name": "fk_PREMIOS",
+              "type": "None",
+              "isForeignKey": true,
+              "foreignKeyProps": {
+                "foreignKeyGroupId": "b98ae7d6-50e0-4280-812c-80b85d003c3d",
+                "sourceTableId": "52b5a1f7-c303-441f-b356-f64c5752dab2",
+                "columns": [
+                  {
+                    "id": "fk_efb38a05-3bfc-4c1f-83f9-667e5b3a46aa",
+                    "name": "cod_premio",
+                    "type": "INT"
+                  }
+                ]
+              },
+              "isPrimaryKey": true,
+              "isOptional": false
+            }
+          ],
+          "numberOfGroups": 0,
+          "isSelected": false
+        },
+        "measured": {
+          "width": 240,
+          "height": 103
+        },
+        "selected": false,
+        "dragging": false
+      },
+      {
+        "id": "02ed1b80-10cc-44f1-80c4-2cc0e23d8c46",
+        "type": "Table",
+        "position": {
+          "x": 2893.151698052832,
+          "y": 1340.2870879176055
+        },
+        "data": {
+          "label": "CATEGORIAS_PREMIO",
+          "isConnectable": false,
+          "columns": [
+            {
+              "id": "fk_8b069dad-55b8-4c55-ba37-83d579c562ca",
+              "name": "fk_CATEGORIA",
+              "type": "None",
+              "isForeignKey": true,
+              "foreignKeyProps": {
+                "foreignKeyGroupId": "0475c79c-05ca-4651-8fa9-52e7bd519ff3",
+                "sourceTableId": "1fb56599-190c-491a-8773-5f9315d4c645",
+                "columns": [
+                  {
+                    "id": "fk_49dd28db-bc3e-467d-abe4-9cda95791bb4",
+                    "name": "cod_categoria",
+                    "type": "INT"
+                  }
+                ]
+              },
+              "isPrimaryKey": true,
+              "isOptional": false
+            },
+            {
+              "id": "fk_54ddeeca-c8c7-4913-a1a1-eb8fcb2df5bf",
+              "name": "fk_PREMIOS",
+              "type": "None",
+              "isForeignKey": true,
+              "foreignKeyProps": {
+                "foreignKeyGroupId": "4774352d-e6e1-48d7-b2f6-9738fc51a953",
+                "sourceTableId": "52b5a1f7-c303-441f-b356-f64c5752dab2",
+                "columns": [
+                  {
+                    "id": "fk_efb38a05-3bfc-4c1f-83f9-667e5b3a46aa",
+                    "name": "cod_premio",
+                    "type": "INT"
+                  }
+                ]
+              },
+              "isPrimaryKey": true,
+              "isOptional": false
+            }
+          ],
+          "numberOfGroups": 0,
+          "isSelected": false
+        },
+        "measured": {
+          "width": 240,
+          "height": 79
+        },
+        "selected": false,
+        "dragging": false
+      },
+      {
+        "id": "3a349f0a-0506-4bad-a734-4103dbee2547",
+        "type": "Table",
+        "position": {
+          "x": 600.6703192851643,
+          "y": 1014.8111094899987
+        },
+        "data": {
+          "label": "PERSONA",
+          "isConnectable": false,
+          "columns": [
+            {
+              "id": "fa558ab3-b26a-40d1-8b79-24a48e2f37b5",
+              "name": "cod_persona",
+              "type": "INT",
+              "position": 0,
+              "isPrimaryKey": true,
+              "isOptional": false
+            },
+            {
+              "id": "25d0509a-0a28-4ec6-adb3-4a9f54fd6abd",
+              "name": "fecha_registro_persona",
+              "type": "INT",
+              "position": 0
+            },
+            {
+              "id": "977055f8-28a3-4f3d-86e8-e1716c452972",
+              "name": "nombre_persona",
+              "type": "INT",
+              "position": 0
+            },
+            {
+              "id": "fk_12e283fa-3d6d-4163-afae-800dba0d619b",
+              "name": "fk_TIPO_PERSONA",
+              "type": "None",
+              "isForeignKey": true,
+              "foreignKeyProps": {
+                "foreignKeyGroupId": "312f8180-e291-4fa2-affd-30114f168631",
+                "sourceTableId": "2df5afcc-ee1a-4bda-a705-bd22217c54ec",
+                "columns": [
+                  {
+                    "id": "fk_98943941-0376-4d6c-bb93-aae0f2a454e4",
+                    "name": "cod_tipo_persona",
+                    "type": "INT"
+                  }
+                ]
+              }
+            }
+          ],
+          "numberOfGroups": 0,
+          "isSelected": false
+        },
+        "measured": {
+          "width": 240,
+          "height": 129
+        },
+        "selected": false,
+        "dragging": false
+      },
+      {
+        "id": "c57e6363-5df5-405c-ae37-2790de543db5",
+        "type": "Table",
+        "position": {
+          "x": 928.8368922575692,
+          "y": 1506.9092600749273
+        },
+        "data": {
+          "label": "USUARIO",
+          "isConnectable": false,
+          "columns": [
+            {
+              "id": "ade3eec2-a3c4-4d80-aad3-d7da30beccf2",
+              "name": "cod_usuario",
+              "type": "INT",
+              "position": 0,
+              "isPrimaryKey": true,
+              "isOptional": false,
+              "isUnique": true
+            },
+            {
+              "id": "3cf8a289-d888-4301-a084-6496aa533467",
+              "name": "fecha_registro_usuario",
+              "type": "INT",
+              "position": 0,
+              "isPrimaryKey": false,
+              "isUnique": false
+            },
+            {
+              "id": "fk_d3e3bc8a-37b1-467e-9b4e-a2a68c3ff408",
+              "name": "fk_TIPO_USUARIO",
+              "type": "None",
+              "isForeignKey": true,
+              "foreignKeyProps": {
+                "foreignKeyGroupId": "c5686214-c115-491e-93d2-f069eef3ecd1",
+                "sourceTableId": "6ba99bea-5736-407d-b2e2-91c74dd07e99",
+                "columns": [
+                  {
+                    "id": "fk_285d4b0b-8ebf-472f-ba1f-43d5350b3863",
+                    "name": "cod_tipo_usuario",
+                    "type": "INT"
+                  }
+                ]
+              },
+              "isPrimaryKey": false,
+              "isUnique": false
+            },
+            {
+              "id": "fk_4b3a74ed-e492-44d2-b228-79a7c7d2acab",
+              "name": "fk_PERSONA",
+              "type": "None",
+              "isForeignKey": true,
+              "foreignKeyProps": {
+                "foreignKeyGroupId": "2f3fa6c9-e057-404c-abd0-3a0018ac6db9",
+                "sourceTableId": "3a349f0a-0506-4bad-a734-4103dbee2547",
+                "columns": [
+                  {
+                    "id": "fk_fa558ab3-b26a-40d1-8b79-24a48e2f37b5",
+                    "name": "cod_persona",
+                    "type": "INT"
+                  }
+                ]
+              },
+              "isPrimaryKey": true,
+              "isOptional": false,
+              "isUnique": true
+            }
+          ],
+          "numberOfGroups": 0,
+          "isSelected": false
+        },
+        "measured": {
+          "width": 240,
+          "height": 130
+        },
+        "selected": false,
+        "dragging": false
+      },
+      {
+        "id": "6ba99bea-5736-407d-b2e2-91c74dd07e99",
+        "type": "Table",
+        "position": {
+          "x": 1275.3998215923177,
+          "y": 1585.0358470027122
+        },
+        "data": {
+          "label": "TIPO_USUARIO",
+          "isConnectable": false,
+          "columns": [
+            {
+              "id": "285d4b0b-8ebf-472f-ba1f-43d5350b3863",
+              "name": "cod_tipo_usuario",
+              "type": "INT",
+              "position": 0,
+              "isPrimaryKey": true,
+              "isOptional": false
+            },
+            {
+              "id": "2915a5cc-1c25-4aa7-9fff-131b80c4a457",
+              "name": "valor_tipo_usuario",
+              "type": "INT",
+              "position": 0,
+              "isPrimaryKey": false
+            }
+          ],
+          "numberOfGroups": 0,
+          "isSelected": false
+        },
+        "measured": {
+          "width": 240,
+          "height": 77
+        },
+        "selected": false,
+        "dragging": false
+      },
+      {
+        "id": "82413fff-8a46-45f2-8517-1a5ecb73ae89",
+        "type": "Table",
+        "position": {
+          "x": 1582.992736516763,
+          "y": 1473.8291146223976
+        },
+        "data": {
+          "label": "ESTADO_CANJE",
+          "isConnectable": false,
+          "columns": [
+            {
+              "id": "61ac8ed0-e6c7-4dcb-a6eb-0c415d8ee550",
+              "name": "cod_estado_canje",
+              "type": "INT",
+              "position": 0,
+              "isPrimaryKey": true,
+              "isOptional": false,
+              "isUnique": false
+            },
+            {
+              "id": "8150d4bf-8f84-4c85-a458-bac5576a3a29",
+              "name": "valor_estado_canje",
+              "type": "INT",
+              "position": 0,
+              "isPrimaryKey": false,
+              "isUnique": false
+            }
+          ],
+          "numberOfGroups": 0,
+          "isSelected": false
+        },
+        "measured": {
+          "width": 240,
+          "height": 77
+        },
+        "selected": false,
+        "dragging": false
+      },
+      {
+        "id": "8401f398-c881-48d3-b5d2-63919897947d",
+        "type": "Table",
+        "position": {
+          "x": 2571.258346064693,
+          "y": 1671.582954793468
+        },
+        "data": {
+          "label": "REPORTE",
+          "isConnectable": false,
+          "columns": [
+            {
+              "id": "7890f3f7-16bf-4d7b-b5f8-c7547af11293",
+              "name": "cod_reporte",
+              "type": "INT",
+              "position": 0,
+              "isPrimaryKey": true,
+              "isOptional": false
+            },
+            {
+              "id": "d6f5d85d-b627-4548-b727-783be4d570c8",
+              "name": "fecha_creacion_reporte",
+              "type": "INT",
+              "position": 0
+            },
+            {
+              "id": "d097d636-0042-41f2-9025-9f360f4123f3",
+              "name": "periodo_reporte",
+              "type": "INT",
+              "position": 0
+            }
+          ],
+          "numberOfGroups": 0,
+          "isSelected": false
+        },
+        "measured": {
+          "width": 240,
+          "height": 102
+        },
+        "selected": false,
+        "dragging": false
+      },
+      {
+        "id": "d8e5a214-12c8-4512-91e7-8fe58cbcc3bb",
+        "type": "Table",
+        "position": {
+          "x": 2238.367618472627,
+          "y": 1553.7182745517114
+        },
+        "data": {
+          "label": "CANJE_CONSULTADO",
+          "isConnectable": false,
+          "columns": [
+            {
+              "id": "fk_dd6e93d8-fad2-4525-90ac-f02f448eb687",
+              "name": "fk_REPORTE",
+              "type": "None",
+              "isForeignKey": true,
+              "foreignKeyProps": {
+                "foreignKeyGroupId": "bad56d71-fc9b-4d70-bb18-8f64ca4bf126",
+                "sourceTableId": "8401f398-c881-48d3-b5d2-63919897947d",
+                "columns": [
+                  {
+                    "id": "fk_7890f3f7-16bf-4d7b-b5f8-c7547af11293",
+                    "name": "cod_reporte",
+                    "type": "INT"
+                  }
+                ]
+              },
+              "isPrimaryKey": true,
+              "isOptional": false
+            },
+            {
+              "id": "fk_ef856efe-d0b0-4634-8df4-6ec2bf2d7345",
+              "name": "fk_CANJE",
+              "type": "None",
+              "isForeignKey": true,
+              "foreignKeyProps": {
+                "foreignKeyGroupId": "abffc1d3-56a5-434f-90b4-53fbddc6916f",
+                "sourceTableId": "606096b6-da08-47e0-819c-75d60251f4e8",
+                "columns": [
+                  {
+                    "id": "fk_a29c0431-f6f6-4fc9-b572-fb649d25cbf2",
+                    "name": "cod_canje",
+                    "type": "INT"
+                  }
+                ]
+              },
+              "isPrimaryKey": true,
+              "isOptional": false
+            }
+          ],
+          "numberOfGroups": 0,
+          "isSelected": false
+        },
+        "measured": {
+          "width": 240,
+          "height": 79
+        },
+        "selected": false,
+        "dragging": false
+      },
+      {
+        "id": "69242907-a9eb-4f53-805b-c24b5ef8c3a3",
+        "type": "Table",
+        "position": {
+          "x": 1356.7579493371709,
+          "y": 1865.0507607172624
+        },
+        "data": {
+          "label": "CLIENTE_CONSULTADO",
+          "isConnectable": false,
+          "columns": [
+            {
+              "id": "fk_599c79a9-d682-4098-91bb-0904910c7bc6",
+              "name": "fk_REPORTE",
+              "type": "None",
+              "isForeignKey": true,
+              "foreignKeyProps": {
+                "foreignKeyGroupId": "54152f03-e370-4023-ac78-a05d9460199d",
+                "sourceTableId": "8401f398-c881-48d3-b5d2-63919897947d",
+                "columns": [
+                  {
+                    "id": "fk_7890f3f7-16bf-4d7b-b5f8-c7547af11293",
+                    "name": "cod_reporte",
+                    "type": "INT"
+                  }
+                ]
+              },
+              "isPrimaryKey": true,
+              "isOptional": false
+            },
+            {
+              "id": "fk_7a8e2526-9ea4-4cf9-8404-e3a81983ff3b",
+              "name": "fk_CLIENTE",
+              "type": "None",
+              "isForeignKey": true,
+              "foreignKeyProps": {
+                "foreignKeyGroupId": "5a75fa06-4530-4159-b3de-96803ded3a2d",
+                "sourceTableId": "62e95173-54ed-435e-852d-0fa01fd080a2",
+                "columns": [
+                  {
+                    "id": "fk_37e09c67-4d97-433d-beb0-a17cb3218191",
+                    "name": "cod_cliente",
+                    "type": "INT"
+                  },
+                  {
+                    "id": "fk_fk_fa558ab3-b26a-40d1-8b79-24a48e2f37b5",
+                    "name": "cod_persona",
+                    "type": "INT"
+                  }
+                ]
+              },
+              "isPrimaryKey": true,
+              "isOptional": false
+            }
+          ],
+          "numberOfGroups": 0,
+          "isSelected": false
+        },
+        "measured": {
+          "width": 240,
+          "height": 95
+        },
+        "selected": false,
+        "dragging": false
+      },
+      {
+        "id": "6ade57fc-f029-43f4-bb25-f0f180dc1d53",
+        "type": "Table",
+        "position": {
+          "x": 1830.8048345677282,
+          "y": 1682.035132307076
+        },
+        "data": {
+          "label": "MAESTRO_CONSULTADO",
+          "isConnectable": false,
+          "columns": [
+            {
+              "id": "fk_21782816-219d-4d0d-9e93-4cc297f192c1",
+              "name": "fk_REPORTE",
+              "type": "None",
+              "isForeignKey": true,
+              "foreignKeyProps": {
+                "foreignKeyGroupId": "8ee18ffc-7a81-4e00-99ab-f203babb08c3",
+                "sourceTableId": "8401f398-c881-48d3-b5d2-63919897947d",
+                "columns": [
+                  {
+                    "id": "fk_7890f3f7-16bf-4d7b-b5f8-c7547af11293",
+                    "name": "cod_reporte",
+                    "type": "INT"
+                  }
+                ]
+              },
+              "isPrimaryKey": true,
+              "isOptional": false
+            },
+            {
+              "id": "fk_a3576046-62fa-41ed-a2de-1b6b79a3df6a",
+              "name": "fk_MAESTRO",
+              "type": "None",
+              "isForeignKey": true,
+              "foreignKeyProps": {
+                "foreignKeyGroupId": "25ecc22b-7d85-4f59-943e-d12f236f133a",
+                "sourceTableId": "c20061ee-9458-4b62-8776-0aae1a81e5fb",
+                "columns": [
+                  {
+                    "id": "fk_2fc02ca1-e3cc-4b41-a5b9-d8ef9fb6c552",
+                    "name": "cod_maestro",
+                    "type": "INT"
+                  },
+                  {
+                    "id": "fk_fk_37e09c67-4d97-433d-beb0-a17cb3218191",
+                    "name": "cod_cliente",
+                    "type": "INT"
+                  },
+                  {
+                    "id": "fk_fk_fk_fa558ab3-b26a-40d1-8b79-24a48e2f37b5",
+                    "name": "cod_persona",
+                    "type": "INT"
+                  }
+                ]
+              },
+              "isPrimaryKey": true,
+              "isOptional": false
+            }
+          ],
+          "numberOfGroups": 0,
+          "isSelected": false
+        },
+        "measured": {
+          "width": 240,
+          "height": 111
+        },
+        "selected": false,
+        "dragging": false
+      },
+      {
+        "id": "a1697a0f-2ce2-466a-bb87-fa7089bead56",
+        "type": "Table",
+        "position": {
+          "x": 1830.7258484290824,
+          "y": 1932.6186256182632
+        },
+        "data": {
+          "label": "INDICADOR",
+          "isConnectable": false,
+          "columns": [
+            {
+              "id": "24e3b98f-cb85-4dff-96be-c7c843cc66ba",
+              "name": "cod_indicador",
+              "type": "INT",
+              "position": 0,
+              "isPrimaryKey": true,
+              "isOptional": false
+            },
+            {
+              "id": "a5d31228-c1d4-4994-b610-705ccd3c155d",
+              "name": "valor_indicador",
+              "type": "INT",
+              "position": 0,
+              "isPrimaryKey": false
+            }
+          ],
+          "numberOfGroups": 0,
+          "isSelected": false
+        },
+        "measured": {
+          "width": 240,
+          "height": 77
+        },
+        "selected": false,
+        "dragging": false
+      },
+      {
+        "id": "dba7fdc2-e32b-496c-9d07-c71069c31424",
+        "type": "Table",
+        "position": {
+          "x": -123.54376289768302,
+          "y": 1151.8709981044235
+        },
+        "data": {
+          "label": "TIPO_DOCUMENTO",
+          "isConnectable": false,
+          "columns": [
+            {
+              "id": "2fb1af97-e292-48ad-a9db-215fc12b3034",
+              "name": "cod_tipo_documento",
+              "type": "INT",
+              "position": 0,
+              "isPrimaryKey": true,
+              "isOptional": false
+            },
+            {
+              "id": "f1bcef56-b0a7-4fbb-bd32-07c671e3ad86",
+              "name": "valor_tipo_documento",
+              "type": "INT",
+              "position": 0,
+              "isPrimaryKey": false
+            }
+          ],
+          "numberOfGroups": 0,
+          "isSelected": false
+        },
+        "measured": {
+          "width": 240,
+          "height": 77
+        },
+        "selected": false,
+        "dragging": false
+      },
+      {
+        "id": "f0dfb090-85a1-41c7-a581-8f8803d9ee3c",
+        "type": "Table",
+        "position": {
+          "x": 188.1631816810043,
+          "y": 836.7011899481698
+        },
+        "data": {
+          "label": "TIPO_CONTACTO",
+          "isConnectable": false,
+          "columns": [
+            {
+              "id": "4908f3ff-1b0d-48bb-89a4-8859b57b2295",
+              "name": "cod_tipo_contacto",
+              "type": "INT",
+              "position": 0,
+              "isPrimaryKey": true,
+              "isOptional": false
+            },
+            {
+              "id": "47bb1488-de77-4fd1-9252-0b451dedc622",
+              "name": "valor_tipo_contacto",
+              "type": "INT",
+              "position": 0,
+              "isPrimaryKey": false
+            },
+            {
+              "id": "323a9cfe-65d4-4ff6-b5f5-88f56dcfd6eb",
+              "name": "descripcion_tipo_contacto",
+              "type": "INT",
+              "position": 0
+            }
+          ],
+          "numberOfGroups": 0,
+          "isSelected": false
+        },
+        "measured": {
+          "width": 240,
+          "height": 118
+        },
+        "selected": false,
+        "dragging": false
+      },
+      {
+        "id": "ad243dc4-f3b9-4b8a-aefc-72b6538edf80",
+        "type": "Table",
+        "position": {
+          "x": 2242.2585446243706,
+          "y": 1858.8413745783828
+        },
+        "data": {
+          "label": "INDICADORES_REPORTE",
+          "isConnectable": false,
+          "columns": [
+            {
+              "id": "fk_1cf70a39-33e9-454e-9e40-b4ce0f126e64",
+              "name": "fk_INDICADOR",
+              "type": "None",
+              "isForeignKey": true,
+              "foreignKeyProps": {
+                "foreignKeyGroupId": "c080a677-4761-41a7-b91b-970d02037c16",
+                "sourceTableId": "a1697a0f-2ce2-466a-bb87-fa7089bead56",
+                "columns": [
+                  {
+                    "id": "fk_24e3b98f-cb85-4dff-96be-c7c843cc66ba",
+                    "name": "cod_indicador",
+                    "type": "INT"
+                  }
+                ]
+              },
+              "isPrimaryKey": true,
+              "isOptional": false
+            },
+            {
+              "id": "fk_f2ea1d98-8663-4b93-94aa-a8530e639307",
+              "name": "fk_REPORTE",
+              "type": "None",
+              "isForeignKey": true,
+              "foreignKeyProps": {
+                "foreignKeyGroupId": "e62a0931-0fab-4317-b377-3a5197b0545d",
+                "sourceTableId": "8401f398-c881-48d3-b5d2-63919897947d",
+                "columns": [
+                  {
+                    "id": "fk_7890f3f7-16bf-4d7b-b5f8-c7547af11293",
+                    "name": "cod_reporte",
+                    "type": "INT"
+                  }
+                ]
+              },
+              "isPrimaryKey": true,
+              "isOptional": false
+            }
+          ],
+          "numberOfGroups": 0,
+          "isSelected": false
+        },
+        "measured": {
+          "width": 240,
+          "height": 79
+        },
+        "selected": false,
+        "dragging": false
+      },
+      {
+        "id": "2df5afcc-ee1a-4bda-a705-bd22217c54ec",
+        "type": "Table",
+        "position": {
+          "x": 610,
+          "y": 1175
+        },
+        "data": {
+          "label": "TIPO_PERSONA",
+          "isConnectable": false,
+          "columns": [
+            {
+              "id": "98943941-0376-4d6c-bb93-aae0f2a454e4",
+              "name": "cod_tipo_persona",
+              "type": "INT",
+              "position": 0,
+              "isPrimaryKey": true,
+              "isOptional": false
+            },
+            {
+              "id": "05aae578-c7ee-458d-b73c-e9f61076331a",
+              "name": "valor_tipo_persona",
+              "type": "INT",
+              "position": 0,
+              "isPrimaryKey": false
+            }
+          ],
+          "numberOfGroups": 0,
+          "isSelected": false
+        },
+        "measured": {
+          "width": 240,
+          "height": 77
+        },
+        "selected": false
+      }
+    ],
+    "edges": [
+      {
+        "id": "59f76331-03f1-418d-93e8-23970ec3ab9e->c709b7d2-7b40-485d-b843-32168d0158d7_c1ee1b69-977d-41d8-b296-5e0f9ea1d324",
+        "type": "Relational",
+        "source": "59f76331-03f1-418d-93e8-23970ec3ab9e",
+        "targetHandle": "foreign-key-handle-c1ee1b69-977d-41d8-b296-5e0f9ea1d324",
+        "target": "c709b7d2-7b40-485d-b843-32168d0158d7",
+        "markerStart": {
+          "type": "arrow"
+        },
+        "data": {
+          "foreignKeyProps": {
+            "foreignKeyGroupId": "c1ee1b69-977d-41d8-b296-5e0f9ea1d324",
+            "sourceTableId": "59f76331-03f1-418d-93e8-23970ec3ab9e",
+            "columns": [
+              {
+                "id": "fk_b08583d5-19f2-4d88-a20a-773f8289a3ce",
+                "name": "ID_CONTACTO",
+                "type": "INT"
+              }
+            ]
+          }
+        },
+        "selected": false
+      },
+      {
+        "id": "93e0127d-abe8-405f-bd93-a69700c873e2->aa35f177-deb7-4fd2-92ed-008b0475d280_7b8a3d49-0646-466e-b821-1ab60ea2aabc",
+        "type": "Relational",
+        "source": "93e0127d-abe8-405f-bd93-a69700c873e2",
+        "targetHandle": "foreign-key-handle-7b8a3d49-0646-466e-b821-1ab60ea2aabc",
+        "target": "aa35f177-deb7-4fd2-92ed-008b0475d280",
+        "markerStart": {
+          "type": "arrow"
+        },
+        "data": {
+          "foreignKeyProps": {
+            "foreignKeyGroupId": "7b8a3d49-0646-466e-b821-1ab60ea2aabc",
+            "sourceTableId": "93e0127d-abe8-405f-bd93-a69700c873e2",
+            "columns": [
+              {
+                "id": "fk_68c3b26d-b635-4bfa-9deb-510030044f2f",
+                "name": "ID_DIRECCION",
+                "type": "INT"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "3a349f0a-0506-4bad-a734-4103dbee2547->c709b7d2-7b40-485d-b843-32168d0158d7_01bc317b-4a9c-43c2-b296-2e30afe1d7d8",
+        "type": "Relational",
+        "source": "3a349f0a-0506-4bad-a734-4103dbee2547",
+        "targetHandle": "foreign-key-handle-01bc317b-4a9c-43c2-b296-2e30afe1d7d8",
+        "target": "c709b7d2-7b40-485d-b843-32168d0158d7",
+        "markerStart": {
+          "type": "arrow"
+        },
+        "data": {
+          "foreignKeyProps": {
+            "foreignKeyGroupId": "01bc317b-4a9c-43c2-b296-2e30afe1d7d8",
+            "sourceTableId": "3a349f0a-0506-4bad-a734-4103dbee2547",
+            "columns": [
+              {
+                "id": "fk_fa558ab3-b26a-40d1-8b79-24a48e2f37b5",
+                "name": "ID_PERSONA",
+                "type": "INT"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "3a349f0a-0506-4bad-a734-4103dbee2547->aa35f177-deb7-4fd2-92ed-008b0475d280_78f57c95-0168-4961-a5c4-5bf18d632bf9",
+        "type": "Relational",
+        "source": "3a349f0a-0506-4bad-a734-4103dbee2547",
+        "targetHandle": "foreign-key-handle-78f57c95-0168-4961-a5c4-5bf18d632bf9",
+        "target": "aa35f177-deb7-4fd2-92ed-008b0475d280",
+        "markerStart": {
+          "type": "arrow"
+        },
+        "data": {
+          "foreignKeyProps": {
+            "foreignKeyGroupId": "78f57c95-0168-4961-a5c4-5bf18d632bf9",
+            "sourceTableId": "3a349f0a-0506-4bad-a734-4103dbee2547",
+            "columns": [
+              {
+                "id": "fk_fa558ab3-b26a-40d1-8b79-24a48e2f37b5",
+                "name": "ID_PERSONA",
+                "type": "INT"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "3a349f0a-0506-4bad-a734-4103dbee2547->c7942885-f568-4c02-8b2f-3e0fd1ea98b5_5486d02b-e319-45a7-a651-f3d363d0d621",
+        "type": "Relational",
+        "source": "3a349f0a-0506-4bad-a734-4103dbee2547",
+        "targetHandle": "foreign-key-handle-5486d02b-e319-45a7-a651-f3d363d0d621",
+        "target": "c7942885-f568-4c02-8b2f-3e0fd1ea98b5",
+        "markerStart": {
+          "type": "arrow"
+        },
+        "data": {
+          "foreignKeyProps": {
+            "foreignKeyGroupId": "5486d02b-e319-45a7-a651-f3d363d0d621",
+            "sourceTableId": "3a349f0a-0506-4bad-a734-4103dbee2547",
+            "columns": [
+              {
+                "id": "fk_fa558ab3-b26a-40d1-8b79-24a48e2f37b5",
+                "name": "ID_PERSONA",
+                "type": "INT"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "3a349f0a-0506-4bad-a734-4103dbee2547->62e95173-54ed-435e-852d-0fa01fd080a2_895a25c9-ee61-468d-9d24-481406ae5a1b",
+        "type": "Relational",
+        "source": "3a349f0a-0506-4bad-a734-4103dbee2547",
+        "targetHandle": "foreign-key-handle-895a25c9-ee61-468d-9d24-481406ae5a1b",
+        "target": "62e95173-54ed-435e-852d-0fa01fd080a2",
+        "markerStart": {
+          "type": "arrow"
+        },
+        "data": {
+          "foreignKeyProps": {
+            "foreignKeyGroupId": "895a25c9-ee61-468d-9d24-481406ae5a1b",
+            "sourceTableId": "3a349f0a-0506-4bad-a734-4103dbee2547",
+            "columns": [
+              {
+                "id": "fk_fa558ab3-b26a-40d1-8b79-24a48e2f37b5",
+                "name": "ID_PERSONA",
+                "type": "INT"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "6ba99bea-5736-407d-b2e2-91c74dd07e99->c57e6363-5df5-405c-ae37-2790de543db5_c5686214-c115-491e-93d2-f069eef3ecd1",
+        "type": "Relational",
+        "source": "6ba99bea-5736-407d-b2e2-91c74dd07e99",
+        "targetHandle": "foreign-key-handle-c5686214-c115-491e-93d2-f069eef3ecd1",
+        "target": "c57e6363-5df5-405c-ae37-2790de543db5",
+        "markerStart": {
+          "type": "arrow"
+        },
+        "data": {
+          "foreignKeyProps": {
+            "foreignKeyGroupId": "c5686214-c115-491e-93d2-f069eef3ecd1",
+            "sourceTableId": "6ba99bea-5736-407d-b2e2-91c74dd07e99",
+            "columns": [
+              {
+                "id": "fk_285d4b0b-8ebf-472f-ba1f-43d5350b3863",
+                "name": "ID_TIPO_USUARIO",
+                "type": "INT"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "3a349f0a-0506-4bad-a734-4103dbee2547->c57e6363-5df5-405c-ae37-2790de543db5_2f3fa6c9-e057-404c-abd0-3a0018ac6db9",
+        "type": "Relational",
+        "source": "3a349f0a-0506-4bad-a734-4103dbee2547",
+        "targetHandle": "foreign-key-handle-2f3fa6c9-e057-404c-abd0-3a0018ac6db9",
+        "target": "c57e6363-5df5-405c-ae37-2790de543db5",
+        "markerStart": {
+          "type": "arrow"
+        },
+        "data": {
+          "foreignKeyProps": {
+            "foreignKeyGroupId": "2f3fa6c9-e057-404c-abd0-3a0018ac6db9",
+            "sourceTableId": "3a349f0a-0506-4bad-a734-4103dbee2547",
+            "columns": [
+              {
+                "id": "fk_fa558ab3-b26a-40d1-8b79-24a48e2f37b5",
+                "name": "ID_PERSONA",
+                "type": "INT"
+              }
+            ]
+          }
+        },
+        "selected": false
+      },
+      {
+        "id": "f0dfb090-85a1-41c7-a581-8f8803d9ee3c->59f76331-03f1-418d-93e8-23970ec3ab9e_7d520030-796d-443f-82d7-729ad5a2c037",
+        "type": "Relational",
+        "source": "f0dfb090-85a1-41c7-a581-8f8803d9ee3c",
+        "targetHandle": "foreign-key-handle-7d520030-796d-443f-82d7-729ad5a2c037",
+        "target": "59f76331-03f1-418d-93e8-23970ec3ab9e",
+        "markerStart": {
+          "type": "arrow"
+        },
+        "data": {
+          "foreignKeyProps": {
+            "foreignKeyGroupId": "7d520030-796d-443f-82d7-729ad5a2c037",
+            "sourceTableId": "f0dfb090-85a1-41c7-a581-8f8803d9ee3c",
+            "columns": [
+              {
+                "id": "fk_4908f3ff-1b0d-48bb-89a4-8859b57b2295",
+                "name": "ID_TIPO_CONTACTO",
+                "type": "INT"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "dba7fdc2-e32b-496c-9d07-c71069c31424->c7942885-f568-4c02-8b2f-3e0fd1ea98b5_5b59332b-56ad-4733-8bc7-003e0aa9ca40",
+        "type": "Relational",
+        "source": "dba7fdc2-e32b-496c-9d07-c71069c31424",
+        "targetHandle": "foreign-key-handle-5b59332b-56ad-4733-8bc7-003e0aa9ca40",
+        "target": "c7942885-f568-4c02-8b2f-3e0fd1ea98b5",
+        "markerStart": {
+          "type": "arrow"
+        },
+        "data": {
+          "foreignKeyProps": {
+            "foreignKeyGroupId": "5b59332b-56ad-4733-8bc7-003e0aa9ca40",
+            "sourceTableId": "dba7fdc2-e32b-496c-9d07-c71069c31424",
+            "columns": [
+              {
+                "id": "fk_2fb1af97-e292-48ad-a9db-215fc12b3034",
+                "name": "cod_tipo_documento",
+                "type": "INT"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "62e95173-54ed-435e-852d-0fa01fd080a2->c20061ee-9458-4b62-8776-0aae1a81e5fb_7af6b3d7-76c8-4246-bc47-b2ab93bbeb15",
+        "type": "Relational",
+        "source": "62e95173-54ed-435e-852d-0fa01fd080a2",
+        "targetHandle": "foreign-key-handle-7af6b3d7-76c8-4246-bc47-b2ab93bbeb15",
+        "target": "c20061ee-9458-4b62-8776-0aae1a81e5fb",
+        "markerStart": {
+          "type": "arrow"
+        },
+        "data": {
+          "foreignKeyProps": {
+            "foreignKeyGroupId": "7af6b3d7-76c8-4246-bc47-b2ab93bbeb15",
+            "sourceTableId": "62e95173-54ed-435e-852d-0fa01fd080a2",
+            "columns": [
+              {
+                "id": "fk_37e09c67-4d97-433d-beb0-a17cb3218191",
+                "name": "cod_cliente",
+                "type": "INT"
+              },
+              {
+                "id": "fk_fk_fa558ab3-b26a-40d1-8b79-24a48e2f37b5",
+                "name": "cod_persona",
+                "type": "INT"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "1792f33f-e60b-46f0-aed2-16b95b8b9de0->c20061ee-9458-4b62-8776-0aae1a81e5fb_2a04f9f9-daf1-4527-86d2-903e35036a58",
+        "type": "Relational",
+        "source": "1792f33f-e60b-46f0-aed2-16b95b8b9de0",
+        "targetHandle": "foreign-key-handle-2a04f9f9-daf1-4527-86d2-903e35036a58",
+        "target": "c20061ee-9458-4b62-8776-0aae1a81e5fb",
+        "markerStart": {
+          "type": "arrow"
+        },
+        "data": {
+          "foreignKeyProps": {
+            "foreignKeyGroupId": "2a04f9f9-daf1-4527-86d2-903e35036a58",
+            "sourceTableId": "1792f33f-e60b-46f0-aed2-16b95b8b9de0",
+            "columns": [
+              {
+                "id": "fk_05a511e1-bd6d-43f9-b4fd-f0920fd61f9e",
+                "name": "cod_especialidad",
+                "type": "VARCHAR(n)"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "62e95173-54ed-435e-852d-0fa01fd080a2->1ab1fd52-7477-4ac6-8039-02dedfe8e6ab_d8adcd8c-c014-4f15-b061-839902687b6f",
+        "type": "Relational",
+        "source": "62e95173-54ed-435e-852d-0fa01fd080a2",
+        "targetHandle": "foreign-key-handle-d8adcd8c-c014-4f15-b061-839902687b6f",
+        "target": "1ab1fd52-7477-4ac6-8039-02dedfe8e6ab",
+        "markerStart": {
+          "type": "arrow"
+        },
+        "data": {
+          "foreignKeyProps": {
+            "foreignKeyGroupId": "d8adcd8c-c014-4f15-b061-839902687b6f",
+            "sourceTableId": "62e95173-54ed-435e-852d-0fa01fd080a2",
+            "columns": [
+              {
+                "id": "fk_37e09c67-4d97-433d-beb0-a17cb3218191",
+                "name": "cod_cliente",
+                "type": "INT"
+              },
+              {
+                "id": "fk_fk_fa558ab3-b26a-40d1-8b79-24a48e2f37b5",
+                "name": "cod_persona",
+                "type": "INT"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "c57e6363-5df5-405c-ae37-2790de543db5->1ab1fd52-7477-4ac6-8039-02dedfe8e6ab_763e44d5-a4cf-461b-a4f8-84c59479a09b",
+        "type": "Relational",
+        "source": "c57e6363-5df5-405c-ae37-2790de543db5",
+        "targetHandle": "foreign-key-handle-763e44d5-a4cf-461b-a4f8-84c59479a09b",
+        "target": "1ab1fd52-7477-4ac6-8039-02dedfe8e6ab",
+        "markerStart": {
+          "type": "arrow"
+        },
+        "data": {
+          "foreignKeyProps": {
+            "foreignKeyGroupId": "763e44d5-a4cf-461b-a4f8-84c59479a09b",
+            "sourceTableId": "c57e6363-5df5-405c-ae37-2790de543db5",
+            "columns": [
+              {
+                "id": "fk_ade3eec2-a3c4-4d80-aad3-d7da30beccf2",
+                "name": "cod_usuario",
+                "type": "INT"
+              },
+              {
+                "id": "fk_fk_fa558ab3-b26a-40d1-8b79-24a48e2f37b5",
+                "name": "cod_persona",
+                "type": "INT"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "c20061ee-9458-4b62-8776-0aae1a81e5fb->1ab1fd52-7477-4ac6-8039-02dedfe8e6ab_190f7587-41c7-49df-8da6-c91240d7cc86",
+        "type": "Relational",
+        "source": "c20061ee-9458-4b62-8776-0aae1a81e5fb",
+        "targetHandle": "foreign-key-handle-190f7587-41c7-49df-8da6-c91240d7cc86",
+        "target": "1ab1fd52-7477-4ac6-8039-02dedfe8e6ab",
+        "markerStart": {
+          "type": "arrow"
+        },
+        "data": {
+          "foreignKeyProps": {
+            "foreignKeyGroupId": "190f7587-41c7-49df-8da6-c91240d7cc86",
+            "sourceTableId": "c20061ee-9458-4b62-8776-0aae1a81e5fb",
+            "columns": [
+              {
+                "id": "fk_2fc02ca1-e3cc-4b41-a5b9-d8ef9fb6c552",
+                "name": "cod_maestro",
+                "type": "INT"
+              },
+              {
+                "id": "fk_fk_37e09c67-4d97-433d-beb0-a17cb3218191",
+                "name": "cod_cliente",
+                "type": "INT"
+              },
+              {
+                "id": "fk_fk_fk_fa558ab3-b26a-40d1-8b79-24a48e2f37b5",
+                "name": "cod_persona",
+                "type": "INT"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "c57e6363-5df5-405c-ae37-2790de543db5->606096b6-da08-47e0-819c-75d60251f4e8_ffbbbe21-808b-49af-bc9f-9b934c7aace5",
+        "type": "Relational",
+        "source": "c57e6363-5df5-405c-ae37-2790de543db5",
+        "targetHandle": "foreign-key-handle-ffbbbe21-808b-49af-bc9f-9b934c7aace5",
+        "target": "606096b6-da08-47e0-819c-75d60251f4e8",
+        "markerStart": {
+          "type": "arrow"
+        },
+        "data": {
+          "foreignKeyProps": {
+            "foreignKeyGroupId": "ffbbbe21-808b-49af-bc9f-9b934c7aace5",
+            "sourceTableId": "c57e6363-5df5-405c-ae37-2790de543db5",
+            "columns": [
+              {
+                "id": "fk_ade3eec2-a3c4-4d80-aad3-d7da30beccf2",
+                "name": "cod_usuario",
+                "type": "INT"
+              },
+              {
+                "id": "fk_fk_fa558ab3-b26a-40d1-8b79-24a48e2f37b5",
+                "name": "cod_persona",
+                "type": "INT"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "82413fff-8a46-45f2-8517-1a5ecb73ae89->606096b6-da08-47e0-819c-75d60251f4e8_04dce458-1b0b-416a-8e5f-2dc5142386c8",
+        "type": "Relational",
+        "source": "82413fff-8a46-45f2-8517-1a5ecb73ae89",
+        "targetHandle": "foreign-key-handle-04dce458-1b0b-416a-8e5f-2dc5142386c8",
+        "target": "606096b6-da08-47e0-819c-75d60251f4e8",
+        "markerStart": {
+          "type": "arrow"
+        },
+        "data": {
+          "foreignKeyProps": {
+            "foreignKeyGroupId": "04dce458-1b0b-416a-8e5f-2dc5142386c8",
+            "sourceTableId": "82413fff-8a46-45f2-8517-1a5ecb73ae89",
+            "columns": [
+              {
+                "id": "fk_61ac8ed0-e6c7-4dcb-a6eb-0c415d8ee550",
+                "name": "cod_estado_canje",
+                "type": "INT"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "c20061ee-9458-4b62-8776-0aae1a81e5fb->606096b6-da08-47e0-819c-75d60251f4e8_c70bd5cf-76ba-48b6-8af8-d7596e1cb907",
+        "type": "Relational",
+        "source": "c20061ee-9458-4b62-8776-0aae1a81e5fb",
+        "targetHandle": "foreign-key-handle-c70bd5cf-76ba-48b6-8af8-d7596e1cb907",
+        "target": "606096b6-da08-47e0-819c-75d60251f4e8",
+        "markerStart": {
+          "type": "arrow"
+        },
+        "data": {
+          "foreignKeyProps": {
+            "foreignKeyGroupId": "c70bd5cf-76ba-48b6-8af8-d7596e1cb907",
+            "sourceTableId": "c20061ee-9458-4b62-8776-0aae1a81e5fb",
+            "columns": [
+              {
+                "id": "fk_2fc02ca1-e3cc-4b41-a5b9-d8ef9fb6c552",
+                "name": "cod_maestro",
+                "type": "INT"
+              },
+              {
+                "id": "fk_fk_37e09c67-4d97-433d-beb0-a17cb3218191",
+                "name": "cod_cliente",
+                "type": "INT"
+              },
+              {
+                "id": "fk_fk_fk_fa558ab3-b26a-40d1-8b79-24a48e2f37b5",
+                "name": "cod_persona",
+                "type": "INT"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "606096b6-da08-47e0-819c-75d60251f4e8->888a24ad-ea48-472e-a48b-e9911f2fcc0d_4dc75700-5b75-4e72-92ef-25fab90b84ed",
+        "type": "Relational",
+        "source": "606096b6-da08-47e0-819c-75d60251f4e8",
+        "targetHandle": "foreign-key-handle-4dc75700-5b75-4e72-92ef-25fab90b84ed",
+        "target": "888a24ad-ea48-472e-a48b-e9911f2fcc0d",
+        "markerStart": {
+          "type": "arrow"
+        },
+        "data": {
+          "foreignKeyProps": {
+            "foreignKeyGroupId": "4dc75700-5b75-4e72-92ef-25fab90b84ed",
+            "sourceTableId": "606096b6-da08-47e0-819c-75d60251f4e8",
+            "columns": [
+              {
+                "id": "fk_a29c0431-f6f6-4fc9-b572-fb649d25cbf2",
+                "name": "cod_canje",
+                "type": "INT"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "52b5a1f7-c303-441f-b356-f64c5752dab2->888a24ad-ea48-472e-a48b-e9911f2fcc0d_b98ae7d6-50e0-4280-812c-80b85d003c3d",
+        "type": "Relational",
+        "source": "52b5a1f7-c303-441f-b356-f64c5752dab2",
+        "targetHandle": "foreign-key-handle-b98ae7d6-50e0-4280-812c-80b85d003c3d",
+        "target": "888a24ad-ea48-472e-a48b-e9911f2fcc0d",
+        "markerStart": {
+          "type": "arrow"
+        },
+        "data": {
+          "foreignKeyProps": {
+            "foreignKeyGroupId": "b98ae7d6-50e0-4280-812c-80b85d003c3d",
+            "sourceTableId": "52b5a1f7-c303-441f-b356-f64c5752dab2",
+            "columns": [
+              {
+                "id": "fk_efb38a05-3bfc-4c1f-83f9-667e5b3a46aa",
+                "name": "cod_premio",
+                "type": "INT"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "1fb56599-190c-491a-8773-5f9315d4c645->02ed1b80-10cc-44f1-80c4-2cc0e23d8c46_0475c79c-05ca-4651-8fa9-52e7bd519ff3",
+        "type": "Relational",
+        "source": "1fb56599-190c-491a-8773-5f9315d4c645",
+        "targetHandle": "foreign-key-handle-0475c79c-05ca-4651-8fa9-52e7bd519ff3",
+        "target": "02ed1b80-10cc-44f1-80c4-2cc0e23d8c46",
+        "markerStart": {
+          "type": "arrow"
+        },
+        "data": {
+          "foreignKeyProps": {
+            "foreignKeyGroupId": "0475c79c-05ca-4651-8fa9-52e7bd519ff3",
+            "sourceTableId": "1fb56599-190c-491a-8773-5f9315d4c645",
+            "columns": [
+              {
+                "id": "fk_49dd28db-bc3e-467d-abe4-9cda95791bb4",
+                "name": "cod_categoria",
+                "type": "INT"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "52b5a1f7-c303-441f-b356-f64c5752dab2->02ed1b80-10cc-44f1-80c4-2cc0e23d8c46_4774352d-e6e1-48d7-b2f6-9738fc51a953",
+        "type": "Relational",
+        "source": "52b5a1f7-c303-441f-b356-f64c5752dab2",
+        "targetHandle": "foreign-key-handle-4774352d-e6e1-48d7-b2f6-9738fc51a953",
+        "target": "02ed1b80-10cc-44f1-80c4-2cc0e23d8c46",
+        "markerStart": {
+          "type": "arrow"
+        },
+        "data": {
+          "foreignKeyProps": {
+            "foreignKeyGroupId": "4774352d-e6e1-48d7-b2f6-9738fc51a953",
+            "sourceTableId": "52b5a1f7-c303-441f-b356-f64c5752dab2",
+            "columns": [
+              {
+                "id": "fk_efb38a05-3bfc-4c1f-83f9-667e5b3a46aa",
+                "name": "cod_premio",
+                "type": "INT"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "a1697a0f-2ce2-466a-bb87-fa7089bead56->ad243dc4-f3b9-4b8a-aefc-72b6538edf80_c080a677-4761-41a7-b91b-970d02037c16",
+        "type": "Relational",
+        "source": "a1697a0f-2ce2-466a-bb87-fa7089bead56",
+        "targetHandle": "foreign-key-handle-c080a677-4761-41a7-b91b-970d02037c16",
+        "target": "ad243dc4-f3b9-4b8a-aefc-72b6538edf80",
+        "markerStart": {
+          "type": "arrow"
+        },
+        "data": {
+          "foreignKeyProps": {
+            "foreignKeyGroupId": "c080a677-4761-41a7-b91b-970d02037c16",
+            "sourceTableId": "a1697a0f-2ce2-466a-bb87-fa7089bead56",
+            "columns": [
+              {
+                "id": "fk_24e3b98f-cb85-4dff-96be-c7c843cc66ba",
+                "name": "cod_indicador",
+                "type": "INT"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "8401f398-c881-48d3-b5d2-63919897947d->ad243dc4-f3b9-4b8a-aefc-72b6538edf80_e62a0931-0fab-4317-b377-3a5197b0545d",
+        "type": "Relational",
+        "source": "8401f398-c881-48d3-b5d2-63919897947d",
+        "targetHandle": "foreign-key-handle-e62a0931-0fab-4317-b377-3a5197b0545d",
+        "target": "ad243dc4-f3b9-4b8a-aefc-72b6538edf80",
+        "markerStart": {
+          "type": "arrow"
+        },
+        "data": {
+          "foreignKeyProps": {
+            "foreignKeyGroupId": "e62a0931-0fab-4317-b377-3a5197b0545d",
+            "sourceTableId": "8401f398-c881-48d3-b5d2-63919897947d",
+            "columns": [
+              {
+                "id": "fk_7890f3f7-16bf-4d7b-b5f8-c7547af11293",
+                "name": "cod_reporte",
+                "type": "INT"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "8401f398-c881-48d3-b5d2-63919897947d->d8e5a214-12c8-4512-91e7-8fe58cbcc3bb_bad56d71-fc9b-4d70-bb18-8f64ca4bf126",
+        "type": "Relational",
+        "source": "8401f398-c881-48d3-b5d2-63919897947d",
+        "targetHandle": "foreign-key-handle-bad56d71-fc9b-4d70-bb18-8f64ca4bf126",
+        "target": "d8e5a214-12c8-4512-91e7-8fe58cbcc3bb",
+        "markerStart": {
+          "type": "arrow"
+        },
+        "data": {
+          "foreignKeyProps": {
+            "foreignKeyGroupId": "bad56d71-fc9b-4d70-bb18-8f64ca4bf126",
+            "sourceTableId": "8401f398-c881-48d3-b5d2-63919897947d",
+            "columns": [
+              {
+                "id": "fk_7890f3f7-16bf-4d7b-b5f8-c7547af11293",
+                "name": "cod_reporte",
+                "type": "INT"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "8401f398-c881-48d3-b5d2-63919897947d->6ade57fc-f029-43f4-bb25-f0f180dc1d53_8ee18ffc-7a81-4e00-99ab-f203babb08c3",
+        "type": "Relational",
+        "source": "8401f398-c881-48d3-b5d2-63919897947d",
+        "targetHandle": "foreign-key-handle-8ee18ffc-7a81-4e00-99ab-f203babb08c3",
+        "target": "6ade57fc-f029-43f4-bb25-f0f180dc1d53",
+        "markerStart": {
+          "type": "arrow"
+        },
+        "data": {
+          "foreignKeyProps": {
+            "foreignKeyGroupId": "8ee18ffc-7a81-4e00-99ab-f203babb08c3",
+            "sourceTableId": "8401f398-c881-48d3-b5d2-63919897947d",
+            "columns": [
+              {
+                "id": "fk_7890f3f7-16bf-4d7b-b5f8-c7547af11293",
+                "name": "cod_reporte",
+                "type": "INT"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "8401f398-c881-48d3-b5d2-63919897947d->69242907-a9eb-4f53-805b-c24b5ef8c3a3_54152f03-e370-4023-ac78-a05d9460199d",
+        "type": "Relational",
+        "source": "8401f398-c881-48d3-b5d2-63919897947d",
+        "targetHandle": "foreign-key-handle-54152f03-e370-4023-ac78-a05d9460199d",
+        "target": "69242907-a9eb-4f53-805b-c24b5ef8c3a3",
+        "markerStart": {
+          "type": "arrow"
+        },
+        "data": {
+          "foreignKeyProps": {
+            "foreignKeyGroupId": "54152f03-e370-4023-ac78-a05d9460199d",
+            "sourceTableId": "8401f398-c881-48d3-b5d2-63919897947d",
+            "columns": [
+              {
+                "id": "fk_7890f3f7-16bf-4d7b-b5f8-c7547af11293",
+                "name": "cod_reporte",
+                "type": "INT"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "62e95173-54ed-435e-852d-0fa01fd080a2->69242907-a9eb-4f53-805b-c24b5ef8c3a3_5a75fa06-4530-4159-b3de-96803ded3a2d",
+        "type": "Relational",
+        "source": "62e95173-54ed-435e-852d-0fa01fd080a2",
+        "targetHandle": "foreign-key-handle-5a75fa06-4530-4159-b3de-96803ded3a2d",
+        "target": "69242907-a9eb-4f53-805b-c24b5ef8c3a3",
+        "markerStart": {
+          "type": "arrow"
+        },
+        "data": {
+          "foreignKeyProps": {
+            "foreignKeyGroupId": "5a75fa06-4530-4159-b3de-96803ded3a2d",
+            "sourceTableId": "62e95173-54ed-435e-852d-0fa01fd080a2",
+            "columns": [
+              {
+                "id": "fk_37e09c67-4d97-433d-beb0-a17cb3218191",
+                "name": "cod_cliente",
+                "type": "INT"
+              },
+              {
+                "id": "fk_fk_fa558ab3-b26a-40d1-8b79-24a48e2f37b5",
+                "name": "cod_persona",
+                "type": "INT"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "606096b6-da08-47e0-819c-75d60251f4e8->d8e5a214-12c8-4512-91e7-8fe58cbcc3bb_abffc1d3-56a5-434f-90b4-53fbddc6916f",
+        "type": "Relational",
+        "source": "606096b6-da08-47e0-819c-75d60251f4e8",
+        "targetHandle": "foreign-key-handle-abffc1d3-56a5-434f-90b4-53fbddc6916f",
+        "target": "d8e5a214-12c8-4512-91e7-8fe58cbcc3bb",
+        "markerStart": {
+          "type": "arrow"
+        },
+        "data": {
+          "foreignKeyProps": {
+            "foreignKeyGroupId": "abffc1d3-56a5-434f-90b4-53fbddc6916f",
+            "sourceTableId": "606096b6-da08-47e0-819c-75d60251f4e8",
+            "columns": [
+              {
+                "id": "fk_a29c0431-f6f6-4fc9-b572-fb649d25cbf2",
+                "name": "cod_canje",
+                "type": "INT"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "c20061ee-9458-4b62-8776-0aae1a81e5fb->6ade57fc-f029-43f4-bb25-f0f180dc1d53_25ecc22b-7d85-4f59-943e-d12f236f133a",
+        "type": "Relational",
+        "source": "c20061ee-9458-4b62-8776-0aae1a81e5fb",
+        "targetHandle": "foreign-key-handle-25ecc22b-7d85-4f59-943e-d12f236f133a",
+        "target": "6ade57fc-f029-43f4-bb25-f0f180dc1d53",
+        "markerStart": {
+          "type": "arrow"
+        },
+        "data": {
+          "foreignKeyProps": {
+            "foreignKeyGroupId": "25ecc22b-7d85-4f59-943e-d12f236f133a",
+            "sourceTableId": "c20061ee-9458-4b62-8776-0aae1a81e5fb",
+            "columns": [
+              {
+                "id": "fk_2fc02ca1-e3cc-4b41-a5b9-d8ef9fb6c552",
+                "name": "cod_maestro",
+                "type": "INT"
+              },
+              {
+                "id": "fk_fk_37e09c67-4d97-433d-beb0-a17cb3218191",
+                "name": "cod_cliente",
+                "type": "INT"
+              },
+              {
+                "id": "fk_fk_fk_fa558ab3-b26a-40d1-8b79-24a48e2f37b5",
+                "name": "cod_persona",
+                "type": "INT"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "2df5afcc-ee1a-4bda-a705-bd22217c54ec->3a349f0a-0506-4bad-a734-4103dbee2547_312f8180-e291-4fa2-affd-30114f168631",
+        "type": "Relational",
+        "source": "2df5afcc-ee1a-4bda-a705-bd22217c54ec",
+        "targetHandle": "foreign-key-handle-312f8180-e291-4fa2-affd-30114f168631",
+        "target": "3a349f0a-0506-4bad-a734-4103dbee2547",
+        "markerStart": {
+          "type": "arrow"
+        },
+        "data": {
+          "foreignKeyProps": {
+            "foreignKeyGroupId": "312f8180-e291-4fa2-affd-30114f168631",
+            "sourceTableId": "2df5afcc-ee1a-4bda-a705-bd22217c54ec",
+            "columns": [
+              {
+                "id": "fk_98943941-0376-4d6c-bb93-aae0f2a454e4",
+                "name": "cod_tipo_persona",
+                "type": "INT"
+              }
+            ]
+          }
+        }
+      }
+    ],
+    "viewport": {
+      "x": 459.06348670021976,
+      "y": -363.3925471101211,
+      "zoom": 0.5000000000000001
+    }
+  },
+  "name": "MODULO CLIENTES PC2",
+  "folder": {
+    "name": "DBD",
+    "folderType": 2,
+    "parentFolder": {
+      "depth": 0,
+      "id": 44924,
+      "name": "Diagrams",
+      "folderType": 1
+    },
+    "depth": 1,
+    "id": 44926
+  },
+  "id": 74065,
+  "updatedAtTimestamp": 1759344796
+}
