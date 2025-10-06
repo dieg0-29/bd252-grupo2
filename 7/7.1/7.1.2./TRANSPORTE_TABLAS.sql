@@ -1,4 +1,3 @@
-
 DROP SCHEMA IF EXISTS modulo_transporte CASCADE;
 CREATE SCHEMA modulo_transporte;
 
@@ -218,3 +217,4 @@ CREATE TABLE detalle_producto_almacen (
   FOREIGN KEY (cod_pedido_almacen) REFERENCES pedido_almacen(cod_pedido_almacen),
   FOREIGN KEY (cod_producto) REFERENCES producto(cod_producto)
 );
+
