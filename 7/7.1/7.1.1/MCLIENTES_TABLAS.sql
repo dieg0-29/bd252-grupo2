@@ -1,7 +1,7 @@
 create extension if not exists "uuid-ossp"; 
 
 drop schema if exists MODULO_CLIENTES cascade;
-=============================================================
+--=============================================================
 -- Módulo: CLIENTES (CREACIÓN DE TABLAS con restricciones esenciales)
 -- =============================================================
 CREATE SCHEMA MODULO_CLIENTES;
