@@ -1,5 +1,5 @@
 create extension if not exists "uuid-ossp";
-=============================================================
+--=============================================================
 -- Módulo: CLIENTES (POBLACION DE TABLAS con datos iniciales)
 -- =============================================================
 TRUNCATE TABLE
