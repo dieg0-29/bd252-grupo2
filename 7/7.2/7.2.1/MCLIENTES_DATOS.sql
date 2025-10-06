@@ -1,5 +1,7 @@
 create extension if not exists "uuid-ossp";
-
+=============================================================
+-- Módulo: CLIENTES (POBLACION DE TABLAS con datos iniciales)
+-- =============================================================
 TRUNCATE TABLE
     MODULO_CLIENTES.canje,
     MODULO_CLIENTES.canje_consultado,
@@ -29,7 +31,7 @@ TRUNCATE TABLE
     MODULO_CLIENTES.venta
 RESTART IDENTITY CASCADE;
 
-
+--TIPO_PERSONA
 INSERT INTO MODULO_CLIENTES.TIPO_PERSONA (valor_tipo_persona)
 VALUES 
 ('NATURAL'),
@@ -37,6 +39,7 @@ VALUES
 ('GUBERNAMENTAL');
 SELECT * FROM MODULO_CLIENTES.TIPO_PERSONA;
 
+--PERSONA
 INSERT INTO MODULO_CLIENTES.PERSONA (nombre_persona, cod_tipo_persona)
 VALUES 
 ('Pedro Carlos Vilchez Cardenas', (SELECT cod_tipo_persona FROM MODULO_CLIENTES.TIPO_PERSONA WHERE valor_tipo_persona = 'NATURAL')),
@@ -68,6 +71,7 @@ VALUES
 ('Southern Peru Copper Corporation', (SELECT cod_tipo_persona FROM MODULO_CLIENTES.TIPO_PERSONA WHERE valor_tipo_persona = 'JURÍDICA'));
 SELECT * FROM MODULO_CLIENTES.PERSONA;
 
+--CLIENTE
 INSERT INTO MODULO_CLIENTES.CLIENTE (cod_persona)
 VALUES 
 ((SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Pedro Carlos Vilchez Cardenas')),
@@ -91,6 +95,7 @@ VALUES
 ((SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Southern Peru Copper Corporation'));
 SELECT * FROM MODULO_CLIENTES.CLIENTE;
 
+--TIPO_CONTACTO
 INSERT INTO MODULO_CLIENTES.TIPO_CONTACTO (valor_tipo_contacto)
 VALUES 
 ('CORREO'),
@@ -98,6 +103,7 @@ VALUES
 ('WHATSAPP');
 SELECT * FROM MODULO_CLIENTES.TIPO_CONTACTO;
 
+--CONTACTO
 INSERT INTO MODULO_CLIENTES.CONTACTO (valor_contacto, cod_tipo_contacto)
 VALUES 
 ('904 321 098',(SELECT cod_tipo_contacto FROM MODULO_CLIENTES.TIPO_CONTACTO WHERE valor_tipo_contacto = 'TELEFONO CELULAR')),
@@ -146,6 +152,7 @@ VALUES
 ('valeria.cordova@ejemplo.pe',(SELECT cod_tipo_contacto FROM MODULO_CLIENTES.TIPO_CONTACTO WHERE valor_tipo_contacto = 'CORREO'));
 SELECT * FROM MODULO_CLIENTES.CONTACTO;
 
+--DIRECCION
 INSERT INTO MODULO_CLIENTES.DIRECCION (ciudad, distrito, via, numero)
 VALUES 
 ('Lima', 'Barranco', 'Jirón 28 de Julio', '123'),
@@ -184,6 +191,7 @@ VALUES
 ('Lima', 'Pueblo Libre', 'Av. Bolívar', '1978');
 SELECT * FROM MODULO_CLIENTES.DIRECCION;
 
+--TIPO_DOCUMENTO
 INSERT INTO MODULO_CLIENTES.TIPO_DOCUMENTO (valor_tipo_documento)
 VALUES 
 ('DNI'),
@@ -191,6 +199,7 @@ VALUES
 ('RUC');
 SELECT * FROM MODULO_CLIENTES.TIPO_DOCUMENTO;
 
+--DOCUMENTO_PERSONA
 INSERT INTO MODULO_CLIENTES.DOCUMENTO_PERSONA (valor_documento, cod_persona, cod_tipo_documento)
 VALUES 
 ('10 12345678 8',(SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Pedro Carlos Vilchez Cardenas'),(SELECT cod_tipo_documento FROM MODULO_CLIENTES.TIPO_DOCUMENTO WHERE valor_tipo_documento = 'RUC')),
@@ -222,6 +231,7 @@ VALUES
 ('20998877665',(SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Southern Peru Copper Corporation'),(SELECT cod_tipo_documento FROM MODULO_CLIENTES.TIPO_DOCUMENTO WHERE valor_tipo_documento = 'RUC'));
 SELECT * FROM MODULO_CLIENTES.DOCUMENTO_PERSONA;
 
+--DIRECCION_PERSONA
 INSERT INTO MODULO_CLIENTES.DIRECCION_PERSONA (cod_persona, cod_direccion)
 VALUES 
 ((SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Pedro Carlos Vilchez Cardenas'),(SELECT cod_direccion FROM MODULO_CLIENTES.DIRECCION D WHERE (ciudad, distrito, via, numero) = ('Lima', 'Barranco', 'Jirón 28 de Julio', '123'))),
@@ -253,6 +263,7 @@ VALUES
 ((SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Pedro Sebastian Nuñez Castillo'),(SELECT cod_direccion FROM MODULO_CLIENTES.DIRECCION D WHERE (ciudad, distrito, via, numero) = ('Lima', 'Ate', 'Avenida Hermes', '256')));
 SELECT * FROM MODULO_CLIENTES.DIRECCION_PERSONA;
 
+--CONTACTO_PERSONA
 INSERT INTO MODULO_CLIENTES.CONTACTO_PERSONA (cod_persona, cod_contacto)
 VALUES 
 ((SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Gabriel Jose Martinez Arista'),(SELECT cod_contacto FROM MODULO_CLIENTES.CONTACTO C WHERE C.VALOR_CONTACTO = 'gabriel.a@uno.pe')),
@@ -301,6 +312,7 @@ VALUES
 ((SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Juan Carlos Flores Sánchez'),(SELECT cod_contacto FROM MODULO_CLIENTES.CONTACTO C WHERE C.VALOR_CONTACTO = 'valeria.cordova@ejemplo.pe'));
 SELECT * FROM MODULO_CLIENTES.CONTACTO_PERSONA;
 
+--ESPECIALIDADES
 INSERT INTO MODULO_CLIENTES.ESPECIALIDADES (valor_especialidad)
 VALUES 
 ('Albañilería'), 
@@ -326,6 +338,7 @@ VALUES
 ('Viales');
 SELECT * FROM MODULO_CLIENTES.ESPECIALIDADES;
 
+--MAESTRO
 INSERT INTO MODULO_CLIENTES.MAESTRO (ruc, cod_persona, cod_cliente, cod_especialidad)
 VALUES
 ('10456789012', (SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'David Ricardo Fernández Vargas'), (SELECT cod_cliente FROM MODULO_CLIENTES.CLIENTE C  WHERE cod_persona = (SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'David Ricardo Fernández Vargas')), 
@@ -344,6 +357,7 @@ VALUES
 (SELECT cod_especialidad FROM MODULO_CLIENTES.ESPECIALIDADES E  WHERE valor_especialidad = 'Gasfiteria'));
 SELECT * FROM MODULO_CLIENTES.MAESTRO;
 
+--ROL
 INSERT INTO MODULO_CLIENTES.ROL (valor_rol)
 VALUES 
 ('Gerente'),
@@ -354,6 +368,7 @@ VALUES
 ('ADMIN (⌐■_■)');
 SELECT * FROM MODULO_CLIENTES.ROL;
 
+--AREA
 INSERT INTO MODULO_CLIENTES.AREA (valor_area)
 VALUES 
 ('Almacen'),
@@ -363,6 +378,7 @@ VALUES
 ('SISTEMAS (⌐■_■)');
 SELECT * FROM MODULO_CLIENTES.AREA;
 
+--USUARIO
 INSERT INTO MODULO_CLIENTES.USUARIO (cod_persona, cod_rol, cod_area)
 VALUES
 ((SELECT cod_persona FROM MODULO_CLIENTES.PERSONA P  WHERE nombre_persona = 'Juan Carlos Flores Sánchez'),(SELECT cod_rol FROM MODULO_CLIENTES.ROL TU  WHERE valor_rol = 'Almacen'),(SELECT cod_area FROM MODULO_CLIENTES.AREA A  WHERE valor_area = 'Almacen')),
@@ -376,6 +392,7 @@ VALUES
 ((SELECT cod_persona FROM MODULO_CLIENTES.PERSONA P  WHERE nombre_persona = 'Gabriel Jose Martinez Arista'),(SELECT cod_rol FROM MODULO_CLIENTES.ROL TU  WHERE valor_rol = 'ADMIN (⌐■_■)'),(SELECT cod_area FROM MODULO_CLIENTES.AREA A  WHERE valor_area = 'SISTEMAS (⌐■_■)'));
 SELECT * FROM MODULO_CLIENTES.USUARIO;
 
+--VENTA
 INSERT INTO MODULO_CLIENTES.VENTA (monto_venta, puntos_venta, tipo_venta, estado_venta, fecha_entrega, cod_cliente, cod_usuario, cod_maestro)
 VALUES 
 (500.00, 50.00, 'CONTADO', 'Pendiente', (NOW()+'7 DAY'),
@@ -385,6 +402,7 @@ VALUES
 );
 SELECT * FROM MODULO_CLIENTES.VENTA;
 
+--CATEGORIA
 INSERT INTO MODULO_CLIENTES.CATEGORIA (valor_categoria)
 VALUES 
 ('Herramienta'), 
@@ -403,6 +421,7 @@ VALUES
 ('Maquinaria');
 SELECT * FROM MODULO_CLIENTES.CATEGORIA;
 
+--ESTADO_CANJE
 INSERT INTO MODULO_CLIENTES.ESTADO_CANJE (valor_estado_canje)
 VALUES 
 ('Pendiente'), 
@@ -416,6 +435,7 @@ VALUES
 ('Extraviado');
 SELECT * FROM MODULO_CLIENTES.ESTADO_CANJE;
 
+--CANJE
 INSERT INTO MODULO_CLIENTES.CANJE (monto_canje, cod_usuario, cod_estado_canje, cod_maestro)
 VALUES 
 (30,
@@ -425,7 +445,7 @@ VALUES
 );
 SELECT * FROM MODULO_CLIENTES.CANJE;
 
-
+--PREMIOS
 INSERT INTO MODULO_CLIENTES.PREMIOS (nombre_premio, descp_premio, puntos_premio, disponibilidad_premio)
 VALUES 
 ('Taladro Inalámbrico 12V + Batería SCD121S1-B2 + Set 27 pz', 
@@ -445,9 +465,60 @@ Velocidad:	400 - 1500 RPM
 Tamaño del mandril:	10 mm
 Inalámbrico:	Sí $$,
 30.00, 50 
+),
+('Audífonos Inalámbricos Bluetooth JBL Tune 510BT', 
+    $$ Descripción: Audífonos inalámbricos con tecnología JBL Pure Bass. conexión Bluetooth 5.0. hasta 40 horas de batería y carga rápida. Color Negro. Incluye cable USB-C de carga. Ideal para uso diario y deporte. $$,
+    15.50, 
+    120 
+),
+('Set de Cuchillos de Chef 5 Piezas Acero Inoxidable', 
+    $$ Set de 5 cuchillos profesionales para cocina con base de madera. Material de la hoja: Acero inoxidable de alta calidad. Incluye cuchillo de chef. santoku. pan. utilitario y pelador. Mango ergonómico. $$,
+    8.90, 
+    200 
+),
+('Power Bank Xiaomi 10000mAh Carga Rápida', 
+    $$ Batería externa portátil de 10000 mAh. Conexión dual USB (Tipo A y Tipo C). Soporta carga rápida de 18W. Diseño compacto y ligero. ideal para viajes. Color: Blanco. $$,
+    12.00, 
+    80 
+),
+('Licuadora Oster Xpert Series con Motor Reversible', 
+    $$ Electrodoméstico: Licuadora de alto rendimiento. Motor de 2 caballos de fuerza con tecnología reversible para mezclar y procesar. Vaso de vidrio refractario Boroclass de 2 Litros. 3 programas automáticos. $$,
+    45.99, 
+    35 
+),
+('Google Chromecast con Google TV (HD)', 
+    $$ Dispositivo de streaming multimedia. Transforma cualquier TV con puerto HDMI en Smart TV. Incluye control remoto por voz. Resolución máxima: HD 1080p. Conectividad Wi-Fi dual band. $$,
+    18.50, 
+    95 
+),
+('Mochila Antirrobo para Laptop 15.6" con Puerto USB', 
+    $$ Accesorio de viaje y seguridad. Material resistente al corte y al agua. Capacidad de 20 Litros. Compartimento acolchado para laptop de 15.6 pulgadas. Puerto de carga USB externo (requiere power bank no incluido). $$,
+    10.50, 
+    150
+),
+('Reloj Inteligente (Smartwatch) Deportivo con GPS', 
+    $$ Tecnología wearable. Funciones: Medición de ritmo cardíaco + monitor de sueño + contador de pasos + GPS integrado para seguimiento de rutas. Compatible con Android e iOS. Resistencia al agua IP68. $$,
+    28.00, 
+    60 
+),
+('Cafetera Eléctrica de Goteo para 12 Tazas', 
+    $$ Electrodoméstico básico. Capacidad para 1.5 litros (12 tazas). Sistema anti-goteo. Filtro permanente lavable. Placa calefactora que mantiene el café caliente. Color: Negro. $$,
+    7.50, 
+    180 
+),
+('Kit de Limpieza para PC y Electrónicos 6 en 1', 
+    $$ Kit que incluye: cepillo antiestático + paños de microfibra + soplador de aire + líquido limpiador + hisopos y extractor de teclas. Ideal para teclados + pantallas y lentes. $$,
+    4.00, 
+    250 
+),
+('Disco Duro Externo Portátil 1TB USB 3.0', 
+    $$ Almacenamiento digital. Capacidad: 1 Terabyte. Interfaz: USB 3.0 (compatible con 2.0). Velocidad de transferencia rápida. Compatible con Windows y Mac. Carcasa resistente a golpes leves. $$,
+    35.00, 
+    40 
 );
 SELECT * FROM MODULO_CLIENTES.PREMIOS;
 
+--DETALLE_CANJE
 INSERT INTO MODULO_CLIENTES.DETALLE_CANJE (cantidad_premio, cod_canje, cod_premio)
 VALUES 
 (1,
@@ -456,17 +527,19 @@ VALUES
 );
 SELECT * FROM MODULO_CLIENTES.DETALLE_CANJE;
 
+--CATEGORIAS_PREMIO
 INSERT INTO MODULO_CLIENTES.CATEGORIAS_PREMIO (cod_categoria, cod_premio)
 VALUES 
 ((SELECT cod_categoria FROM MODULO_CLIENTES.CATEGORIA WHERE valor_categoria = 'Herramienta'),(SELECT cod_premio FROM MODULO_CLIENTES.PREMIOS WHERE nombre_premio = 'Taladro Inalámbrico 12V + Batería SCD121S1-B2 + Set 27 pz'));
-((SELECT cod_categoria FROM MODULO_CLIENTES.CATEGORIA WHERE valor_categoria = 'Carpinteria'),(SELECT cod_premio FROM MODULO_CLIENTES.PREMIOS WHERE nombre_premio = 'Taladro Inalámbrico 12V + Batería SCD121S1-B2 + Set 27 pz'));
 SELECT * FROM MODULO_CLIENTES.CATEGORIAS_PREMIO;
 
+--REPORTE
 INSERT INTO MODULO_CLIENTES.REPORTE (periodo_reporte)
 VALUES 
 ('1 YEAR');
 SELECT * FROM MODULO_CLIENTES.REPORTE;
 
+--CANJE_CONSULTADO
 INSERT INTO MODULO_CLIENTES.CANJE_CONSULTADO (cod_reporte, cod_canje)
 SELECT
     (   SELECT cod_reporte 
@@ -481,6 +554,7 @@ WHERE
     C.fecha_hora_canje BETWEEN (NOW() - INTERVAL '1 YEAR') AND NOW();
 SELECT * FROM MODULO_CLIENTES.CANJE_CONSULTADO;
 
+--CLIENTE_CONSULTADO
 INSERT INTO MODULO_CLIENTES.CLIENTE_CONSULTADO (cod_reporte, cod_cliente)
 SELECT
     (   SELECT cod_reporte 
@@ -495,6 +569,7 @@ WHERE
     C.ultima_actividad_cliente BETWEEN (NOW() - INTERVAL '1 YEAR') AND NOW();
 SELECT * FROM MODULO_CLIENTES.CLIENTE_CONSULTADO;
 
+--MAESTRO_CONSULTADO
 INSERT INTO MODULO_CLIENTES.MAESTRO_CONSULTADO (cod_reporte, cod_maestro)
 SELECT
     (   SELECT cod_reporte 
@@ -537,4 +612,8 @@ SELECT * FROM
     MODULO_CLIENTES.rol,
     MODULO_CLIENTES.area,
     MODULO_CLIENTES.usuario,
-    MODULO_CLIENTES.venta
+    MODULO_CLIENTES.venta;
+
+
+
+
