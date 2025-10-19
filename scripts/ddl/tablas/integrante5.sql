@@ -26,6 +26,24 @@ CREATE TABLE Ventas.vendedor (
   total_ventas_vendedor INT DEFAULT 0
 );
 
+CREATE TABLE Ventas.horario (
+  cod_horario INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  hora_ingreso TIME NOT NULL,
+  hora_salida TIME NOT NULL 
+  CHECK(hora_salida > hora_ingreso),
+  hora_receso_inicio TIME
+  CHECK(hora_receso_inicio BETWEEN hora_ingreso AND hora_salida),
+  hora_receso_fin TIME
+  CHECK(hora_receso_fin BETWEEN hora_receso_inicio AND hora_salida),
+  dia VARCHAR(10) NOT NULL 
+  CHECK (dia IN ('Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'))
+);
+
+CREATE TABLE Ventas.vendedor_horario (
+	cod_vendedor INT NOT NULL REFERENCES Ventas.vendedor(cod_vendedor),	
+	cod_horario INT NOT NULL REFERENCES Ventas.horario(cod_horario)
+);
+
 CREATE TABLE Ventas.tipo_venta (
   cod_tipo_venta INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
   descp_tipo_venta VARCHAR(20) NOT NULL UNIQUE
@@ -49,8 +67,8 @@ CREATE TABLE Ventas.estado_pago (
 CREATE TABLE Ventas.venta (
   cod_venta			INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
   fecha_hora_venta	TIMESTAMP NOT NULL DEFAULT NOW(),
-  monto_venta		NUMERIC(12,2) NOT NULL CHECK(monto_venta > 0),
   igv				NUMERIC(12,2) NOT NULL CHECK (igv > 0),
+  monto_venta		NUMERIC(12,2) NOT NULL CHECK(monto_venta > 0),
   dscto_venta		NUMERIC(12,2) NOT NULL DEFAULT 0,
   fecha_venta		DATE NOT NULL DEFAULT NOW(),
   fecha_entrega		DATE NOT NULL CHECK (fecha_entrega >= fecha_venta),
@@ -80,6 +98,7 @@ CREATE TABLE Ventas.caja (
   vendedor_apertura   INT NOT NULL REFERENCES Ventas.vendedor(cod_vendedor),
   vendedor_cierre     INT REFERENCES Ventas.vendedor(cod_vendedor),
   monto_apertura      NUMERIC(12,2) DEFAULT 0,
+  monto_cierre		NUMERIC(12,2) DEFAULT 0,
   monto_total_ventas  NUMERIC(14,2) DEFAULT 0,
   cantidad_ventas     INT DEFAULT 0
 );
@@ -140,9 +159,19 @@ CREATE TABLE Ventas.motivo_cambio_prod (
 );
 
 CREATE TABLE Ventas.cambio_producto (
-  cod_cambio_producto INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-  cod_reclamo INT NOT NULL REFERENCES Ventas.reclamo(cod_reclamo),
-  cod_motivo_cambio_prod INT NOT NULL REFERENCES Ventas.motivo_cambio_prod(cod_motivo_cambio_prod),
-  producto_retornado INT NOT NULL REFERENCES Ventas.producto(cod_producto),
-  producto_entregado INT NOT NULL REFERENCES Ventas.producto(cod_producto)
+	cod_cambio_producto INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+	cod_reclamo INT NOT NULL REFERENCES Ventas.reclamo(cod_reclamo),
+	cod_motivo_cambio_prod INT NOT NULL REFERENCES Ventas.motivo_cambio_prod(cod_motivo_cambio_prod),
+	producto_retornado INT NOT NULL REFERENCES Ventas.producto(cod_producto),
+	producto_entregado INT NOT NULL REFERENCES Ventas.producto(cod_producto)
+);
+
+CREATE TABLE Ventas.reporte (
+	cod_reporte INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+	fecha_hora_creacion TIMESTAMP NOT NULL DEFAULT NOW(),
+	fecha_inicio_datos DATE NOT NULL,
+	fecha_fin_datos DATE NOT NULL
+	CHECK(fecha_fin_datos > fecha_inicio_datos),
+	descp_reporte VARCHAR(200) NOT NULL,
+	tipo_grafico VARCHAR(30) NOT NULL
 );
