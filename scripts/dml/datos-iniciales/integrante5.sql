@@ -19,8 +19,28 @@ INSERT INTO Ventas.estado_pago (nombre_estado_pago) VALUES ('Pendiente'),('Pagad
 
 -- Vendedores (1..8)
 INSERT INTO Ventas.vendedor (fecha_ingreso_vendedor, total_ventas_vendedor) VALUES
-('2023-01-05',0),('2024-03-12',0),('2022-09-01',0),('2025-01-10',0),
-('2024-11-20',0),('2023-07-15',0),('2022-12-01',0),('2025-06-01',0);
+('2022-01-05',0),('2022-03-12',0),('2023-09-01',0),('2023-10-10',0),
+('2024-07-20',0),('2024-11-15',0),('2025-06-01',0),('2025-10-01',0);
+
+-- Horarios
+INSERT INTO ventas.horario (hora_ingreso, hora_salida, hora_receso_inicio, hora_receso_fin, dia) VALUES
+('08:00','16:00','13:00','14:00','Lunes'),
+('08:00','16:00','13:00','14:00','Martes'),
+('08:00','16:00','13:00','14:00','Miércoles'),
+('08:00','16:00','13:00','14:00','Jueves'),
+('08:00','16:00','13:00','14:00','Viernes'),
+('09:00','14:00',NULL, NULL,'Sábado');
+
+-- Relación Vendedores y Horarios
+INSERT INTO ventas.vendedor_horario VALUES
+(1,1),(1,2),(1,3),(1,4),(1,5),(1,6),
+(2,1),(2,2),(2,3),(2,4),(2,5),
+(3,1),(3,2),(3,3),(3,4),(3,5),(3,6),
+(4,1),(4,3),(4,5),
+(5,2),(5,4),(5,6),
+(6,1),(6,2),(6,3),(6,4),(6,5),(6,6),
+(7,1),(7,2),(7,3),(7,4),(7,5),(7,6),
+(8,1),(8,2),(8,3),(8,4),(8,5);
 
 -- Clientes (1..16)
 INSERT INTO Ventas.cliente (nombre_cliente) VALUES
@@ -40,10 +60,10 @@ INSERT INTO Ventas.producto (nombre_producto) VALUES
 ('Te PVC 1"'),('Codo PVC 1"'),('Brocha 3"'),('Arena fina (m3)');
 
 -- Cajas (1..3)
-INSERT INTO Ventas.caja (fecha_hora_apertura, fecha_hora_cierre, vendedor_apertura, vendedor_cierre, monto_apertura, monto_total_ventas, cantidad_ventas) VALUES
-('2025-10-03 08:30', NULL, 8, NULL, 800.00, 0, 0),
-('2025-10-04 08:30', NULL, 6, NULL, 700.00, 0, 0),
-('2025-10-05 08:30', NULL, 5, NULL, 900.00, 0, 0);
+INSERT INTO Ventas.caja (fecha_hora_apertura, fecha_hora_cierre, vendedor_apertura, vendedor_cierre, monto_apertura, monto_cierre, monto_total_ventas, cantidad_ventas) VALUES
+('2025-10-03 08:30', '2025-10-03 21:00', 8, 8, 800.00, 800.00, 800.00, 3),
+('2025-10-04 08:30', '2025-10-03 21:00', 6, 6, 800.00, 1500.00, 700.00, 4),
+('2025-10-05 08:30', '2025-10-03 21:00', 5, 5, 1500.00, 2400.00, 900.00, 2);
 
 -- 15 VENTAS (1..15)
 -- 03-oct
@@ -55,18 +75,18 @@ INSERT INTO Ventas.venta VALUES
 (DEFAULT,'2025-10-03 12:15',255.60,1420.00,0,'2025-10-03','2025-10-05',1,2,8,6);
 -- 04-oct
 INSERT INTO Ventas.venta VALUES
-(DEFAULT,'2025-10-04 09:00',64.80,360.00,0,'2025-10-04','2025-10-04',2,1,1,3,5),
-(DEFAULT,'2025-10-04 09:40',225.00,1250.00,0,'2025-10-04','2025-10-04',2,1,5,2,3),
-(DEFAULT,'2025-10-04 13:00',176.40,980.00,0,'2025-10-04','2025-10-05',1,2,7,11,6),
-(DEFAULT,'2025-10-04 16:45',37.80,210.00,0,'2025-10-04','2025-10-04',2,1,6,4,4),
-(DEFAULT,'2025-10-04 18:20',441.00,2450.00,0,'2025-10-04','2025-10-04',2,1,7,14,7);
+(DEFAULT,'2025-10-04 09:00',64.80,360.00,0,'2025-10-04','2025-10-04',2,1,1,3),
+(DEFAULT,'2025-10-04 09:40',225.00,1250.00,0,'2025-10-04','2025-10-04',2,1,5,2),
+(DEFAULT,'2025-10-04 13:00',176.40,980.00,0,'2025-10-04','2025-10-05',1,2,7,11),
+(DEFAULT,'2025-10-04 16:45',37.80,210.00,0,'2025-10-04','2025-10-04',2,1,6,4),
+(DEFAULT,'2025-10-04 18:20',441.00,2450.00,0,'2025-10-04','2025-10-04',2,1,7,14);
 -- 05-oct
 INSERT INTO Ventas.venta VALUES
-(DEFAULT,'2025-10-05 08:50',129.60,720.00,0,'2025-10-05','2025-10-05',2,1,5,15,8),
-(DEFAULT,'2025-10-05 10:10',324.00,1800.00,0,'2025-10-05','2025-10-07',1,2,8,12,6),
-(DEFAULT,'2025-10-05 11:20',28.80,160.00,0,'2025-10-05','2025-10-05',2,1,4,10,5),
-(DEFAULT,'2025-10-05 12:40',198.00,1100.00,0,'2025-10-05','2025-10-08',1,2,7,13,3),
-(DEFAULT,'2025-10-05 15:30',77.40,430.00,0,'2025-10-05','2025-10-06',1,3,6,16,4);
+(DEFAULT,'2025-10-05 08:50',129.60,720.00,0,'2025-10-05','2025-10-05',2,1,5,15),
+(DEFAULT,'2025-10-05 10:10',324.00,1800.00,0,'2025-10-05','2025-10-07',1,2,8,12),
+(DEFAULT,'2025-10-05 11:20',28.80,160.00,0,'2025-10-05','2025-10-05',2,1,4,10),
+(DEFAULT,'2025-10-05 12:40',198.00,1100.00,0,'2025-10-05','2025-10-08',1,2,7,13),
+(DEFAULT,'2025-10-05 15:30',77.40,430.00,0,'2025-10-05','2025-10-06',1,3,6,16);
 
 -- Detalle por venta
 INSERT INTO Ventas.producto_venta VALUES
@@ -162,5 +182,11 @@ INSERT INTO Ventas.cambio_producto VALUES
 -- Anulación por “Cliente desistió” (R2)
 INSERT INTO Ventas.anulacion VALUES
 (DEFAULT,2,2);
+
+-- Solicitud de reportes
+INSERT INTO ventas.reporte (fecha_hora_creacion, fecha_inicio_datos, fecha_fin_datos, descp_reporte, tipo_grafico) VALUES 
+(DEFAULT, '01-01-23','31-12-23','Ingresos 2023 por mes','Gráfico de barras'),
+(DEFAULT, '01-04-24','31-03-25','Reclamos Abril 2024 - Marzo 2025 por motivo','Gráfico circular'),
+(DEFAULT, '01-05-25','31-05-25','Ingresos mensuales marzo 2025 por vendedor','Gráfico de barras');
 
 COMMIT;
