@@ -1,7 +1,7 @@
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp"; 
 DROP SCHEMA IF EXISTS Ventas CASCADE;
 CREATE SCHEMA Ventas;
-SET search_path TO Ventas;
+DROP EXTENSION IF EXISTS "uuid-ossp";
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 --Tablas auxiliares--
 CREATE TABLE Ventas.producto (
@@ -82,7 +82,7 @@ CREATE TABLE Ventas.venta (
 CREATE TABLE Ventas.producto_venta (
   cod_venta UUID NOT NULL REFERENCES Ventas.venta(cod_venta),
   cod_producto UUID NOT NULL REFERENCES Ventas.producto(cod_producto),
-  cantidad_producto UUID NOT NULL CHECK(cantidad_producto > 0),
+  cantidad_producto INT NOT NULL CHECK(cantidad_producto > 0),
   PRIMARY KEY (cod_venta, cod_producto)
 );
 
@@ -110,7 +110,7 @@ CREATE TABLE Ventas.pago (
   fecha_vencimiento_pago DATE,
   fecha_pago DATE,
   monto_pago NUMERIC(12,2) NOT NULL,
-  cod_caja UUID REFERENCES caja(cod_caja),
+  cod_caja UUID REFERENCES Ventas.caja(cod_caja),
   nro_comprobante UUID REFERENCES Ventas.comprobante(nro_comprobante),
   cod_metodo_pago UUID REFERENCES Ventas.metodo_pago(cod_metodo_pago),
   cod_estado_pago UUID NOT NULL REFERENCES Ventas.estado_pago(cod_estado_pago)
@@ -167,6 +167,11 @@ CREATE TABLE Ventas.cambio_producto (
 	producto_entregado UUID NOT NULL REFERENCES Ventas.producto(cod_producto)
 );
 
+CREATE TABLE Ventas.tipo_grafico (
+  cod_tipo_grafico UUID NOT NULL DEFAULT uuid_generate_v4() PRIMARY KEY,
+  descp_grafico VARCHAR(120) NOT NULL UNIQUE
+);
+
 CREATE TABLE Ventas.reporte (
 	cod_reporte UUID NOT NULL DEFAULT uuid_generate_v4() PRIMARY KEY,
 	fecha_hora_creacion TIMESTAMP NOT NULL DEFAULT NOW(),
@@ -174,10 +179,5 @@ CREATE TABLE Ventas.reporte (
 	fecha_fin_datos DATE NOT NULL
 	CHECK(fecha_fin_datos > fecha_inicio_datos),
 	descp_reporte VARCHAR(200) NOT NULL,
-	cod_tipo_grafico UUID NOT NULL REFERENCES Ventas.producto(cod_tipo_grafico)
-);
-
-CREATE TABLE Ventas.tipo_grafico (
-  cod_tipo_grafico UUID NOT NULL DEFAULT uuid_generate_v4() PRIMARY KEY,
-  descp_grafico VARCHAR(120) NOT NULL UNIQUE
+	cod_tipo_grafico UUID NOT NULL REFERENCES Ventas.tipo_grafico(cod_tipo_grafico)
 );
