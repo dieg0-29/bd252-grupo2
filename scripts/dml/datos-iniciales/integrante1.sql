@@ -37,62 +37,62 @@ VALUES
 ('NATURAL'),
 ('JURÍDICA'),
 ('GUBERNAMENTAL');
-SELECT * FROM MODULO_CLIENTES.TIPO_PERSONA;
+SELECT * FROM MODULO_CLIENTES.TIPO_PERSONA TP ;
 
 --PERSONA
 INSERT INTO MODULO_CLIENTES.PERSONA (nombre_persona, cod_tipo_persona)
 VALUES 
-('Pedro Carlos Vilchez Cardenas', (SELECT cod_tipo_persona FROM MODULO_CLIENTES.TIPO_PERSONA WHERE valor_tipo_persona = 'NATURAL')),
-('Gabriel Jose Martinez Arista', (SELECT cod_tipo_persona FROM MODULO_CLIENTES.TIPO_PERSONA WHERE valor_tipo_persona = 'NATURAL')),
-('Pedro Sebastian Nuñez Castillo', (SELECT cod_tipo_persona FROM MODULO_CLIENTES.TIPO_PERSONA WHERE valor_tipo_persona = 'NATURAL')),
-('Juan Carlos Flores Sánchez', (SELECT cod_tipo_persona FROM MODULO_CLIENTES.TIPO_PERSONA WHERE valor_tipo_persona = 'NATURAL')),
-('Ana María García Rodríguez', (SELECT cod_tipo_persona FROM MODULO_CLIENTES.TIPO_PERSONA WHERE valor_tipo_persona = 'NATURAL')),
-('José Luis Torres Huamán', (SELECT cod_tipo_persona FROM MODULO_CLIENTES.TIPO_PERSONA WHERE valor_tipo_persona = 'NATURAL')),
-('Rosa Elena Rojas Vásquez', (SELECT cod_tipo_persona FROM MODULO_CLIENTES.TIPO_PERSONA WHERE valor_tipo_persona = 'NATURAL')),
-('Miguel Ángel Quispe Mamani', (SELECT cod_tipo_persona FROM MODULO_CLIENTES.TIPO_PERSONA WHERE valor_tipo_persona = 'NATURAL')),
-('Carmen Victoria López Ramos', (SELECT cod_tipo_persona FROM MODULO_CLIENTES.TIPO_PERSONA WHERE valor_tipo_persona = 'NATURAL')),
-('Jorge Luis Pérez Díaz', (SELECT cod_tipo_persona FROM MODULO_CLIENTES.TIPO_PERSONA WHERE valor_tipo_persona = 'NATURAL')),
-('Sofía Alejandra Gonzáles Chávez', (SELECT cod_tipo_persona FROM MODULO_CLIENTES.TIPO_PERSONA WHERE valor_tipo_persona = 'NATURAL')),
-('Marco Antonio Ramírez Mendoza', (SELECT cod_tipo_persona FROM MODULO_CLIENTES.TIPO_PERSONA WHERE valor_tipo_persona = 'NATURAL')),
-('María Fernanda Espinoza Castillo', (SELECT cod_tipo_persona FROM MODULO_CLIENTES.TIPO_PERSONA WHERE valor_tipo_persona = 'NATURAL')),
-('David Ricardo Fernández Vargas', (SELECT cod_tipo_persona FROM MODULO_CLIENTES.TIPO_PERSONA WHERE valor_tipo_persona = 'NATURAL')),
-('Lucía Patricia Gutiérrez Cruz', (SELECT cod_tipo_persona FROM MODULO_CLIENTES.TIPO_PERSONA WHERE valor_tipo_persona = 'NATURAL')),
-('Raúl Ernesto Ruíz Romero', (SELECT cod_tipo_persona FROM MODULO_CLIENTES.TIPO_PERSONA WHERE valor_tipo_persona = 'NATURAL')),
-('Elena Soledad Gómez Silva', (SELECT cod_tipo_persona FROM MODULO_CLIENTES.TIPO_PERSONA WHERE valor_tipo_persona = 'NATURAL')),
-('Luis Alberto Condori Martínez', (SELECT cod_tipo_persona FROM MODULO_CLIENTES.TIPO_PERSONA WHERE valor_tipo_persona = 'NATURAL')),
-('Claudia Jimena Reyes Rivera', (SELECT cod_tipo_persona FROM MODULO_CLIENTES.TIPO_PERSONA WHERE valor_tipo_persona = 'NATURAL')),
-('Diego Andrés Salazar Medina', (SELECT cod_tipo_persona FROM MODULO_CLIENTES.TIPO_PERSONA WHERE valor_tipo_persona = 'NATURAL')),
-('Andrea Celeste Aguilar Morales', (SELECT cod_tipo_persona FROM MODULO_CLIENTES.TIPO_PERSONA WHERE valor_tipo_persona = 'NATURAL')),
-('Julio César Paredes Castro', (SELECT cod_tipo_persona FROM MODULO_CLIENTES.TIPO_PERSONA WHERE valor_tipo_persona = 'NATURAL')),
-('Valeria Isabel Córdova Acuña', (SELECT cod_tipo_persona FROM MODULO_CLIENTES.TIPO_PERSONA WHERE valor_tipo_persona = 'NATURAL')),
-('Credicorp', (SELECT cod_tipo_persona FROM MODULO_CLIENTES.TIPO_PERSONA WHERE valor_tipo_persona = 'JURÍDICA')),
-('Alicorp', (SELECT cod_tipo_persona FROM MODULO_CLIENTES.TIPO_PERSONA WHERE valor_tipo_persona = 'JURÍDICA')),
-('Intercorp', (SELECT cod_tipo_persona FROM MODULO_CLIENTES.TIPO_PERSONA WHERE valor_tipo_persona = 'JURÍDICA')),
-('Southern Peru Copper Corporation', (SELECT cod_tipo_persona FROM MODULO_CLIENTES.TIPO_PERSONA WHERE valor_tipo_persona = 'JURÍDICA'));
+('Pedro Carlos Vilchez Cardenas',1),
+('Gabriel Jose Martinez Arista',1),
+('Pedro Sebastian Nuñez Castillo',1),
+('Juan Carlos Flores Sánchez',1),
+('Ana María García Rodríguez',1),
+('José Luis Torres Huamán',1),
+('Rosa Elena Rojas Vásquez',1),
+('Miguel Ángel Quispe Mamani',1),
+('Carmen Victoria López Ramos',1),
+('Jorge Luis Pérez Díaz',1),
+('Sofía Alejandra Gonzáles Chávez',1),
+('Marco Antonio Ramírez Mendoza',1),
+('María Fernanda Espinoza Castillo',1),
+('David Ricardo Fernández Vargas',1),
+('Lucía Patricia Gutiérrez Cruz',1),
+('Raúl Ernesto Ruíz Romero',1),
+('Elena Soledad Gómez Silva',1),
+('Luis Alberto Condori Martínez',1),
+('Claudia Jimena Reyes Rivera',1),
+('Diego Andrés Salazar Medina',1),
+('Andrea Celeste Aguilar Morales',1),
+('Julio César Paredes Castro',1),
+('Valeria Isabel Córdova Acuña',1),
+('Credicorp',2),
+('Alicorp',2),
+('Intercorp',2),
+('Southern Peru Copper Corporation',2);
 SELECT * FROM MODULO_CLIENTES.PERSONA;
 
 --CLIENTE
 INSERT INTO MODULO_CLIENTES.CLIENTE (cod_persona)
 VALUES 
-((SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Pedro Carlos Vilchez Cardenas')),
-((SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Pedro Sebastian Nuñez Castillo')),
-((SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Gabriel Jose Martinez Arista')),
-((SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Marco Antonio Ramírez Mendoza')),
-((SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'María Fernanda Espinoza Castillo')),
-((SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'David Ricardo Fernández Vargas')),
-((SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Lucía Patricia Gutiérrez Cruz')),
-((SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Raúl Ernesto Ruíz Romero')),
-((SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Elena Soledad Gómez Silva')),
-((SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Luis Alberto Condori Martínez')),
-((SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Claudia Jimena Reyes Rivera')),
-((SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Diego Andrés Salazar Medina')),
-((SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Andrea Celeste Aguilar Morales')),
-((SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Julio César Paredes Castro')),
-((SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Valeria Isabel Córdova Acuña')),
-((SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Credicorp')),
-((SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Alicorp')),
-((SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Intercorp')),
-((SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Southern Peru Copper Corporation'));
+(1),
+(3),
+(2),
+(12),
+(13),
+(14),
+(15),
+(16),
+(17),
+(18),
+(19),
+(20),
+(21),
+(22),
+(23),
+(24),
+(25),
+(26),
+(27);
 SELECT * FROM MODULO_CLIENTES.CLIENTE;
 
 --TIPO_CONTACTO
@@ -106,50 +106,50 @@ SELECT * FROM MODULO_CLIENTES.TIPO_CONTACTO;
 --CONTACTO
 INSERT INTO MODULO_CLIENTES.CONTACTO (valor_contacto, cod_tipo_contacto)
 VALUES 
-('904 321 098',(SELECT cod_tipo_contacto FROM MODULO_CLIENTES.TIPO_CONTACTO WHERE valor_tipo_contacto = 'TELEFONO CELULAR')),
-('gabriel.a@uno.pe',(SELECT cod_tipo_contacto FROM MODULO_CLIENTES.TIPO_CONTACTO WHERE valor_tipo_contacto = 'CORREO')),
-('123 456 789',(SELECT cod_tipo_contacto FROM MODULO_CLIENTES.TIPO_CONTACTO WHERE valor_tipo_contacto = 'TELEFONO CELULAR')),
-('987 654 322',(SELECT cod_tipo_contacto FROM MODULO_CLIENTES.TIPO_CONTACTO WHERE valor_tipo_contacto = 'TELEFONO CELULAR')),
-('987 654 321',(SELECT cod_tipo_contacto FROM MODULO_CLIENTES.TIPO_CONTACTO WHERE valor_tipo_contacto = 'TELEFONO CELULAR')),
-('999 888 777',(SELECT cod_tipo_contacto FROM MODULO_CLIENTES.TIPO_CONTACTO WHERE valor_tipo_contacto = 'TELEFONO CELULAR')),
-('912 345 678',(SELECT cod_tipo_contacto FROM MODULO_CLIENTES.TIPO_CONTACTO WHERE valor_tipo_contacto = 'TELEFONO CELULAR')),
-('954 321 098',(SELECT cod_tipo_contacto FROM MODULO_CLIENTES.TIPO_CONTACTO WHERE valor_tipo_contacto = 'TELEFONO CELULAR')),
-('960 001 112',(SELECT cod_tipo_contacto FROM MODULO_CLIENTES.TIPO_CONTACTO WHERE valor_tipo_contacto = 'TELEFONO CELULAR')),
-('945 612 378',(SELECT cod_tipo_contacto FROM MODULO_CLIENTES.TIPO_CONTACTO WHERE valor_tipo_contacto = 'TELEFONO CELULAR')),
-('933 221 100',(SELECT cod_tipo_contacto FROM MODULO_CLIENTES.TIPO_CONTACTO WHERE valor_tipo_contacto = 'TELEFONO CELULAR')),
-('971 721 731',(SELECT cod_tipo_contacto FROM MODULO_CLIENTES.TIPO_CONTACTO WHERE valor_tipo_contacto = 'TELEFONO CELULAR')),
-('920 806 402',(SELECT cod_tipo_contacto FROM MODULO_CLIENTES.TIPO_CONTACTO WHERE valor_tipo_contacto = 'TELEFONO CELULAR')),
-('982 555 111',(SELECT cod_tipo_contacto FROM MODULO_CLIENTES.TIPO_CONTACTO WHERE valor_tipo_contacto = 'TELEFONO CELULAR')),
-('913 707 923',(SELECT cod_tipo_contacto FROM MODULO_CLIENTES.TIPO_CONTACTO WHERE valor_tipo_contacto = 'TELEFONO CELULAR')),
-('955 888 222',(SELECT cod_tipo_contacto FROM MODULO_CLIENTES.TIPO_CONTACTO WHERE valor_tipo_contacto = 'TELEFONO CELULAR')),
-('967 400 300',(SELECT cod_tipo_contacto FROM MODULO_CLIENTES.TIPO_CONTACTO WHERE valor_tipo_contacto = 'TELEFONO CELULAR')),
-('932 605 981',(SELECT cod_tipo_contacto FROM MODULO_CLIENTES.TIPO_CONTACTO WHERE valor_tipo_contacto = 'TELEFONO CELULAR')),
-('948 765 432',(SELECT cod_tipo_contacto FROM MODULO_CLIENTES.TIPO_CONTACTO WHERE valor_tipo_contacto = 'TELEFONO CELULAR')),
-('977 111 222',(SELECT cod_tipo_contacto FROM MODULO_CLIENTES.TIPO_CONTACTO WHERE valor_tipo_contacto = 'TELEFONO CELULAR')),
-('914 567 890',(SELECT cod_tipo_contacto FROM MODULO_CLIENTES.TIPO_CONTACTO WHERE valor_tipo_contacto = 'TELEFONO CELULAR')),
-('980 706 504',(SELECT cod_tipo_contacto FROM MODULO_CLIENTES.TIPO_CONTACTO WHERE valor_tipo_contacto = 'TELEFONO CELULAR')),
-('993 444 888',(SELECT cod_tipo_contacto FROM MODULO_CLIENTES.TIPO_CONTACTO WHERE valor_tipo_contacto = 'TELEFONO CELULAR')),
-('929 191 292',(SELECT cod_tipo_contacto FROM MODULO_CLIENTES.TIPO_CONTACTO WHERE valor_tipo_contacto = 'TELEFONO CELULAR')),
-('juan.flores@ejemplocorreo.com',(SELECT cod_tipo_contacto FROM MODULO_CLIENTES.TIPO_CONTACTO WHERE valor_tipo_contacto = 'CORREO')),
-('anagrcia.rdgz@contactoempresa.pe',(SELECT cod_tipo_contacto FROM MODULO_CLIENTES.TIPO_CONTACTO WHERE valor_tipo_contacto = 'CORREO')),
-('jtorresh@miproyecto.net',(SELECT cod_tipo_contacto FROM MODULO_CLIENTES.TIPO_CONTACTO WHERE valor_tipo_contacto = 'CORREO')),
-('rrojvazquez@perumail.com',(SELECT cod_tipo_contacto FROM MODULO_CLIENTES.TIPO_CONTACTO WHERE valor_tipo_contacto = 'CORREO')),
-('miguel.quispe@correoandino.pe',(SELECT cod_tipo_contacto FROM MODULO_CLIENTES.TIPO_CONTACTO WHERE valor_tipo_contacto = 'CORREO')),
-('carmenlopez.r@ejemplosol.com',(SELECT cod_tipo_contacto FROM MODULO_CLIENTES.TIPO_CONTACTO WHERE valor_tipo_contacto = 'CORREO')),
-('jorgeperez@servicio.com.pe',(SELECT cod_tipo_contacto FROM MODULO_CLIENTES.TIPO_CONTACTO WHERE valor_tipo_contacto = 'CORREO')),
-('sofia.gonzalez.c@negociosperu.pe',(SELECT cod_tipo_contacto FROM MODULO_CLIENTES.TIPO_CONTACTO WHERE valor_tipo_contacto = 'CORREO')),
-('marcoramirez.m@dominio.net',(SELECT cod_tipo_contacto FROM MODULO_CLIENTES.TIPO_CONTACTO WHERE valor_tipo_contacto = 'CORREO')),
-('maria.castillo.e@correo.com',(SELECT cod_tipo_contacto FROM MODULO_CLIENTES.TIPO_CONTACTO WHERE valor_tipo_contacto = 'CORREO')),
-('davidricardo.f@mailcorporativo.pe',(SELECT cod_tipo_contacto FROM MODULO_CLIENTES.TIPO_CONTACTO WHERE valor_tipo_contacto = 'CORREO')),
-('luti.gutierrez@emailpersonal.com',(SELECT cod_tipo_contacto FROM MODULO_CLIENTES.TIPO_CONTACTO WHERE valor_tipo_contacto = 'CORREO')),
-('raul.ruiz.r@elcorreo.pe',(SELECT cod_tipo_contacto FROM MODULO_CLIENTES.TIPO_CONTACTO WHERE valor_tipo_contacto = 'CORREO')),
-('esole.gomez@miservicios.net',(SELECT cod_tipo_contacto FROM MODULO_CLIENTES.TIPO_CONTACTO WHERE valor_tipo_contacto = 'CORREO')),
-('lualbertocondori@datacorp.com.pe',(SELECT cod_tipo_contacto FROM MODULO_CLIENTES.TIPO_CONTACTO WHERE valor_tipo_contacto = 'CORREO')),
-('claudia.reyes@contacto.pe',(SELECT cod_tipo_contacto FROM MODULO_CLIENTES.TIPO_CONTACTO WHERE valor_tipo_contacto = 'CORREO')),
-('diego.salazar.m@miemprendimiento.com',(SELECT cod_tipo_contacto FROM MODULO_CLIENTES.TIPO_CONTACTO WHERE valor_tipo_contacto = 'CORREO')),
-('andreaceleste.a@mail.pe',(SELECT cod_tipo_contacto FROM MODULO_CLIENTES.TIPO_CONTACTO WHERE valor_tipo_contacto = 'CORREO')),
-('juliocesar.p@servicioperu.com',(SELECT cod_tipo_contacto FROM MODULO_CLIENTES.TIPO_CONTACTO WHERE valor_tipo_contacto = 'CORREO')),
-('valeria.cordova@ejemplo.pe',(SELECT cod_tipo_contacto FROM MODULO_CLIENTES.TIPO_CONTACTO WHERE valor_tipo_contacto = 'CORREO'));
+('904 321 098',2),
+('gabriel.a@uno.pe',1),
+('123 456 789',2),
+('987 654 322',2),
+('987 654 321',2),
+('999 888 777',2),
+('912 345 678',2),
+('954 321 098',2),
+('960 001 112',2),
+('945 612 378',2),
+('933 221 100',2),
+('971 721 731',2),
+('920 806 402',2),
+('982 555 111',2),
+('913 707 923',2),
+('955 888 222',2),
+('967 400 300',2),
+('932 605 981',2),
+('948 765 432',2),
+('977 111 222',2),
+('914 567 890',2),
+('980 706 504',2),
+('993 444 888',2),
+('929 191 292',2),
+('juan.flores@ejemplocorreo.com',1),
+('anagrcia.rdgz@contactoempresa.pe',1),
+('jtorresh@miproyecto.net',1),
+('rrojvazquez@perumail.com',1),
+('miguel.quispe@correoandino.pe',1),
+('carmenlopez.r@ejemplosol.com',1),
+('jorgeperez@servicio.com.pe',1),
+('sofia.gonzalez.c@negociosperu.pe',1),
+('marcoramirez.m@dominio.net',1),
+('maria.castillo.e@correo.com',1),
+('davidricardo.f@mailcorporativo.pe',1),
+('luti.gutierrez@emailpersonal.com',1),
+('raul.ruiz.r@elcorreo.pe',1),
+('esole.gomez@miservicios.net',1),
+('lualbertocondori@datacorp.com.pe',1),
+('claudia.reyes@contacto.pe',1),
+('diego.salazar.m@miemprendimiento.com',1),
+('andreaceleste.a@mail.pe',1),
+('juliocesar.p@servicioperu.com',1),
+('valeria.cordova@ejemplo.pe',1);
 SELECT * FROM MODULO_CLIENTES.CONTACTO;
 
 --DIRECCION
@@ -200,116 +200,116 @@ VALUES
 SELECT * FROM MODULO_CLIENTES.TIPO_DOCUMENTO;
 
 --DOCUMENTO_PERSONA
-INSERT INTO MODULO_CLIENTES.DOCUMENTO_PERSONA (valor_documento, cod_persona, cod_tipo_documento)
+INSERT INTO MODULO_CLIENTES.DOCUMENTO_PERSONA (valor_documento, cod_persona, cod_tipo_documento, principal_documento)
 VALUES 
-('10 12345678 8',(SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Pedro Carlos Vilchez Cardenas'),(SELECT cod_tipo_documento FROM MODULO_CLIENTES.TIPO_DOCUMENTO WHERE valor_tipo_documento = 'RUC')),
-('7899 4567',(SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Gabriel Jose Martinez Arista'),(SELECT cod_tipo_documento FROM MODULO_CLIENTES.TIPO_DOCUMENTO WHERE valor_tipo_documento = 'DNI')),
-('40876543',(SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Juan Carlos Flores Sánchez'),(SELECT cod_tipo_documento FROM MODULO_CLIENTES.TIPO_DOCUMENTO WHERE valor_tipo_documento = 'DNI')),
-('78901234',(SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Ana María García Rodríguez'),(SELECT cod_tipo_documento FROM MODULO_CLIENTES.TIPO_DOCUMENTO WHERE valor_tipo_documento = 'DNI')),
-('8123456',(SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'José Luis Torres Huamán'),(SELECT cod_tipo_documento FROM MODULO_CLIENTES.TIPO_DOCUMENTO WHERE valor_tipo_documento = 'DNI')),
-('60987654',(SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Rosa Elena Rojas Vásquez'),(SELECT cod_tipo_documento FROM MODULO_CLIENTES.TIPO_DOCUMENTO WHERE valor_tipo_documento = 'DNI')),
-('45678901',(SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Miguel Ángel Quispe Mamani'),(SELECT cod_tipo_documento FROM MODULO_CLIENTES.TIPO_DOCUMENTO WHERE valor_tipo_documento = 'DNI')),
-('11223344',(SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Carmen Victoria López Ramos'),(SELECT cod_tipo_documento FROM MODULO_CLIENTES.TIPO_DOCUMENTO WHERE valor_tipo_documento = 'DNI')),
-('55667788',(SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Jorge Luis Pérez Díaz'),(SELECT cod_tipo_documento FROM MODULO_CLIENTES.TIPO_DOCUMENTO WHERE valor_tipo_documento = 'DNI')),
-('32109876',(SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Sofía Alejandra Gonzáles Chávez'),(SELECT cod_tipo_documento FROM MODULO_CLIENTES.TIPO_DOCUMENTO WHERE valor_tipo_documento = 'DNI')),
-('80706050',(SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Marco Antonio Ramírez Mendoza'),(SELECT cod_tipo_documento FROM MODULO_CLIENTES.TIPO_DOCUMENTO WHERE valor_tipo_documento = 'DNI')),
-('19283746',(SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'María Fernanda Espinoza Castillo'),(SELECT cod_tipo_documento FROM MODULO_CLIENTES.TIPO_DOCUMENTO WHERE valor_tipo_documento = 'DNI')),
-('1234 5678',(SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Pedro Sebastian Nuñez Castillo'),(SELECT cod_tipo_documento FROM MODULO_CLIENTES.TIPO_DOCUMENTO WHERE valor_tipo_documento = 'DNI')),
-('10456789012',(SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'David Ricardo Fernández Vargas'),(SELECT cod_tipo_documento FROM MODULO_CLIENTES.TIPO_DOCUMENTO WHERE valor_tipo_documento = 'RUC')),
-('10987654321',(SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Lucía Patricia Gutiérrez Cruz'),(SELECT cod_tipo_documento FROM MODULO_CLIENTES.TIPO_DOCUMENTO WHERE valor_tipo_documento = 'RUC')),
-('10112233445',(SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Raúl Ernesto Ruíz Romero'),(SELECT cod_tipo_documento FROM MODULO_CLIENTES.TIPO_DOCUMENTO WHERE valor_tipo_documento = 'RUC')),
-('10765432109',(SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Elena Soledad Gómez Silva'),(SELECT cod_tipo_documento FROM MODULO_CLIENTES.TIPO_DOCUMENTO WHERE valor_tipo_documento = 'RUC')),
-('10010010019',(SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Luis Alberto Condori Martínez'),(SELECT cod_tipo_documento FROM MODULO_CLIENTES.TIPO_DOCUMENTO WHERE valor_tipo_documento = 'RUC')),
-('10334455667',(SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Claudia Jimena Reyes Rivera'),(SELECT cod_tipo_documento FROM MODULO_CLIENTES.TIPO_DOCUMENTO WHERE valor_tipo_documento = 'RUC')),
-('10998877665',(SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Diego Andrés Salazar Medina'),(SELECT cod_tipo_documento FROM MODULO_CLIENTES.TIPO_DOCUMENTO WHERE valor_tipo_documento = 'RUC')),
-('10223344556',(SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Andrea Celeste Aguilar Morales'),(SELECT cod_tipo_documento FROM MODULO_CLIENTES.TIPO_DOCUMENTO WHERE valor_tipo_documento = 'RUC')),
-('10405060708',(SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Julio César Paredes Castro'),(SELECT cod_tipo_documento FROM MODULO_CLIENTES.TIPO_DOCUMENTO WHERE valor_tipo_documento = 'RUC')),
-('10302040608',(SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Valeria Isabel Córdova Acuña'),(SELECT cod_tipo_documento FROM MODULO_CLIENTES.TIPO_DOCUMENTO WHERE valor_tipo_documento = 'RUC')),
-('20567890123',(SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Credicorp'),(SELECT cod_tipo_documento FROM MODULO_CLIENTES.TIPO_DOCUMENTO WHERE valor_tipo_documento = 'RUC')),
-('20123456789',(SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Alicorp'),(SELECT cod_tipo_documento FROM MODULO_CLIENTES.TIPO_DOCUMENTO WHERE valor_tipo_documento = 'RUC')),
-('20001002003',(SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Intercorp'),(SELECT cod_tipo_documento FROM MODULO_CLIENTES.TIPO_DOCUMENTO WHERE valor_tipo_documento = 'RUC')),
-('20998877665',(SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Southern Peru Copper Corporation'),(SELECT cod_tipo_documento FROM MODULO_CLIENTES.TIPO_DOCUMENTO WHERE valor_tipo_documento = 'RUC'));
+('10 12345678 8',1,3,true),
+('7899 4567',2,1,true),
+('40876543',4,1,true),
+('78901234',5,1,true),
+('8123456',6,1,true),
+('60987654',7,1,true),
+('45678901',8,1,true),
+('11223344',9,1,true),
+('55667788',10,1,true),
+('32109876',11,1,true),
+('80706050',12,1,true),
+('19283746',13,1,true),
+('1234 5678',3,1,true),
+('10456789012',14,3,true),
+('10987654321',15,3,true),
+('10112233445',16,3,true),
+('10765432109',17,3,true),
+('10010010019',18,3,true),
+('10334455667',19,3,true),
+('10998877665',20,3,true),
+('10223344556',21,3,true),
+('10405060708',22,3,true),
+('10302040608',23,3,true),
+('20567890123',24,3,true),
+('20123456789',25,3,true),
+('20001002003',26,3,true),
+('20998877665',27,3,true);
 SELECT * FROM MODULO_CLIENTES.DOCUMENTO_PERSONA;
 
 --DIRECCION_PERSONA
-INSERT INTO MODULO_CLIENTES.DIRECCION_PERSONA (cod_persona, cod_direccion)
+INSERT INTO MODULO_CLIENTES.DIRECCION_PERSONA (cod_persona, cod_direccion, principal_direccion)
 VALUES 
-((SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Pedro Carlos Vilchez Cardenas'),(SELECT cod_direccion FROM MODULO_CLIENTES.DIRECCION D WHERE (ciudad, distrito, via, numero) = ('Lima', 'Barranco', 'Jirón 28 de Julio', '123'))),
-((SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Gabriel Jose Martinez Arista'),(SELECT cod_direccion FROM MODULO_CLIENTES.DIRECCION D WHERE (ciudad, distrito, via, numero) = ('Lima', 'Barranco', 'Jiron 28 de julio', '123'))),
-((SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Juan Carlos Flores Sánchez'),(SELECT cod_direccion FROM MODULO_CLIENTES.DIRECCION D WHERE (ciudad, distrito, via, numero) =('Lima', 'Santa Anita', 'Avenida Moro solar', '455') )),
-((SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Ana María García Rodríguez'),(SELECT cod_direccion FROM MODULO_CLIENTES.DIRECCION D WHERE (ciudad, distrito, via, numero) =('Lima', 'Miraflores', 'Av. Larco', '1010') )),
-((SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'José Luis Torres Huamán'),(SELECT cod_direccion FROM MODULO_CLIENTES.DIRECCION D WHERE (ciudad, distrito, via, numero) =('Lima', 'Santiago de Surco', 'Jr. Monte Rosa', '250 - Of. 301') )),
-((SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Rosa Elena Rojas Vásquez'),(SELECT cod_direccion FROM MODULO_CLIENTES.DIRECCION D WHERE (ciudad, distrito, via, numero) =('Lima', 'San Isidro', 'Calle Las Camelias', '790') )),
-((SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Miguel Ángel Quispe Mamani'),(SELECT cod_direccion FROM MODULO_CLIENTES.DIRECCION D WHERE (ciudad, distrito, via, numero) =('Lima', 'La Molina', 'Av. Raúl Ferrero', '1200') )),
-((SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Carmen Victoria López Ramos'),(SELECT cod_direccion FROM MODULO_CLIENTES.DIRECCION D WHERE (ciudad, distrito, via, numero) =('Lima', 'Barranco', 'Pje. Sáenz Peña', '190') )),
-((SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Jorge Luis Pérez Díaz'),(SELECT cod_direccion FROM MODULO_CLIENTES.DIRECCION D WHERE (ciudad, distrito, via, numero) =('Arequipa', 'Cercado', 'Calle San Agustín', '305') )),
-((SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Sofía Alejandra Gonzáles Chávez'),(SELECT cod_direccion FROM MODULO_CLIENTES.DIRECCION D WHERE (ciudad, distrito, via, numero) =('Arequipa', 'Yanahuara', 'Av. Ejército', '810') )),
-((SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Marco Antonio Ramírez Mendoza'),(SELECT cod_direccion FROM MODULO_CLIENTES.DIRECCION D WHERE (ciudad, distrito, via, numero) =('Cusco', 'Cusco', 'Av. El Sol', '920') )),
-((SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'María Fernanda Espinoza Castillo'),(SELECT cod_direccion FROM MODULO_CLIENTES.DIRECCION D WHERE (ciudad, distrito, via, numero) =('Cusco', 'Wanchaq', 'Calle Túpac Amaru', 'Lote 15') )),
-((SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'David Ricardo Fernández Vargas'),(SELECT cod_direccion FROM MODULO_CLIENTES.DIRECCION D WHERE (ciudad, distrito, via, numero) =('Trujillo', 'Trujillo', 'Av. España', '2405') )),
-((SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Lucía Patricia Gutiérrez Cruz'),(SELECT cod_direccion FROM MODULO_CLIENTES.DIRECCION D WHERE (ciudad, distrito, via, numero) =('Trujillo', 'Víctor Larco Herrera', 'Jr. Ayacucho', '580') )),
-((SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Raúl Ernesto Ruíz Romero'),(SELECT cod_direccion FROM MODULO_CLIENTES.DIRECCION D WHERE (ciudad, distrito, via, numero) =('Piura', 'Piura', 'Calle Lima', '555') )),
-((SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Elena Soledad Gómez Silva'),(SELECT cod_direccion FROM MODULO_CLIENTES.DIRECCION D WHERE (ciudad, distrito, via, numero) =('Piura', 'Castilla', 'Av. Ramón Castilla', 'Mz. G, Lt. 2') )),
-((SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Luis Alberto Condori Martínez'),(SELECT cod_direccion FROM MODULO_CLIENTES.DIRECCION D WHERE (ciudad, distrito, via, numero) =('Chiclayo', 'Chiclayo', 'Calle Lora y Lora', '412') )),
-((SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Claudia Jimena Reyes Rivera'),(SELECT cod_direccion FROM MODULO_CLIENTES.DIRECCION D WHERE (ciudad, distrito, via, numero) =('Chiclayo', 'La Victoria', 'Av. Los Incas', '1850') )),
-((SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Diego Andrés Salazar Medina'),(SELECT cod_direccion FROM MODULO_CLIENTES.DIRECCION D WHERE (ciudad, distrito, via, numero) =('Iquitos', 'Iquitos', 'Av. Mariscal Cáceres', '110') )),
-((SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Andrea Celeste Aguilar Morales'),(SELECT cod_direccion FROM MODULO_CLIENTES.DIRECCION D WHERE (ciudad, distrito, via, numero) =('Iquitos', 'San Juan Bautista', 'Jr. Putumayo', 'S/N (Km 4.5)') )),
-((SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Julio César Paredes Castro'),(SELECT cod_direccion FROM MODULO_CLIENTES.DIRECCION D WHERE (ciudad, distrito, via, numero) =('Huancayo', 'El Tambo', 'Jr. Puno', '701') )),
-((SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Valeria Isabel Córdova Acuña'),(SELECT cod_direccion FROM MODULO_CLIENTES.DIRECCION D WHERE (ciudad, distrito, via, numero) =('Huancayo', 'Huancayo', 'Av. Giráldez', '330') )),
-((SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Credicorp'),(SELECT cod_direccion FROM MODULO_CLIENTES.DIRECCION D WHERE (ciudad, distrito, via, numero) =('Puno', 'Puno', 'Jr. Lima', '445') )),
-((SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Alicorp'),(SELECT cod_direccion FROM MODULO_CLIENTES.DIRECCION D WHERE (ciudad, distrito, via, numero) =('Puno', 'Juliaca', 'Jr. Mariano Melgar', '120 - Urb. Pumas') )),
-((SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Intercorp'),(SELECT cod_direccion FROM MODULO_CLIENTES.DIRECCION D WHERE (ciudad, distrito, via, numero) =('Tacna', 'Tacna', 'Calle Blondell', '150') )),
-((SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Southern Peru Copper Corporation'),(SELECT cod_direccion FROM MODULO_CLIENTES.DIRECCION D WHERE (ciudad, distrito, via, numero) =('Tacna', 'Gregorio Albarracín', 'Av. La Cultura', '902') )),
-((SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Pedro Sebastian Nuñez Castillo'),(SELECT cod_direccion FROM MODULO_CLIENTES.DIRECCION D WHERE (ciudad, distrito, via, numero) = ('Lima', 'Ate', 'Avenida Hermes', '256')));
+(1,1,true),
+(3,2,true),
+(4,4,true),
+(5,5,true),
+(6,6,true),
+(7,7,true),
+(8,8,true),
+(9,9,true),
+(10,10,true),
+(11,11,true),
+(12,12,true),
+(13,13,true),
+(14,14,true),
+(15,15,true),
+(16,16,true),
+(17,17,true),
+(18,18,true),
+(19,19,true),
+(20,20,true),
+(21,21,true),
+(22,22,true),
+(23,23,true),
+(24,24,true),
+(25,25,true),
+(26,26,true),
+(27,27,true),
+(2,3,true);
 SELECT * FROM MODULO_CLIENTES.DIRECCION_PERSONA;
 
 --CONTACTO_PERSONA
-INSERT INTO MODULO_CLIENTES.CONTACTO_PERSONA (cod_persona, cod_contacto)
+INSERT INTO MODULO_CLIENTES.CONTACTO_PERSONA (cod_persona, cod_contacto , principal_contacto)
 VALUES 
-((SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Gabriel Jose Martinez Arista'),(SELECT cod_contacto FROM MODULO_CLIENTES.CONTACTO C WHERE C.VALOR_CONTACTO = 'gabriel.a@uno.pe')),
-((SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Gabriel Jose Martinez Arista'),(SELECT cod_contacto FROM MODULO_CLIENTES.CONTACTO C WHERE C.VALOR_CONTACTO = '123 456 789')),
-((SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Pedro Sebastian Nuñez Castillo'),(SELECT cod_contacto FROM MODULO_CLIENTES.CONTACTO C WHERE C.VALOR_CONTACTO = '987 654 321')),
-((SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Pedro Carlos Vilchez Cardenas'),(SELECT cod_contacto FROM MODULO_CLIENTES.CONTACTO C WHERE C.VALOR_CONTACTO = '904 321 098')),
-((SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Juan Carlos Flores Sánchez'),(SELECT cod_contacto FROM MODULO_CLIENTES.CONTACTO C WHERE C.VALOR_CONTACTO = '987 654 321')),
-((SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Ana María García Rodríguez'),(SELECT cod_contacto FROM MODULO_CLIENTES.CONTACTO C WHERE C.VALOR_CONTACTO = '999 888 777')),
-((SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'José Luis Torres Huamán'),(SELECT cod_contacto FROM MODULO_CLIENTES.CONTACTO C WHERE C.VALOR_CONTACTO = '912 345 678')),
-((SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Rosa Elena Rojas Vásquez'),(SELECT cod_contacto FROM MODULO_CLIENTES.CONTACTO C WHERE C.VALOR_CONTACTO = '954 321 098')),
-((SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Miguel Ángel Quispe Mamani'),(SELECT cod_contacto FROM MODULO_CLIENTES.CONTACTO C WHERE C.VALOR_CONTACTO = '960 001 112')),
-((SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Carmen Victoria López Ramos'),(SELECT cod_contacto FROM MODULO_CLIENTES.CONTACTO C WHERE C.VALOR_CONTACTO = '945 612 378')),
-((SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Jorge Luis Pérez Díaz'),(SELECT cod_contacto FROM MODULO_CLIENTES.CONTACTO C WHERE C.VALOR_CONTACTO = '933 221 100')),
-((SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Sofía Alejandra Gonzáles Chávez'),(SELECT cod_contacto FROM MODULO_CLIENTES.CONTACTO C WHERE C.VALOR_CONTACTO = '971 721 731')),
-((SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Marco Antonio Ramírez Mendoza'),(SELECT cod_contacto FROM MODULO_CLIENTES.CONTACTO C WHERE C.VALOR_CONTACTO = '920 806 402')),
-((SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'María Fernanda Espinoza Castillo'),(SELECT cod_contacto FROM MODULO_CLIENTES.CONTACTO C WHERE C.VALOR_CONTACTO = '982 555 111')),
-((SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'David Ricardo Fernández Vargas'),(SELECT cod_contacto FROM MODULO_CLIENTES.CONTACTO C WHERE C.VALOR_CONTACTO = '913 707 923')),
-((SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Lucía Patricia Gutiérrez Cruz'),(SELECT cod_contacto FROM MODULO_CLIENTES.CONTACTO C WHERE C.VALOR_CONTACTO = '955 888 222')),
-((SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Raúl Ernesto Ruíz Romero'),(SELECT cod_contacto FROM MODULO_CLIENTES.CONTACTO C WHERE C.VALOR_CONTACTO = '967 400 300')),
-((SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Elena Soledad Gómez Silva'),(SELECT cod_contacto FROM MODULO_CLIENTES.CONTACTO C WHERE C.VALOR_CONTACTO = '932 605 981')),
-((SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Luis Alberto Condori Martínez'),(SELECT cod_contacto FROM MODULO_CLIENTES.CONTACTO C WHERE C.VALOR_CONTACTO = '948 765 432')),
-((SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Claudia Jimena Reyes Rivera'),(SELECT cod_contacto FROM MODULO_CLIENTES.CONTACTO C WHERE C.VALOR_CONTACTO = '977 111 222')),
-((SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Diego Andrés Salazar Medina'),(SELECT cod_contacto FROM MODULO_CLIENTES.CONTACTO C WHERE C.VALOR_CONTACTO = '914 567 890')),
-((SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Andrea Celeste Aguilar Morales'),(SELECT cod_contacto FROM MODULO_CLIENTES.CONTACTO C WHERE C.VALOR_CONTACTO = '980 706 504')),
-((SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Julio César Paredes Castro'),(SELECT cod_contacto FROM MODULO_CLIENTES.CONTACTO C WHERE C.VALOR_CONTACTO = '993 444 888')),
-((SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Valeria Isabel Córdova Acuña'),(SELECT cod_contacto FROM MODULO_CLIENTES.CONTACTO C WHERE C.VALOR_CONTACTO = '929 191 292')),
-((SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Juan Carlos Flores Sánchez'),(SELECT cod_contacto FROM MODULO_CLIENTES.CONTACTO C WHERE C.VALOR_CONTACTO = 'juan.flores@ejemplocorreo.com')),
-((SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Juan Carlos Flores Sánchez'),(SELECT cod_contacto FROM MODULO_CLIENTES.CONTACTO C WHERE C.VALOR_CONTACTO = 'anagrcia.rdgz@contactoempresa.pe')),
-((SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Juan Carlos Flores Sánchez'),(SELECT cod_contacto FROM MODULO_CLIENTES.CONTACTO C WHERE C.VALOR_CONTACTO = 'jtorresh@miproyecto.net')),
-((SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Juan Carlos Flores Sánchez'),(SELECT cod_contacto FROM MODULO_CLIENTES.CONTACTO C WHERE C.VALOR_CONTACTO = 'rrojvazquez@perumail.com')),
-((SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Juan Carlos Flores Sánchez'),(SELECT cod_contacto FROM MODULO_CLIENTES.CONTACTO C WHERE C.VALOR_CONTACTO = 'miguel.quispe@correoandino.pe')),
-((SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Juan Carlos Flores Sánchez'),(SELECT cod_contacto FROM MODULO_CLIENTES.CONTACTO C WHERE C.VALOR_CONTACTO = 'carmenlopez.r@ejemplosol.com')),
-((SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Juan Carlos Flores Sánchez'),(SELECT cod_contacto FROM MODULO_CLIENTES.CONTACTO C WHERE C.VALOR_CONTACTO = 'jorgeperez@servicio.com.pe')),
-((SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Juan Carlos Flores Sánchez'),(SELECT cod_contacto FROM MODULO_CLIENTES.CONTACTO C WHERE C.VALOR_CONTACTO = 'sofia.gonzalez.c@negociosperu.pe')),
-((SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Juan Carlos Flores Sánchez'),(SELECT cod_contacto FROM MODULO_CLIENTES.CONTACTO C WHERE C.VALOR_CONTACTO = 'marcoramirez.m@dominio.net')),
-((SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Juan Carlos Flores Sánchez'),(SELECT cod_contacto FROM MODULO_CLIENTES.CONTACTO C WHERE C.VALOR_CONTACTO = 'maria.castillo.e@correo.com')),
-((SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Juan Carlos Flores Sánchez'),(SELECT cod_contacto FROM MODULO_CLIENTES.CONTACTO C WHERE C.VALOR_CONTACTO = 'davidricardo.f@mailcorporativo.pe')),
-((SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Juan Carlos Flores Sánchez'),(SELECT cod_contacto FROM MODULO_CLIENTES.CONTACTO C WHERE C.VALOR_CONTACTO = 'luti.gutierrez@emailpersonal.com')),
-((SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Juan Carlos Flores Sánchez'),(SELECT cod_contacto FROM MODULO_CLIENTES.CONTACTO C WHERE C.VALOR_CONTACTO = 'raul.ruiz.r@elcorreo.pe')),
-((SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Juan Carlos Flores Sánchez'),(SELECT cod_contacto FROM MODULO_CLIENTES.CONTACTO C WHERE C.VALOR_CONTACTO = 'esole.gomez@miservicios.net')),
-((SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Juan Carlos Flores Sánchez'),(SELECT cod_contacto FROM MODULO_CLIENTES.CONTACTO C WHERE C.VALOR_CONTACTO = 'lualbertocondori@datacorp.com.pe')),
-((SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Juan Carlos Flores Sánchez'),(SELECT cod_contacto FROM MODULO_CLIENTES.CONTACTO C WHERE C.VALOR_CONTACTO = 'claudia.reyes@contacto.pe')),
-((SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Juan Carlos Flores Sánchez'),(SELECT cod_contacto FROM MODULO_CLIENTES.CONTACTO C WHERE C.VALOR_CONTACTO = 'diego.salazar.m@miemprendimiento.com')),
-((SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Juan Carlos Flores Sánchez'),(SELECT cod_contacto FROM MODULO_CLIENTES.CONTACTO C WHERE C.VALOR_CONTACTO = 'andreaceleste.a@mail.pe')),
-((SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Juan Carlos Flores Sánchez'),(SELECT cod_contacto FROM MODULO_CLIENTES.CONTACTO C WHERE C.VALOR_CONTACTO = 'juliocesar.p@servicioperu.com')),
-((SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Juan Carlos Flores Sánchez'),(SELECT cod_contacto FROM MODULO_CLIENTES.CONTACTO C WHERE C.VALOR_CONTACTO = 'valeria.cordova@ejemplo.pe'));
+(2,2,1),
+(3,2,2),
+(5,3,2),
+(1,1,2),
+(5,4,2),
+(6,5,2),
+(7,6,2),
+(8,7,2),
+(9,8,2),
+(10,9,2),
+(11,10,2),
+(12,11,2),
+(13,12,2),
+(14,13,2),
+(15,14,2),
+(16,15,2),
+(17,16,2),
+(18,17,2),
+(19,18,2),
+(20,19,2),
+(21,20,2),
+(22,21,2),
+(23,22,2),
+(24,23,2),
+(25,4,1),
+(26,5,),
+(27,6,1),
+(28,7,1),
+(29,8,1),
+(30,9,1),
+(31,10,1),
+(32,11,1),
+(33,12,1),
+(34,13,1),
+(35,14,1),
+(36,15,1),
+(37,16,1),
+(38,17,1),
+(39,18,1),
+(40,19,1),
+(41,20,1),
+(42,21,1),
+(43,22,1),
+(44,23,1);
 SELECT * FROM MODULO_CLIENTES.CONTACTO_PERSONA;
 
 --ESPECIALIDADES
@@ -341,20 +341,12 @@ SELECT * FROM MODULO_CLIENTES.ESPECIALIDADES;
 --MAESTRO
 INSERT INTO MODULO_CLIENTES.MAESTRO (ruc, cod_persona, cod_cliente, cod_especialidad)
 VALUES
-('10456789012', (SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'David Ricardo Fernández Vargas'), (SELECT cod_cliente FROM MODULO_CLIENTES.CLIENTE C  WHERE cod_persona = (SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'David Ricardo Fernández Vargas')), 
-(SELECT cod_especialidad FROM MODULO_CLIENTES.ESPECIALIDADES E  WHERE valor_especialidad = 'Cimentación')),
-('10987654321', (SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Lucía Patricia Gutiérrez Cruz'), (SELECT cod_cliente FROM MODULO_CLIENTES.CLIENTE C  WHERE cod_persona = (SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Lucía Patricia Gutiérrez Cruz')), 
-(SELECT cod_especialidad FROM MODULO_CLIENTES.ESPECIALIDADES E  WHERE valor_especialidad = 'Plomería')),
-('10112233445', (SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Raúl Ernesto Ruíz Romero'), (SELECT cod_cliente FROM MODULO_CLIENTES.CLIENTE C  WHERE cod_persona = (SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Raúl Ernesto Ruíz Romero')), 
-(SELECT cod_especialidad FROM MODULO_CLIENTES.ESPECIALIDADES E  WHERE valor_especialidad = 'Drywall')),
-('10765432109', (SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Elena Soledad Gómez Silva'), (SELECT cod_cliente FROM MODULO_CLIENTES.CLIENTE C  WHERE cod_persona = (SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Elena Soledad Gómez Silva')), 
-(SELECT cod_especialidad FROM MODULO_CLIENTES.ESPECIALIDADES E  WHERE valor_especialidad = 'Pintura')),
-('10010010019', (SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Luis Alberto Condori Martínez'), (SELECT cod_cliente FROM MODULO_CLIENTES.CLIENTE C  WHERE cod_persona = (SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Luis Alberto Condori Martínez')), 
-(SELECT cod_especialidad FROM MODULO_CLIENTES.ESPECIALIDADES E  WHERE valor_especialidad = 'Demolición')),
-('10 12345678 8', 
-(SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Pedro Carlos Vilchez Cardenas'), 
-(SELECT cod_cliente FROM MODULO_CLIENTES.CLIENTE C  WHERE cod_persona = (SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Pedro Carlos Vilchez Cardenas')), 
-(SELECT cod_especialidad FROM MODULO_CLIENTES.ESPECIALIDADES E  WHERE valor_especialidad = 'Gasfiteria'));
+('10456789012',6,14,4),
+('10987654321',7,15,7),
+('10112233445',8,16,9),
+('10765432109',9,17,12),
+('10010010019',10,18,15),
+('10 12345678 8',1,1,5);
 SELECT * FROM MODULO_CLIENTES.MAESTRO;
 
 --ROL
@@ -381,15 +373,15 @@ SELECT * FROM MODULO_CLIENTES.AREA;
 --USUARIO
 INSERT INTO MODULO_CLIENTES.USUARIO (cod_persona, cod_rol, cod_area)
 VALUES
-((SELECT cod_persona FROM MODULO_CLIENTES.PERSONA P  WHERE nombre_persona = 'Juan Carlos Flores Sánchez'),(SELECT cod_rol FROM MODULO_CLIENTES.ROL TU  WHERE valor_rol = 'Almacen'),(SELECT cod_area FROM MODULO_CLIENTES.AREA A  WHERE valor_area = 'Almacen')),
-((SELECT cod_persona FROM MODULO_CLIENTES.PERSONA P  WHERE nombre_persona = 'Ana María García Rodríguez'),(SELECT cod_rol FROM MODULO_CLIENTES.ROL TU  WHERE valor_rol = 'Vendedor'),(SELECT cod_area FROM MODULO_CLIENTES.AREA A  WHERE valor_area = 'Ventas')),
-((SELECT cod_persona FROM MODULO_CLIENTES.PERSONA P  WHERE nombre_persona = 'José Luis Torres Huamán'),(SELECT cod_rol FROM MODULO_CLIENTES.ROL TU  WHERE valor_rol = 'CRM'),(SELECT cod_area FROM MODULO_CLIENTES.AREA A  WHERE valor_area = 'Marketing')),
-((SELECT cod_persona FROM MODULO_CLIENTES.PERSONA P  WHERE nombre_persona = 'Rosa Elena Rojas Vásquez'),(SELECT cod_rol FROM MODULO_CLIENTES.ROL TU  WHERE valor_rol = 'Transportista'),(SELECT cod_area FROM MODULO_CLIENTES.AREA A  WHERE valor_area = 'Abastecimiento')),
-((SELECT cod_persona FROM MODULO_CLIENTES.PERSONA P  WHERE nombre_persona = 'Miguel Ángel Quispe Mamani'),(SELECT cod_rol FROM MODULO_CLIENTES.ROL TU  WHERE valor_rol = 'Transportista'),(SELECT cod_area FROM MODULO_CLIENTES.AREA A  WHERE valor_area = 'Almacen')),
-((SELECT cod_persona FROM MODULO_CLIENTES.PERSONA P  WHERE nombre_persona = 'Carmen Victoria López Ramos'),(SELECT cod_rol FROM MODULO_CLIENTES.ROL TU  WHERE valor_rol = 'Vendedor'),(SELECT cod_area FROM MODULO_CLIENTES.AREA A  WHERE valor_area = 'Ventas')),
-((SELECT cod_persona FROM MODULO_CLIENTES.PERSONA P  WHERE nombre_persona = 'Jorge Luis Pérez Díaz'),(SELECT cod_rol FROM MODULO_CLIENTES.ROL TU  WHERE valor_rol = 'Gerente'),(SELECT cod_area FROM MODULO_CLIENTES.AREA A  WHERE valor_area = 'Marketing')),
-((SELECT cod_persona FROM MODULO_CLIENTES.PERSONA P  WHERE nombre_persona = 'Sofía Alejandra Gonzáles Chávez'),(SELECT cod_rol FROM MODULO_CLIENTES.ROL TU  WHERE valor_rol = 'Transportista'),(SELECT cod_area FROM MODULO_CLIENTES.AREA A  WHERE valor_area = 'Abastecimiento')),
-((SELECT cod_persona FROM MODULO_CLIENTES.PERSONA P  WHERE nombre_persona = 'Gabriel Jose Martinez Arista'),(SELECT cod_rol FROM MODULO_CLIENTES.ROL TU  WHERE valor_rol = 'ADMIN (⌐■_■)'),(SELECT cod_area FROM MODULO_CLIENTES.AREA A  WHERE valor_area = 'SISTEMAS (⌐■_■)'));
+(4,1,4),
+(2,2,5),
+(5,3,6),
+(3,4,7),
+(3,1,8),
+(2,2,9),
+(1,3,10),
+(3,4,11),
+(6,5,2);
 SELECT * FROM MODULO_CLIENTES.USUARIO;
 
 --VENTA
@@ -438,18 +430,13 @@ SELECT * FROM MODULO_CLIENTES.ESTADO_CANJE;
 --CANJE
 INSERT INTO MODULO_CLIENTES.CANJE (monto_canje, cod_usuario, cod_estado_canje, cod_maestro)
 VALUES 
-(30,
-(SELECT cod_usuario FROM MODULO_CLIENTES.USUARIO WHERE cod_persona = (SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Gabriel Jose Martinez Arista')),
-(SELECT cod_estado_canje FROM MODULO_CLIENTES.ESTADO_CANJE WHERE valor_estado_canje = 'Pendiente'),
-(SELECT cod_maestro FROM MODULO_CLIENTES.MAESTRO  WHERE cod_persona = (SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Pedro Carlos Vilchez Cardenas'))
-);
+(30,9,1,6);
 SELECT * FROM MODULO_CLIENTES.CANJE;
 
 --PREMIOS
 INSERT INTO MODULO_CLIENTES.PREMIOS (nombre_premio, descp_premio, puntos_premio, disponibilidad_premio)
 VALUES 
-('Taladro Inalámbrico 12V + Batería SCD121S1-B2 + Set 27 pz', 
-$$ Detalle de la garantía:	Garantía del vendedor: 2 años
+('Taladro Inalámbrico 12V + Batería SCD121S1-B2 + Set 27 pz',$$ Detalle de la garantía:	Garantía del vendedor: 2 años
 Condicion del producto:	Nuevo
 Modelo:	SCD121S1-B2
 Potencia:	12V
@@ -463,74 +450,30 @@ Ancho:	7
 Largo:	35 cm
 Velocidad:	400 - 1500 RPM
 Tamaño del mandril:	10 mm
-Inalámbrico:	Sí $$,
-30.00, 50 
-),
-('Audífonos Inalámbricos Bluetooth JBL Tune 510BT', 
-    $$ Descripción: Audífonos inalámbricos con tecnología JBL Pure Bass. conexión Bluetooth 5.0. hasta 40 horas de batería y carga rápida. Color Negro. Incluye cable USB-C de carga. Ideal para uso diario y deporte. $$,
-    15.50, 
-    120 
-),
-('Set de Cuchillos de Chef 5 Piezas Acero Inoxidable', 
-    $$ Set de 5 cuchillos profesionales para cocina con base de madera. Material de la hoja: Acero inoxidable de alta calidad. Incluye cuchillo de chef. santoku. pan. utilitario y pelador. Mango ergonómico. $$,
-    8.90, 
-    200 
-),
-('Power Bank Xiaomi 10000mAh Carga Rápida', 
-    $$ Batería externa portátil de 10000 mAh. Conexión dual USB (Tipo A y Tipo C). Soporta carga rápida de 18W. Diseño compacto y ligero. ideal para viajes. Color: Blanco. $$,
-    12.00, 
-    80 
-),
-('Licuadora Oster Xpert Series con Motor Reversible', 
-    $$ Electrodoméstico: Licuadora de alto rendimiento. Motor de 2 caballos de fuerza con tecnología reversible para mezclar y procesar. Vaso de vidrio refractario Boroclass de 2 Litros. 3 programas automáticos. $$,
-    45.99, 
-    35 
-),
-('Google Chromecast con Google TV (HD)', 
-    $$ Dispositivo de streaming multimedia. Transforma cualquier TV con puerto HDMI en Smart TV. Incluye control remoto por voz. Resolución máxima: HD 1080p. Conectividad Wi-Fi dual band. $$,
-    18.50, 
-    95 
-),
-('Mochila Antirrobo para Laptop 15.6" con Puerto USB', 
-    $$ Accesorio de viaje y seguridad. Material resistente al corte y al agua. Capacidad de 20 Litros. Compartimento acolchado para laptop de 15.6 pulgadas. Puerto de carga USB externo (requiere power bank no incluido). $$,
-    10.50, 
-    150
-),
-('Reloj Inteligente (Smartwatch) Deportivo con GPS', 
-    $$ Tecnología wearable. Funciones: Medición de ritmo cardíaco + monitor de sueño + contador de pasos + GPS integrado para seguimiento de rutas. Compatible con Android e iOS. Resistencia al agua IP68. $$,
-    28.00, 
-    60 
-),
-('Cafetera Eléctrica de Goteo para 12 Tazas', 
-    $$ Electrodoméstico básico. Capacidad para 1.5 litros (12 tazas). Sistema anti-goteo. Filtro permanente lavable. Placa calefactora que mantiene el café caliente. Color: Negro. $$,
-    7.50, 
-    180 
-),
-('Kit de Limpieza para PC y Electrónicos 6 en 1', 
-    $$ Kit que incluye: cepillo antiestático + paños de microfibra + soplador de aire + líquido limpiador + hisopos y extractor de teclas. Ideal para teclados + pantallas y lentes. $$,
-    4.00, 
-    250 
-),
-('Disco Duro Externo Portátil 1TB USB 3.0', 
-    $$ Almacenamiento digital. Capacidad: 1 Terabyte. Interfaz: USB 3.0 (compatible con 2.0). Velocidad de transferencia rápida. Compatible con Windows y Mac. Carcasa resistente a golpes leves. $$,
-    35.00, 
-    40 
-);
+Inalámbrico:	Sí $$,30,50),
+('Audífonos Inalámbricos Bluetooth JBL Tune 510BT',$$ Descripción: Audífonos inalámbricos con tecnología JBL Pure Bass. conexión Bluetooth 5.0. hasta 40 horas de batería y carga rápida. Color Negro. Incluye cable USB-C de carga. Ideal para uso diario y deporte. $$,15.5,120),
+('Set de Cuchillos de Chef 5 Piezas Acero Inoxidable',$$ Set de 5 cuchillos profesionales para cocina con base de madera. Material de la hoja: Acero inoxidable de alta calidad. Incluye cuchillo de chef. santoku. pan. utilitario y pelador. Mango ergonómico. $$,8.9,200),
+('Power Bank Xiaomi 10000mAh Carga Rápida',$$ Batería externa portátil de 10000 mAh. Conexión dual USB (Tipo A y Tipo C). Soporta carga rápida de 18W. Diseño compacto y ligero. ideal para viajes. Color: Blanco. $$,12,80),
+('Licuadora Oster Xpert Series con Motor Reversible',$$ Electrodoméstico: Licuadora de alto rendimiento. Motor de 2 caballos de fuerza con tecnología reversible para mezclar y procesar. Vaso de vidrio refractario Boroclass de 2 Litros. 3 programas automáticos. $$,45.99,35),
+('Google Chromecast con Google TV (HD)',$$ Dispositivo de streaming multimedia. Transforma cualquier TV con puerto HDMI en Smart TV. Incluye control remoto por voz. Resolución máxima: HD 1080p. Conectividad Wi-Fi dual band. $$,18.5,95),
+('Mochila Antirrobo para Laptop 15.6" con Puerto USB',$$ Accesorio de viaje y seguridad. Material resistente al corte y al agua. Capacidad de 20 Litros. Compartimento acolchado para laptop de 15.6 pulgadas. Puerto de carga USB externo (requiere power bank no incluido). $$,10.5,150),
+('Reloj Inteligente (Smartwatch) Deportivo con GPS',$$ Tecnología wearable. Funciones: Medición de ritmo cardíaco + monitor de sueño + contador de pasos + GPS integrado para seguimiento de rutas. Compatible con Android e iOS. Resistencia al agua IP68. $$,28,60),
+('Cafetera Eléctrica de Goteo para 12 Tazas',$$ Electrodoméstico básico. Capacidad para 1.5 litros (12 tazas). Sistema anti-goteo. Filtro permanente lavable. Placa calefactora que mantiene el café caliente. Color: Negro. $$,7.5,180),
+('Kit de Limpieza para PC y Electrónicos 6 en 1',$$ Kit que incluye: cepillo antiestático + paños de microfibra + soplador de aire + líquido limpiador + hisopos y extractor de teclas. Ideal para teclados + pantallas y lentes. $$,4,250),
+('Disco Duro Externo Portátil 1TB USB 3.0',$$ Almacenamiento digital. Capacidad: 1 Terabyte. Interfaz: USB 3.0 (compatible con 2.0). Velocidad de transferencia rápida. Compatible con Windows y Mac. Carcasa resistente a golpes leves. $$,35,40);
 SELECT * FROM MODULO_CLIENTES.PREMIOS;
 
 --DETALLE_CANJE
 INSERT INTO MODULO_CLIENTES.DETALLE_CANJE (cantidad_premio, cod_canje, cod_premio)
 VALUES 
-(1,
-(SELECT cod_canje FROM MODULO_CLIENTES.CANJE WHERE cod_maestro = (SELECT cod_maestro FROM MODULO_CLIENTES.MAESTRO  WHERE cod_persona = (SELECT cod_persona FROM MODULO_CLIENTES.PERSONA WHERE nombre_persona = 'Pedro Carlos Vilchez Cardenas'))),
-(SELECT cod_premio FROM MODULO_CLIENTES.PREMIOS WHERE nombre_premio = 'Taladro Inalámbrico 12V + Batería SCD121S1-B2 + Set 27 pz')
-);
+(1,1,1);
 SELECT * FROM MODULO_CLIENTES.DETALLE_CANJE;
 
 --CATEGORIAS_PREMIO
 INSERT INTO MODULO_CLIENTES.CATEGORIAS_PREMIO (cod_categoria, cod_premio)
 VALUES 
-((SELECT cod_categoria FROM MODULO_CLIENTES.CATEGORIA WHERE valor_categoria = 'Herramienta'),(SELECT cod_premio FROM MODULO_CLIENTES.PREMIOS WHERE nombre_premio = 'Taladro Inalámbrico 12V + Batería SCD121S1-B2 + Set 27 pz'));
+(1,1),
+(13,1);
 SELECT * FROM MODULO_CLIENTES.CATEGORIAS_PREMIO;
 
 --REPORTE
