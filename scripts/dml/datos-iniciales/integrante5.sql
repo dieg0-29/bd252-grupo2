@@ -1,465 +1,566 @@
-BEGIN;
+SET search_path TO "Ventas";
 
-SET search_path TO Ventas;
-
+-- Limpieza total
 TRUNCATE TABLE
-    producto,
-    cliente,
-    metodo_pago,
-    vendedor,
-    horario,
-    vendedor_horario,
-    tipo_venta,
-    estado_venta,
-    tipo_comprobante,
-    estado_pago,
-    venta,
-    producto_venta,
-    comprobante,
-    caja,
-    pago,
-    reclamo,
-    nota_credito,
-    motivo_anulacion,
-    anulacion,
-    motivo_devolucion,
-    devolucion,
-    motivo_cambio_prod,
-    cambio_producto,
-    tipo_grafico,
-    reporte
+  cambio_producto,
+  devolucion,
+  anulacion,
+  reclamo,
+  pago,
+  producto_venta,
+  venta,
+  comprobante,
+  caja,
+  vendedor,
+  usuario,
+  maestro,
+  cliente,
+  -- lookups:
+  estado_venta,
+  metodo_pago,
+  condicion_pago,
+  estado_pago,
+  tipo_comprobante,
+  estado_producto_venta,
+  estado_reclamo,
+  motivo_anulacion,
+  motivo_devolucion,
+  motivo_cambio_prod,
+  producto
 RESTART IDENTITY CASCADE;
 
--- Evita ambigüedades con fechas
-SET datestyle TO ISO, YMD;
+-- ----------------------------------------------------------------
+-- Índices únicos (case-insensitive) para evitar duplicados lookups
+-- ----------------------------------------------------------------
+CREATE UNIQUE INDEX IF NOT EXISTS ux_estado_venta_desc
+  ON estado_venta (lower(descp_estado_venta));
+CREATE UNIQUE INDEX IF NOT EXISTS ux_condicion_pago_desc
+  ON condicion_pago (lower(descp_cond_pago));
+CREATE UNIQUE INDEX IF NOT EXISTS ux_metodo_pago_desc
+  ON metodo_pago (lower(descp_metodo_pago));
+CREATE UNIQUE INDEX IF NOT EXISTS ux_estado_pago_nombre
+  ON estado_pago (lower(nombre_estado_pago));
+CREATE UNIQUE INDEX IF NOT EXISTS ux_tipo_comprobante_desc
+  ON tipo_comprobante (lower(descp_tipo_comprobante));
+CREATE UNIQUE INDEX IF NOT EXISTS ux_estado_prodv_desc
+  ON estado_producto_venta (lower(descp_estado_prodv));
+CREATE UNIQUE INDEX IF NOT EXISTS ux_estado_reclamo_desc
+  ON estado_reclamo (lower(descp_estado_reclamo));
+CREATE UNIQUE INDEX IF NOT EXISTS ux_motivo_anulacion_desc
+  ON motivo_anulacion (lower(descp_motivo_anulacion));
+CREATE UNIQUE INDEX IF NOT EXISTS ux_motivo_devolucion_desc
+  ON motivo_devolucion (lower(descp_motivo_devolucion));
+CREATE UNIQUE INDEX IF NOT EXISTS ux_motivo_cambio_prod_desc
+  ON motivo_cambio_prod (lower(descp_motivo_cambio_prod));
+CREATE UNIQUE INDEX IF NOT EXISTS ux_producto_nombre
+  ON producto (lower(nombre_producto));
 
--- =========================================================
--- 1) Catálogos
--- =========================================================
-INSERT INTO metodo_pago (nombre_metodo_pago) VALUES
-('Efectivo'),('Tarjeta débito/crédito'),('Transferencia bancaria'),('Yape/Plin')
-ON CONFLICT (nombre_metodo_pago) DO NOTHING;
-
-INSERT INTO tipo_venta (descp_tipo_venta) VALUES
-('Credito'),('Contado')
-ON CONFLICT (descp_tipo_venta) DO NOTHING;
-
+-- ---------------------------
+-- 1) LOOKUPS / CATÁLOGOS
+-- ---------------------------
 INSERT INTO estado_venta (descp_estado_venta) VALUES
-('Cancelada'),('Por pagar'),('Anulada')
-ON CONFLICT (descp_estado_venta) DO NOTHING;
+  ('Por pagar'), ('Pagada'), ('Anulada')
+ON CONFLICT DO NOTHING;
 
-INSERT INTO tipo_comprobante (descp_tipo_comprobante) VALUES
-('Boleta'),('Factura'),('Nota de venta'),('Nota de crédito')
-ON CONFLICT (descp_tipo_comprobante) DO NOTHING;
+INSERT INTO condicion_pago (descp_cond_pago) VALUES
+  ('Contado'), ('Crédito')
+ON CONFLICT DO NOTHING;
+
+INSERT INTO metodo_pago (descp_metodo_pago) VALUES
+  ('Efectivo'), ('Tarjeta'), ('Transferencia'), ('Yape'), ('Plin')
+ON CONFLICT DO NOTHING;
 
 INSERT INTO estado_pago (nombre_estado_pago) VALUES
-('Pendiente'),('Pagado')
-ON CONFLICT (nombre_estado_pago) DO NOTHING;
-
-INSERT INTO tipo_grafico (descp_grafico) VALUES
-('Gráfico de barras'),('Gráfico circular'),('Histograma'),('Grafico de bastón')
-ON CONFLICT (descp_grafico) DO NOTHING;
-
--- =========================================================
--- 2) Vendedores, horarios y relación
---    (ahora con nombre_vendedor UNIQUE)
--- =========================================================
-INSERT INTO vendedor (nombre_vendedor,fecha_ingreso_vendedor,total_ventas_vendedor) VALUES
-('Julián Alvarado',DATE '2022-01-05',0),
-('María Cáceres',DATE '2022-03-12',0),
-('René Olivares',DATE '2023-09-01',0),
-('Mónica Pereira',DATE '2023-10-10',0),
-('Patricia Lozano',DATE '2024-07-20',0),
-('Diego Paredes',DATE '2024-11-15',0),
-('Lucía Quispe',DATE '2025-06-01',0),
-('Sofía Márquez',DATE '2025-10-01',0)
+  ('pendiente'), ('pagado'), ('vencido'), ('anulado')
 ON CONFLICT DO NOTHING;
 
-INSERT INTO horario (hora_ingreso, hora_salida, hora_receso_inicio, hora_receso_fin, dia) VALUES
-(TIME '08:00', TIME '16:00', TIME '13:00', TIME '14:00', 'Lunes'),
-(TIME '08:00', TIME '16:00', TIME '13:00', TIME '14:00', 'Martes'),
-(TIME '08:00', TIME '16:00', TIME '13:00', TIME '14:00', 'Miércoles'),
-(TIME '08:00', TIME '16:00', TIME '13:00', TIME '14:00', 'Jueves'),
-(TIME '08:00', TIME '16:00', TIME '13:00', TIME '14:00', 'Viernes'),
-(TIME '09:00', TIME '14:00', NULL, NULL, 'Sábado')
+INSERT INTO tipo_comprobante (descp_tipo_comprobante) VALUES
+  ('boleta'), ('factura'), ('nota de venta')
 ON CONFLICT DO NOTHING;
 
--- Relación vendedor-horario (por fecha de ingreso)
-INSERT INTO vendedor_horario (cod_vendedor, cod_horario)
-SELECT v.cod_vendedor, h.cod_horario
-FROM (
-  VALUES
-  (DATE '2022-01-05','Lunes'),(DATE '2022-01-05','Martes'),(DATE '2022-01-05','Miércoles'),
-  (DATE '2022-01-05','Jueves'),(DATE '2022-01-05','Viernes'),(DATE '2022-01-05','Sábado'),
-  (DATE '2022-03-12','Lunes'),(DATE '2022-03-12','Martes'),(DATE '2022-03-12','Miércoles'),
-  (DATE '2022-03-12','Jueves'),(DATE '2022-03-12','Viernes'),
-  (DATE '2023-09-01','Lunes'),(DATE '2023-09-01','Martes'),(DATE '2023-09-01','Miércoles'),
-  (DATE '2023-09-01','Jueves'),(DATE '2023-09-01','Viernes'),(DATE '2023-09-01','Sábado'),
-  (DATE '2023-10-10','Lunes'),(DATE '2023-10-10','Miércoles'),(DATE '2023-10-10','Viernes'),
-  (DATE '2024-07-20','Martes'),(DATE '2024-07-20','Jueves'),(DATE '2024-07-20','Sábado'),
-  (DATE '2024-11-15','Lunes'),(DATE '2024-11-15','Martes'),(DATE '2024-11-15','Miércoles'),
-  (DATE '2024-11-15','Jueves'),(DATE '2024-11-15','Viernes'),(DATE '2024-11-15','Sábado'),
-  (DATE '2025-06-01','Lunes'),(DATE '2025-06-01','Martes'),(DATE '2025-06-01','Miércoles'),
-  (DATE '2025-06-01','Jueves'),(DATE '2025-06-01','Viernes'),(DATE '2025-06-01','Sábado'),
-  (DATE '2025-10-01','Lunes'),(DATE '2025-10-01','Martes'),(DATE '2025-10-01','Miércoles'),
-  (DATE '2025-10-01','Jueves'),(DATE '2025-10-01','Viernes')
-) x(fecha_ing, dia)
-JOIN vendedor v ON v.fecha_ingreso_vendedor = x.fecha_ing
-JOIN horario  h ON h.dia = x.dia
-WHERE NOT EXISTS (
-  SELECT 1 FROM vendedor_horario vh
-  WHERE vh.cod_vendedor = v.cod_vendedor AND vh.cod_horario = h.cod_horario
-);
-
--- =========================================================
--- 3) Clientes y productos (ahora con precio_producto)
--- =========================================================
-INSERT INTO cliente (nombre_cliente) VALUES
-('Constructora Andina SAC'),('Ferretero San Martín'),('María López'),('José Pérez'),
-('Inversiones Rivera SAC'),('Hotel Sol y Arena'),('Taller Mecanico El Torque'),('Ana García'),
-('Carlos Rojas'),('Juanita Paredes'),('Colegio San Ignacio'),('Municipalidad de Parcona'),
-('Consorcio Vial Ica'),('Electrosur S.A.'),('Agroexportadora Parcona SAC'),('Taller Los Pinos EIRL')
-ON CONFLICT (nombre_cliente) DO NOTHING;
-
-INSERT INTO producto (nombre_producto,precio_producto) VALUES
-('Cemento Portland 42.5kg',32.50),('Fierro corrugado 1/2"',12.90),('Martillo carpintero 16oz',24.90),('Taladro percutor 750W',289.00),('Pintura látex blanco 4L',69.90),
-('Tornillo drywall #6 x 1" (100u)',18.50),('Lija de agua #220',2.50),('Clavo 3" (100u)',9.90),('Varilla lisa 3/8"',10.50),('Broca para concreto 8mm',14.90),
-('Sierra circular 1400W',349.00),('Llave ajustable 10"',29.90),('Cinta métrica 5m',12.90),('Silicona acética 280ml',11.50),('Pegamento de contacto 1L',27.90),
-('Guantes de cuero',19.90),('Lentes de seguridad',9.90),('Mascarilla N95 (10u)',24.90),('Cable THHN 12 AWG (100m)',289.00),('Interruptor termomagnético 20A',39.90),
-('Tubería PVC 1"',19.50),('Te PVC 1"',6.50),('Codo PVC 1"',5.90),('Brocha 3"',8.90),('Arena fina (m3)',65.00)
-ON CONFLICT (nombre_producto) DO UPDATE SET precio_producto=EXCLUDED.precio_producto;
-
--- =========================================================
--- 4) Cajas
--- =========================================================
-INSERT INTO caja (fecha_hora_apertura, fecha_hora_cierre, vendedor_apertura, vendedor_cierre,
-                  monto_apertura, monto_cierre, monto_total_ventas, cantidad_ventas)
-SELECT * FROM (
-  VALUES
-  (TIMESTAMP '2025-10-03 08:30', TIMESTAMP '2025-10-03 21:00',
-     (SELECT cod_vendedor FROM vendedor WHERE fecha_ingreso_vendedor=DATE '2025-10-01'),
-     (SELECT cod_vendedor FROM vendedor WHERE fecha_ingreso_vendedor=DATE '2025-10-01'),
-     800.00, 800.00, 800.00, 3),
-  (TIMESTAMP '2025-10-04 08:30', TIMESTAMP '2025-10-03 21:00',
-     (SELECT cod_vendedor FROM vendedor WHERE fecha_ingreso_vendedor=DATE '2024-11-15'),
-     (SELECT cod_vendedor FROM vendedor WHERE fecha_ingreso_vendedor=DATE '2024-11-15'),
-     800.00, 1500.00, 700.00, 4),
-  (TIMESTAMP '2025-10-05 08:30', TIMESTAMP '2025-10-03 21:00',
-     (SELECT cod_vendedor FROM vendedor WHERE fecha_ingreso_vendedor=DATE '2024-07-20'),
-     (SELECT cod_vendedor FROM vendedor WHERE fecha_ingreso_vendedor=DATE '2024-07-20'),
-     1500.00, 2400.00, 900.00, 2)
-) AS t(fe_ap,fe_ci,v_ap,v_ci,m_ap,m_ci,m_tot,cant)
+INSERT INTO estado_producto_venta (descp_estado_prodv) VALUES
+  ('entregado'), ('pendiente'), ('devuelto'), ('cambiado')
 ON CONFLICT DO NOTHING;
 
--- =========================================================
--- 5) Ventas
--- =========================================================
-WITH nuevas_ventas AS (
-  INSERT INTO venta
-  (fecha_hora_venta, igv, monto_venta, dscto_venta, fecha_venta, fecha_entrega,
-   cod_tipo_venta, cod_estado_venta, cod_vendedor, cod_cliente)
-  VALUES
-  (TIMESTAMP '2025-10-03 09:10',21.60,120.00,0,DATE '2025-10-03',DATE '2025-10-03',
-     (SELECT cod_tipo_venta   FROM tipo_venta   WHERE descp_tipo_venta='Contado'),
-     (SELECT cod_estado_venta FROM estado_venta WHERE descp_estado_venta='Cancelada'),
-     (SELECT cod_vendedor FROM vendedor WHERE fecha_ingreso_vendedor=DATE '2023-10-10'),
-     (SELECT cod_cliente  FROM cliente  WHERE nombre_cliente='Ana García')),
-  (TIMESTAMP '2025-10-03 09:45',122.40,680.00,0,DATE '2025-10-03',DATE '2025-10-03',
-     (SELECT cod_tipo_venta   FROM tipo_venta   WHERE descp_tipo_venta='Contado'),
-     (SELECT cod_estado_venta FROM estado_venta WHERE descp_estado_venta='Cancelada'),
-     (SELECT cod_vendedor FROM vendedor WHERE fecha_ingreso_vendedor=DATE '2024-07-20'),
-     (SELECT cod_cliente  FROM cliente  WHERE nombre_cliente='Inversiones Rivera SAC')),
-  (TIMESTAMP '2025-10-03 10:20',171.00,950.00,0,DATE '2025-10-03',DATE '2025-10-04',
-     (SELECT cod_tipo_venta   FROM tipo_venta   WHERE descp_tipo_venta='Credito'),
-     (SELECT cod_estado_venta FROM estado_venta WHERE descp_estado_venta='Por pagar'),
-     (SELECT cod_vendedor FROM vendedor WHERE fecha_ingreso_vendedor=DATE '2025-06-01'),
-     (SELECT cod_cliente  FROM cliente  WHERE nombre_cliente='Taller Mecanico El Torque')),
-  (TIMESTAMP '2025-10-03 11:05',15.30,85.00,0,DATE '2025-10-03',DATE '2025-10-03',
-     (SELECT cod_tipo_venta   FROM tipo_venta   WHERE descp_tipo_venta='Contado'),
-     (SELECT cod_estado_venta FROM estado_venta WHERE descp_estado_venta='Cancelada'),
-     (SELECT cod_vendedor FROM vendedor WHERE fecha_ingreso_vendedor=DATE '2024-11-15'),
-     (SELECT cod_cliente  FROM cliente  WHERE nombre_cliente='Carlos Rojas')),
-  (TIMESTAMP '2025-10-03 12:15',255.60,1420.00,0,DATE '2025-10-03',DATE '2025-10-05',
-     (SELECT cod_tipo_venta   FROM tipo_venta   WHERE descp_tipo_venta='Credito'),
-     (SELECT cod_estado_venta FROM estado_venta WHERE descp_estado_venta='Por pagar'),
-     (SELECT cod_vendedor FROM vendedor WHERE fecha_ingreso_vendedor=DATE '2025-10-01'),
-     (SELECT cod_cliente  FROM cliente  WHERE nombre_cliente='Hotel Sol y Arena')),
-  (TIMESTAMP '2025-10-04 09:00',64.80,360.00,0,DATE '2025-10-04',DATE '2025-10-04',
-     (SELECT cod_tipo_venta   FROM tipo_venta   WHERE descp_tipo_venta='Contado'),
-     (SELECT cod_estado_venta FROM estado_venta WHERE descp_estado_venta='Cancelada'),
-     (SELECT cod_vendedor FROM vendedor WHERE fecha_ingreso_vendedor=DATE '2022-01-05'),
-     (SELECT cod_cliente  FROM cliente  WHERE nombre_cliente='María López')),
-  (TIMESTAMP '2025-10-04 09:40',225.00,1250.00,0,DATE '2025-10-04',DATE '2025-10-04',
-     (SELECT cod_tipo_venta   FROM tipo_venta   WHERE descp_tipo_venta='Contado'),
-     (SELECT cod_estado_venta FROM estado_venta WHERE descp_estado_venta='Cancelada'),
-     (SELECT cod_vendedor FROM vendedor WHERE fecha_ingreso_vendedor=DATE '2024-07-20'),
-     (SELECT cod_cliente  FROM cliente  WHERE nombre_cliente='Ferretero San Martín')),
-  (TIMESTAMP '2025-10-04 13:00',176.40,980.00,0,DATE '2025-10-04',DATE '2025-10-05',
-     (SELECT cod_tipo_venta   FROM tipo_venta   WHERE descp_tipo_venta='Credito'),
-     (SELECT cod_estado_venta FROM estado_venta WHERE descp_estado_venta='Por pagar'),
-     (SELECT cod_vendedor FROM vendedor WHERE fecha_ingreso_vendedor=DATE '2025-06-01'),
-     (SELECT cod_cliente  FROM cliente  WHERE nombre_cliente='Colegio San Ignacio')),
-  (TIMESTAMP '2025-10-04 16:45',37.80,210.00,0,DATE '2025-10-04',DATE '2025-10-04',
-     (SELECT cod_tipo_venta   FROM tipo_venta   WHERE descp_tipo_venta='Contado'),
-     (SELECT cod_estado_venta FROM estado_venta WHERE descp_estado_venta='Cancelada'),
-     (SELECT cod_vendedor FROM vendedor WHERE fecha_ingreso_vendedor=DATE '2024-11-15'),
-     (SELECT cod_cliente  FROM cliente  WHERE nombre_cliente='José Pérez')),
-  (TIMESTAMP '2025-10-04 18:20',441.00,2450.00,0,DATE '2025-10-04',DATE '2025-10-04',
-     (SELECT cod_tipo_venta   FROM tipo_venta   WHERE descp_tipo_venta='Contado'),
-     (SELECT cod_estado_venta FROM estado_venta WHERE descp_estado_venta='Cancelada'),
-     (SELECT cod_vendedor FROM vendedor WHERE fecha_ingreso_vendedor=DATE '2025-06-01'),
-     (SELECT cod_cliente  FROM cliente  WHERE nombre_cliente='Electrosur S.A.')),
-  (TIMESTAMP '2025-10-05 08:50',129.60,720.00,0,DATE '2025-10-05',DATE '2025-10-05',
-     (SELECT cod_tipo_venta   FROM tipo_venta   WHERE descp_tipo_venta='Contado'),
-     (SELECT cod_estado_venta FROM estado_venta WHERE descp_estado_venta='Cancelada'),
-     (SELECT cod_vendedor FROM vendedor WHERE fecha_ingreso_vendedor=DATE '2024-07-20'),
-     (SELECT cod_cliente  FROM cliente  WHERE nombre_cliente='Agroexportadora Parcona SAC')),
-  (TIMESTAMP '2025-10-05 10:10',324.00,1800.00,0,DATE '2025-10-05',DATE '2025-10-07',
-     (SELECT cod_tipo_venta   FROM tipo_venta   WHERE descp_tipo_venta='Credito'),
-     (SELECT cod_estado_venta FROM estado_venta WHERE descp_estado_venta='Por pagar'),
-     (SELECT cod_vendedor FROM vendedor WHERE fecha_ingreso_vendedor=DATE '2025-10-01'),
-     (SELECT cod_cliente  FROM cliente  WHERE nombre_cliente='Municipalidad de Parcona')),
-  (TIMESTAMP '2025-10-05 11:20',28.80,160.00,0,DATE '2025-10-05',DATE '2025-10-05',
-     (SELECT cod_tipo_venta   FROM tipo_venta   WHERE descp_tipo_venta='Contado'),
-     (SELECT cod_estado_venta FROM estado_venta WHERE descp_estado_venta='Cancelada'),
-     (SELECT cod_vendedor FROM vendedor WHERE fecha_ingreso_vendedor=DATE '2023-10-10'),
-     (SELECT cod_cliente  FROM cliente  WHERE nombre_cliente='Juanita Paredes')),
-  (TIMESTAMP '2025-10-05 12:40',198.00,1100.00,0,DATE '2025-10-05',DATE '2025-10-08',
-     (SELECT cod_tipo_venta   FROM tipo_venta   WHERE descp_tipo_venta='Credito'),
-     (SELECT cod_estado_venta FROM estado_venta WHERE descp_estado_venta='Por pagar'),
-     (SELECT cod_vendedor FROM vendedor WHERE fecha_ingreso_vendedor=DATE '2025-06-01'),
-     (SELECT cod_cliente  FROM cliente  WHERE nombre_cliente='Consorcio Vial Ica')),
-  (TIMESTAMP '2025-10-05 15:30',77.40,430.00,0,DATE '2025-10-05',DATE '2025-10-06',
-     (SELECT cod_tipo_venta   FROM tipo_venta   WHERE descp_tipo_venta='Credito'),
-     (SELECT cod_estado_venta FROM estado_venta WHERE descp_estado_venta='Anulada'),
-     (SELECT cod_vendedor FROM vendedor WHERE fecha_ingreso_vendedor=DATE '2024-11-15'),
-     (SELECT cod_cliente  FROM cliente  WHERE nombre_cliente='Taller Los Pinos EIRL'))
-  RETURNING cod_venta, fecha_hora_venta
-)
-SELECT 1;
-
--- =========================================================
--- 6) Detalle por venta
--- =========================================================
-INSERT INTO producto_venta (cod_venta, cod_producto, cantidad_producto)
-SELECT v.cod_venta, p.cod_producto, q.cant
-FROM (VALUES
- (TIMESTAMP '2025-10-03 09:10','Martillo carpintero 16oz',1),
- (TIMESTAMP '2025-10-03 09:10','Cinta métrica 5m',1),
- (TIMESTAMP '2025-10-03 09:10','Lentes de seguridad',1),
-
- (TIMESTAMP '2025-10-03 09:45','Cemento Portland 42.5kg',10),
- (TIMESTAMP '2025-10-03 09:45','Fierro corrugado 1/2"',8),
-
- (TIMESTAMP '2025-10-03 10:20','Llave ajustable 10"',2),
- (TIMESTAMP '2025-10-03 10:20','Tornillo drywall #6 x 1" (100u)',3),
- (TIMESTAMP '2025-10-03 10:20','Silicona acética 280ml',4),
-
- (TIMESTAMP '2025-10-03 11:05','Pintura látex blanco 4L',1),
- (TIMESTAMP '2025-10-03 11:05','Lija de agua #220',4),
- (TIMESTAMP '2025-10-03 11:05','Brocha 3"',1),
-
- (TIMESTAMP '2025-10-03 12:15','Taladro percutor 750W',1),
- (TIMESTAMP '2025-10-03 12:15','Broca para concreto 8mm',2),
- (TIMESTAMP '2025-10-03 12:15','Guantes de cuero',2),
-
- (TIMESTAMP '2025-10-04 09:00','Pintura látex blanco 4L',1),
- (TIMESTAMP '2025-10-04 09:00','Brocha 3"',1),
- (TIMESTAMP '2025-10-04 09:00','Cinta métrica 5m',1),
-
- (TIMESTAMP '2025-10-04 09:40','Cemento Portland 42.5kg',15),
- (TIMESTAMP '2025-10-04 09:40','Varilla lisa 3/8"',10),
-
- (TIMESTAMP '2025-10-04 13:00','Interruptor termomagnético 20A',10),
- (TIMESTAMP '2025-10-04 13:00','Cable THHN 12 AWG (100m)',2),
- (TIMESTAMP '2025-10-04 13:00','Tubería PVC 1"',30),
- (TIMESTAMP '2025-10-04 13:00','Te PVC 1"',20),
- (TIMESTAMP '2025-10-04 13:00','Codo PVC 1"',20),
-
- (TIMESTAMP '2025-10-04 16:45','Taladro percutor 750W',1),
- (TIMESTAMP '2025-10-04 16:45','Martillo carpintero 16oz',1),
-
- (TIMESTAMP '2025-10-04 18:20','Cable THHN 12 AWG (100m)',4),
- (TIMESTAMP '2025-10-04 18:20','Interruptor termomagnético 20A',30),
-
- (TIMESTAMP '2025-10-05 08:50','Sierra circular 1400W',1),
- (TIMESTAMP '2025-10-05 08:50','Guantes de cuero',4),
- (TIMESTAMP '2025-10-05 08:50','Lentes de seguridad',4),
-
- (TIMESTAMP '2025-10-05 10:10','Varilla lisa 3/8"',25),
- (TIMESTAMP '2025-10-05 10:10','Cemento Portland 42.5kg',30),
- (TIMESTAMP '2025-10-05 10:10','Arena fina (m3)',5),
-
- (TIMESTAMP '2025-10-05 11:20','Clavo 3" (100u)',3),
- (TIMESTAMP '2025-10-05 11:20','Pintura látex blanco 4L',1),
-
- (TIMESTAMP '2025-10-05 12:40','Fierro corrugado 1/2"',40),
- (TIMESTAMP '2025-10-05 12:40','Cemento Portland 42.5kg',40),
-
- (TIMESTAMP '2025-10-05 15:30','Pegamento de contacto 1L',5),
- (TIMESTAMP '2025-10-05 15:30','Silicona acética 280ml',10),
- (TIMESTAMP '2025-10-05 15:30','Tornillo drywall #6 x 1" (100u)',4)
-) q(ts, prod, cant)
-JOIN venta v    ON v.fecha_hora_venta = q.ts
-JOIN producto p ON p.nombre_producto = q.prod
+INSERT INTO estado_reclamo (descp_estado_reclamo) VALUES
+  ('abierto'), ('en proceso'), ('resuelto'), ('cerrado sin acción')
 ON CONFLICT DO NOTHING;
-
--- =========================================================
--- 7) Comprobantes (los 9 primeros)
--- =========================================================
-INSERT INTO comprobante (cod_tipo_comprobante, fecha_emision)
-SELECT tc.cod_tipo_comprobante, d.fecha
-FROM (VALUES
- ('Boleta',  DATE '2025-10-03'),
- ('Factura', DATE '2025-10-03'),
- ('Boleta',  DATE '2025-10-03'),
- ('Boleta',  DATE '2025-10-04'),
- ('Factura', DATE '2025-10-04'),
- ('Boleta',  DATE '2025-10-04'),
- ('Factura', DATE '2025-10-04'),
- ('Factura', DATE '2025-10-05'),
- ('Boleta',  DATE '2025-10-05')
-) d(tipo, fecha)
-JOIN tipo_comprobante tc ON tc.descp_tipo_comprobante = d.tipo
-ON CONFLICT DO NOTHING;
-
--- =========================================================
--- 8) Pagos
--- =========================================================
-INSERT INTO pago
-(cod_venta, fecha_vencimiento_pago, fecha_pago, monto_pago, cod_caja, nro_comprobante, cod_metodo_pago, cod_estado_pago)
-SELECT v.cod_venta, d.f_venc, d.f_pago, d.monto,
-       c.cod_caja, NULL,
-       (SELECT cod_metodo_pago FROM metodo_pago WHERE nombre_metodo_pago = d.metodo),
-       (SELECT cod_estado_pago FROM estado_pago WHERE nombre_estado_pago = 'Pagado')
-FROM (VALUES
- (TIMESTAMP '2025-10-03 09:10', DATE '2025-10-03', DATE '2025-10-03', 120.00, TIMESTAMP '2025-10-03 08:30','Efectivo'),
- (TIMESTAMP '2025-10-03 09:45', DATE '2025-10-03', DATE '2025-10-03', 680.00, TIMESTAMP '2025-10-04 08:30','Transferencia bancaria'),
- (TIMESTAMP '2025-10-03 11:05', DATE '2025-10-03', DATE '2025-10-03',  85.00, TIMESTAMP '2025-10-03 08:30','Yape/Plin'),
- (TIMESTAMP '2025-10-04 09:00', DATE '2025-10-04', DATE '2025-10-04', 360.00, TIMESTAMP '2025-10-04 08:30','Tarjeta débito/crédito'),
- (TIMESTAMP '2025-10-04 09:40', DATE '2025-10-04', DATE '2025-10-04',1250.00, TIMESTAMP '2025-10-04 08:30','Transferencia bancaria'),
- (TIMESTAMP '2025-10-04 16:45', DATE '2025-10-04', DATE '2025-10-04', 210.00, TIMESTAMP '2025-10-04 08:30','Efectivo'),
- (TIMESTAMP '2025-10-04 18:20', DATE '2025-10-04', DATE '2025-10-04',2450.00, TIMESTAMP '2025-10-04 08:30','Transferencia bancaria'),
- (TIMESTAMP '2025-10-05 08:50', DATE '2025-10-05', DATE '2025-10-05', 720.00, TIMESTAMP '2025-10-05 08:30','Transferencia bancaria'),
- (TIMESTAMP '2025-10-05 11:20', DATE '2025-10-05', DATE '2025-10-05', 160.00, TIMESTAMP '2025-10-05 08:30','Efectivo')
-) d(ts, f_venc, f_pago, monto, caja_ap, metodo)
-JOIN venta v ON v.fecha_hora_venta = d.ts
-JOIN caja  c ON c.fecha_hora_apertura = d.caja_ap;
-
--- Pendientes: 3,5,8,12,14
-INSERT INTO pago
-(cod_venta, fecha_vencimiento_pago, fecha_pago, monto_pago, cod_caja, nro_comprobante, cod_metodo_pago, cod_estado_pago)
-SELECT v.cod_venta, d.f_venc, NULL, d.monto, NULL, NULL, NULL,
-       (SELECT cod_estado_pago FROM estado_pago WHERE nombre_estado_pago = 'Pendiente')
-FROM (VALUES
- (TIMESTAMP '2025-10-03 10:20', DATE '2025-10-10',  950.00),
- (TIMESTAMP '2025-10-03 12:15', DATE '2025-10-12', 1420.00),
- (TIMESTAMP '2025-10-04 13:00', DATE '2025-10-11',  980.00),
- (TIMESTAMP '2025-10-05 10:10', DATE '2025-10-15', 1800.00),
- (TIMESTAMP '2025-10-05 12:40', DATE '2025-10-14', 1100.00)
-) d(ts, f_venc, monto)
-JOIN venta v ON v.fecha_hora_venta = d.ts;
-
--- =========================================================
--- 9) POSVENTA
--- =========================================================
-INSERT INTO motivo_devolucion (descp_motivo_devolucion) VALUES
-('Producto defectuoso'),('Error de tamaño'),('No conforme')
-ON CONFLICT (descp_motivo_devolucion) DO NOTHING;
-
-INSERT INTO motivo_cambio_prod (descp_motivo_cambio_prod) VALUES
-('Falla de fábrica'),('Cambio de modelo')
-ON CONFLICT (descp_motivo_cambio_prod) DO NOTHING;
 
 INSERT INTO motivo_anulacion (descp_motivo_anulacion) VALUES
-('Error en emisión'),('Cliente desistió')
-ON CONFLICT (descp_motivo_anulacion) DO NOTHING;
-
-INSERT INTO reclamo (cod_venta, fecha_hora_reclamo) VALUES
-((SELECT cod_venta FROM venta WHERE fecha_hora_venta=TIMESTAMP '2025-10-05 08:50'), TIMESTAMP '2025-10-05 13:20'),
-((SELECT cod_venta FROM venta WHERE fecha_hora_venta=TIMESTAMP '2025-10-05 15:30'), TIMESTAMP '2025-10-05 16:10'),
-((SELECT cod_venta FROM venta WHERE fecha_hora_venta=TIMESTAMP '2025-10-04 09:40'), TIMESTAMP '2025-10-04 10:00'),
-((SELECT cod_venta FROM venta WHERE fecha_hora_venta=TIMESTAMP '2025-10-04 13:00'), TIMESTAMP '2025-10-04 13:30'),
-((SELECT cod_venta FROM venta WHERE fecha_hora_venta=TIMESTAMP '2025-10-05 10:10'), TIMESTAMP '2025-10-05 10:50');
-
--- Comprobantes extra para Notas de crédito (3)
-INSERT INTO comprobante (cod_tipo_comprobante, fecha_emision)
-SELECT (SELECT cod_tipo_comprobante FROM tipo_comprobante WHERE descp_tipo_comprobante='Nota de crédito'),
-       d.fecha
-FROM (VALUES (DATE '2025-10-05'),(DATE '2025-10-04'),(DATE '2025-10-05')) d(fecha)
+  ('error de facturación'), ('cliente desistió'), ('duplicado'), ('fraude detectado')
 ON CONFLICT DO NOTHING;
 
--- Notas de crédito
-INSERT INTO nota_credito (nro_comprobante, cod_reclamo, monto_comprobante, descripcion_nota)
-SELECT c.nro_comprobante,
-       (SELECT r.cod_reclamo FROM reclamo r JOIN venta v ON v.cod_venta=r.cod_venta
-         WHERE v.fecha_hora_venta=TIMESTAMP '2025-10-05 08:50'),
-       350.00,'NC por devolución de sierra circular 1400W'
-FROM comprobante c JOIN tipo_comprobante tc ON tc.cod_tipo_comprobante=c.cod_tipo_comprobante
-WHERE tc.descp_tipo_comprobante='Nota de crédito' AND c.fecha_emision=DATE '2025-10-05'
-ORDER BY c.nro_comprobante DESC LIMIT 1;
+INSERT INTO motivo_devolucion (descp_motivo_devolucion) VALUES
+  ('producto defectuoso'), ('arrepentimiento'), ('error en producto enviado'), ('demora en entrega')
+ON CONFLICT DO NOTHING;
 
-INSERT INTO nota_credito (nro_comprobante, cod_reclamo, monto_comprobante, descripcion_nota)
-SELECT c.nro_comprobante,
-       (SELECT r.cod_reclamo FROM reclamo r JOIN venta v ON v.cod_venta=r.cod_venta
-         WHERE v.fecha_hora_venta=TIMESTAMP '2025-10-04 09:40'),
-       200.00,'NC por varilla con medida errada'
-FROM comprobante c JOIN tipo_comprobante tc ON tc.cod_tipo_comprobante=c.cod_tipo_comprobante
-WHERE tc.descp_tipo_comprobante='Nota de crédito' AND c.fecha_emision=DATE '2025-10-04'
-ORDER BY c.nro_comprobante DESC LIMIT 1;
+INSERT INTO motivo_cambio_prod (descp_motivo_cambio_prod) VALUES
+  ('talla/color incorrecto'), ('upgrade de producto'), ('defecto menor'), ('otro')
+ON CONFLICT DO NOTHING;
 
-INSERT INTO nota_credito (nro_comprobante, cod_reclamo, monto_comprobante, descripcion_nota)
-SELECT c.nro_comprobante,
-       (SELECT r.cod_reclamo FROM reclamo r JOIN venta v ON v.cod_venta=r.cod_venta
-         WHERE v.fecha_hora_venta=TIMESTAMP '2025-10-05 10:10'),
-       500.00,'NC por arena no conforme'
-FROM comprobante c JOIN tipo_comprobante tc ON tc.cod_tipo_comprobante=c.cod_tipo_comprobante
-WHERE tc.descp_tipo_comprobante='Nota de crédito' AND c.fecha_emision=DATE '2025-10-05'
-ORDER BY c.nro_comprobante ASC LIMIT 1;
+-- ---------------------------
+-- 2) CLIENTES / USUARIOS
+-- ---------------------------
+INSERT INTO cliente (fecha_registro_cliente, ultima_actividad_cliente)
+SELECT
+  now() - (gs * interval '1 day'),
+  now() - (floor(random()*gs)::int * interval '1 hour')
+FROM generate_series(1,200) gs;
 
--- Devoluciones
-INSERT INTO devolucion (cod_reclamo,cod_motivo_devolucion,monto_devolucion,cod_caja,producto_devuelto) VALUES
-((SELECT r.cod_reclamo FROM reclamo r JOIN venta v ON v.cod_venta=r.cod_venta WHERE v.fecha_hora_venta=TIMESTAMP '2025-10-05 08:50'),
- (SELECT cod_motivo_devolucion FROM motivo_devolucion WHERE descp_motivo_devolucion='Producto defectuoso'),
- 350.00,(SELECT cod_caja FROM caja WHERE fecha_hora_apertura=TIMESTAMP '2025-10-05 08:30'),
- (SELECT cod_producto FROM producto WHERE nombre_producto='Sierra circular 1400W')),
-((SELECT r.cod_reclamo FROM reclamo r JOIN venta v ON v.cod_venta=r.cod_venta WHERE v.fecha_hora_venta=TIMESTAMP '2025-10-04 09:40'),
- (SELECT cod_motivo_devolucion FROM motivo_devolucion WHERE descp_motivo_devolucion='Error de tamaño'),
- 200.00,(SELECT cod_caja FROM caja WHERE fecha_hora_apertura=TIMESTAMP '2025-10-04 08:30'),
- (SELECT cod_producto FROM producto WHERE nombre_producto='Varilla lisa 3/8"')),
-((SELECT r.cod_reclamo FROM reclamo r JOIN venta v ON v.cod_venta=r.cod_venta WHERE v.fecha_hora_venta=TIMESTAMP '2025-10-05 10:10'),
- (SELECT cod_motivo_devolucion FROM motivo_devolucion WHERE descp_motivo_devolucion='No conforme'),
- 500.00,(SELECT cod_caja FROM caja WHERE fecha_hora_apertura=TIMESTAMP '2025-10-05 08:30'),
- (SELECT cod_producto FROM producto WHERE nombre_producto='Arena fina (m3)'));
+INSERT INTO maestro (cod_cliente, fecha_registro_maestro, ultima_actividad_maestro)
+SELECT c.cod_cliente,
+       c.fecha_registro_cliente + interval '1 hour',
+       c.ultima_actividad_cliente
+FROM cliente c
+WHERE c.cod_cliente <= 60;
 
--- Cambios de producto
-INSERT INTO cambio_producto (cod_reclamo,cod_motivo_cambio_prod,producto_retornado,producto_entregado) VALUES
-((SELECT r.cod_reclamo FROM reclamo r JOIN venta v ON v.cod_venta=r.cod_venta WHERE v.fecha_hora_venta=TIMESTAMP '2025-10-05 08:50'),
- (SELECT cod_motivo_cambio_prod FROM motivo_cambio_prod WHERE descp_motivo_cambio_prod='Falla de fábrica'),
- (SELECT cod_producto FROM producto WHERE nombre_producto='Llave ajustable 10"'),
- (SELECT cod_producto FROM producto WHERE nombre_producto='Llave ajustable 10"')),
-((SELECT r.cod_reclamo FROM reclamo r JOIN venta v ON v.cod_venta=r.cod_venta WHERE v.fecha_hora_venta=TIMESTAMP '2025-10-04 13:00'),
- (SELECT cod_motivo_cambio_prod FROM motivo_cambio_prod WHERE descp_motivo_cambio_prod='Cambio de modelo'),
- (SELECT cod_producto FROM producto WHERE nombre_producto='Interruptor termomagnético 20A'),
- (SELECT cod_producto FROM producto WHERE nombre_producto='Interruptor termomagnético 20A'));
+INSERT INTO usuario (fecha_registro_usuario)
+SELECT now() - (gs * interval '6 hours')
+FROM generate_series(1,120) gs;
 
--- Anulación
-INSERT INTO anulacion (cod_reclamo, cod_motivo_anulacion)
-VALUES (
-  (SELECT cod_reclamo FROM reclamo r JOIN venta v ON v.cod_venta=r.cod_venta
-   WHERE v.fecha_hora_venta=TIMESTAMP '2025-10-05 15:30'),
-  (SELECT cod_motivo_anulacion FROM motivo_anulacion WHERE descp_motivo_anulacion='Cliente desistió')
+-- ---------------------------
+-- 3) VENDEDORES
+-- ---------------------------
+INSERT INTO vendedor (nombre_vendedor, fecha_ingreso_vendedor, total_ventas_vendedor) VALUES
+  ('Ana Quispe',      '2023-02-01', 0),
+  ('Bruno Salazar',   '2023-05-15', 0),
+  ('Carla Mendoza',   '2024-01-10', 0),
+  ('Diego Paredes',   '2024-06-20', 0),
+  ('Elena Rivas',     '2024-09-01', 0),
+  ('Fabio Tello',     '2025-01-05', 0),
+  ('Gina Córdova',    '2025-03-01', 0),
+  ('Hugo Villanueva', '2025-05-12', 0)
+ON CONFLICT (nombre_vendedor) DO NOTHING;
+
+-- ---------------------------
+-- 4) CAJAS (aperturas/cierres)
+-- ---------------------------
+WITH cnt AS (SELECT count(*) c FROM vendedor),
+g AS (
+  SELECT gs AS n,
+         (SELECT cod_vendedor FROM vendedor ORDER BY cod_vendedor LIMIT 1
+            OFFSET ((gs    ) % (SELECT c FROM cnt))) AS vend_open,
+         (SELECT cod_vendedor FROM vendedor ORDER BY cod_vendedor LIMIT 1
+            OFFSET ((gs + 1) % (SELECT c FROM cnt))) AS vend_close
+  FROM generate_series(0,19) gs
+)
+INSERT INTO caja (fecha_hora_apertura, fecha_hora_cierre, vendedor_apertura, vendedor_cierre, monto_apertura, monto_cierre, monto_total_ingresos)
+SELECT
+  now() - ((20 - g.n) * interval '3 days') + time '09:00',
+  now() - ((20 - g.n) * interval '3 days') + time '18:00',
+  g.vend_open,
+  g.vend_close,
+  round((500 + (random()*500))::numeric, 2),
+  0,
+  0
+FROM g;
+
+-- ---------------------------
+-- 5) PRODUCTOS (FERRETERÍA) con puntos
+-- ---------------------------
+INSERT INTO producto (nombre_producto, unidad_medida, puntos_producto, precio_venta) VALUES
+  ('Cemento Tipo I 42.5kg',        'saco',   80, 36.90),
+  ('Yeso construcción 25kg',       'saco',   45, 22.50),
+  ('Arena fina m3',                'm3',    120, 69.00),
+  ('Piedra chancada m3',           'm3',    120, 74.00),
+  ('Ladrillo King Kong',           'unidad',  1,  0.85),
+  ('Ladrillo Pandereta',           'unidad',  1,  0.75),
+  ('Fierro corrugado 1/2" x 9m',   'barra',  55, 63.00),
+  ('Fierro corrugado 3/8" x 9m',   'barra',  40, 39.50),
+  ('Clavos 2" 1kg',                'kg',     10,  8.90),
+  ('Alambre recocido 1kg',         'kg',     10, 10.50),
+  ('Madera tornillo 2x4x3m',       'pieza',  25, 39.90),
+  ('Plancha triplay 15mm',         'pieza',  40, 95.00),
+  ('Drywall placa 1.22x2.44m',     'pieza',  35, 48.00),
+  ('Perfil galvanizado T',         'pieza',  12, 14.90),
+  ('Pintura látex 1gal',           'galón',  40, 69.90),
+  ('Pintura esmalte 1gal',         'galón',  45, 79.90),
+  ('Sellador acrílico 1gal',       'galón',  30, 49.90),
+  ('Thinner 1gal',                 'galón',  20, 42.00),
+  ('Brocha 3"',                    'unidad',  6,  8.50),
+  ('Rodillo 9" con marco',         'unidad',  8, 14.90),
+  ('Silicona neutra 280ml',        'unidad',  6, 12.50),
+  ('Cinta masking 48mm x 40m',     'rollo',   4,  6.90),
+  ('Pega azulejo 25kg',            'saco',   35, 28.90),
+  ('Fragüe 5kg',                   'bolsa',   8, 13.90),
+  ('Cerámica piso 60x60 (caja)',   'caja',   90, 72.00),
+  ('Pegamento PVC 118ml',          'unidad',  4,  9.90),
+  ('Tubo PVC 1/2" x 3m',           'pieza',   6,  7.50),
+  ('Codo PVC 1/2"',                'unidad',  2,  0.90),
+  ('Válvula esfera 1/2"',          'unidad', 10, 12.90),
+  ('Cable THW 12 AWG 100m',        'rollo', 120, 239.00),
+  ('Cable THW 14 AWG 100m',        'rollo', 100, 199.00),
+  ('Toma corriente simple',        'unidad',  6, 11.90),
+  ('Interruptor simple',           'unidad',  6, 10.90),
+  ('Foco LED 12W',                 'unidad',  4,  7.90),
+  ('Tablero térmico 2 polos',      'unidad', 30, 59.00),
+  ('Taladro percutor 13mm',        'unidad',180, 269.00),
+  ('Amoladora 4-1/2"',             'unidad',160, 219.00),
+  ('Escalera aluminio 6 peldaños', 'unidad',140, 319.00),
+  ('Guantes de nitrilo',           'par',     3,  5.90),
+  ('Casco de seguridad',           'unidad', 12, 24.90),
+  ('Lentes de seguridad',          'unidad',  5,  9.50),
+  ('Botas punta acero',            'par',    40, 79.00),
+  ('Arnés de seguridad',           'unidad', 60, 149.00)
+ON CONFLICT (nombre_producto) DO NOTHING;
+
+-- ---------------------------
+-- 6) COMPROBANTES (muchos)
+-- ---------------------------
+WITH tipos AS (
+  SELECT cod_tipo_comprobante, descp_tipo_comprobante,
+         CASE lower(descp_tipo_comprobante)
+           WHEN 'boleta'  THEN 'BOL'
+           WHEN 'factura' THEN 'FAC'
+           ELSE 'NV'
+         END AS pref
+  FROM tipo_comprobante
+),
+gen AS (
+  SELECT gs AS n FROM generate_series(1,800) gs
+)
+INSERT INTO comprobante (cod_tipo_comprobante, nro_comprobante, fecha_emision)
+SELECT
+  t.cod_tipo_comprobante,
+  t.pref || '-' || lpad((g.n)::text, 8, '0'),
+  now() - ((800 - g.n) * interval '1 hour')
+FROM gen g
+CROSS JOIN tipos t
+ON CONFLICT (cod_tipo_comprobante, nro_comprobante) DO NOTHING;
+
+-- ---------------------------
+-- 7) VENTAS (300: ~60% contado, ~40% crédito) - sin subselects ambiguos
+-- ---------------------------
+WITH lk_ev AS (
+  SELECT min(cod_estado_venta) AS cod, lower(descp_estado_venta) AS name
+  FROM estado_venta GROUP BY lower(descp_estado_venta)
+),
+lk_cp AS (
+  SELECT min(cod_cond_pago) AS cod, lower(descp_cond_pago) AS name
+  FROM condicion_pago GROUP BY lower(descp_cond_pago)
+),
+series AS (
+  SELECT gs AS n FROM generate_series(1,300) gs
+),
+pick AS (
+  SELECT
+    s.n,
+    (now() - ((120 - (s.n % 120)) * interval '1 day') + ((s.n % 8) * interval '2 hour')) AS fventa,
+    1 + (random()*199)::int AS cli,
+    (SELECT cod_vendedor FROM vendedor ORDER BY cod_vendedor
+       LIMIT 1 OFFSET ((s.n + (random()*100)::int) % (SELECT count(*) FROM vendedor))) AS vend,
+    CASE WHEN random() < 0.60
+         THEN (SELECT cod FROM lk_cp WHERE name='contado')
+         ELSE (SELECT cod FROM lk_cp WHERE name='crédito')
+    END AS tipo_v,
+    CASE
+      WHEN random() < 0.05 THEN (SELECT cod FROM lk_ev WHERE name='anulada')
+      WHEN random() < 0.70 THEN (SELECT cod FROM lk_ev WHERE name='pagada')
+      ELSE (SELECT cod FROM lk_ev WHERE name='por pagar')
+    END AS est_v,
+    CASE WHEN random() < 0.60 THEN 1 ELSE (CASE WHEN random() < 0.5 THEN 3 ELSE 6 END) END AS cuotas
+  FROM series s
+)
+INSERT INTO venta (fecha_hora_venta, monto_venta, descuento, igv, cod_estado_venta, cod_cond_pago, nro_cuotas, cod_cliente, cod_vendedor)
+SELECT p.fventa, 0, 0, 0, p.est_v, p.tipo_v, p.cuotas, p.cli, p.vend
+FROM pick p
+ORDER BY p.n;
+
+-- ---------------------------
+-- ÍTEMS DE VENTA (1-4 productos, SIN REPETIR por venta)
+-- ---------------------------
+WITH ventas AS (
+  SELECT v.cod_venta, v.fecha_hora_venta::date AS f_venta
+  FROM venta v
+),
+item_counts AS (
+  SELECT v.cod_venta,
+         1 + (random()*3)::int AS items_count
+  FROM ventas v
+),
+ranked AS (
+  SELECT
+    v.cod_venta,
+    v.f_venta,
+    p.cod_producto,
+    p.precio_venta,
+    row_number() OVER (PARTITION BY v.cod_venta ORDER BY random()) AS rn
+  FROM ventas v
+  CROSS JOIN producto p
+),
+to_take AS (
+  SELECT r.cod_venta, r.f_venta, r.cod_producto, r.precio_venta
+  FROM ranked r
+  JOIN item_counts ic ON ic.cod_venta = r.cod_venta
+  WHERE r.rn <= ic.items_count
+),
+final_rows AS (
+  SELECT
+    t.cod_venta,
+    t.cod_producto,
+    1 + (random()*2)::int                         AS qty,          -- 1 a 3 unidades
+    t.precio_venta                                AS precio_unit,
+    -- Descuento total de la línea (no por unidad) máx ~5% del precio unitario
+    round( (t.precio_venta * (random()*0.05))::numeric, 2 ) AS desc_total,
+    -- Fecha de entrega: entre 1 y 7 días después de la venta
+    (t.f_venta + ((1 + (random()*6)::int))::int)  AS fecha_entrega,
+    -- Dirección simple (50% tienda / 50% domicilio)
+    CASE WHEN random() < 0.5
+         THEN 'Entrega en tienda'
+         ELSE 'Entrega a domicilio'
+    END AS direccion_entrega
+  FROM to_take t
+),
+calc AS (
+  SELECT
+    f.cod_venta,
+    f.cod_producto,
+    f.qty                                         AS cantidad_producto,
+    f.precio_unit                                 AS precio_unitario,
+    f.desc_total                                  AS descuento_unitario,
+    -- Debe cumplir: monto_unitario = cantidad * precio_unitario - descuento_unitario
+    round( (f.qty * f.precio_unit - f.desc_total)::numeric, 2 ) AS monto_unitario,
+    f.fecha_entrega,
+    f.direccion_entrega
+  FROM final_rows f
+)
+INSERT INTO producto_venta
+  (cod_venta, cod_producto, cantidad_producto, precio_unitario,
+   descuento_unitario, monto_unitario, cod_estado_prodv, direccion_entrega, fecha_entrega)
+SELECT
+  c.cod_venta,
+  c.cod_producto,
+  c.cantidad_producto,
+  c.precio_unitario,
+  c.descuento_unitario,
+  c.monto_unitario,
+  (
+    SELECT min(cod_estado_prodv)
+    FROM estado_producto_venta
+    WHERE lower(descp_estado_prodv) = 'entregado'
+  ) AS cod_estado_prodv,
+  c.direccion_entrega,
+  c.fecha_entrega
+FROM calc c
+ON CONFLICT (cod_venta, cod_producto) DO NOTHING;
+
+
+-- ---------------------------
+-- 9) CALCULAR TOTALES DE VENTA (monto, descuento, IGV)
+-- ---------------------------
+WITH sumas AS (
+  SELECT
+    pv.cod_venta,
+    sum((pv.precio_unitario * pv.cantidad_producto) - pv.descuento_unitario) AS subtotal,
+    sum(pv.descuento_unitario) AS descu
+  FROM producto_venta pv
+  GROUP BY pv.cod_venta
+)
+UPDATE venta v
+SET
+  descuento   = COALESCE(s.descu,0),
+  monto_venta = COALESCE(s.subtotal,0),
+  igv         = round(COALESCE(s.subtotal,0) * 0.18, 2)
+FROM sumas s
+WHERE v.cod_venta = s.cod_venta;
+
+-- ---------------------------
+-- 10) PAGOS / CUOTAS (JOINs a lookups)
+-- ---------------------------
+WITH lk_ev AS (
+  SELECT min(cod_estado_venta) AS cod, lower(descp_estado_venta) AS name
+  FROM estado_venta GROUP BY lower(descp_estado_venta)
+),
+lk_ep AS (
+  SELECT min(cod_estado_pago) AS cod, lower(nombre_estado_pago) AS name
+  FROM estado_pago GROUP BY lower(nombre_estado_pago)
+),
+base AS (
+  SELECT
+    v.cod_venta,
+    v.fecha_hora_venta::date AS fventa,
+    v.nro_cuotas,
+    (v.monto_venta + v.igv) AS total_con_igv,
+    v.cod_estado_venta,
+    (SELECT cod_caja FROM caja ORDER BY cod_caja
+       LIMIT 1 OFFSET ((v.cod_venta - 1) % GREATEST(1,(SELECT count(*) FROM caja)))) AS caja_id
+  FROM venta v
+),
+det AS (
+  SELECT
+    b.cod_venta, b.fventa, b.nro_cuotas, b.total_con_igv, b.cod_estado_venta, b.caja_id,
+    gs AS cuota_nro
+  FROM base b
+  CROSS JOIN LATERAL generate_series(1, b.nro_cuotas) gs
+),
+montos AS (
+  SELECT
+    d.*,
+    round((d.total_con_igv / d.nro_cuotas)::numeric, 2) AS monto_cuota,
+    (d.fventa + (d.cuota_nro * interval '30 days'))::date AS fecha_venc
+  FROM det d
+),
+estado_pago_sel AS (
+  SELECT
+    m.*,
+    CASE
+      WHEN ev.name='anulada' THEN (SELECT cod FROM lk_ep WHERE name='anulado')
+      WHEN ev.name='pagada'  THEN (CASE WHEN random() < 0.90
+                                        THEN (SELECT cod FROM lk_ep WHERE name='pagado')
+                                        ELSE (SELECT cod FROM lk_ep WHERE name='pendiente') END)
+      ELSE (CASE WHEN random() < 0.15
+                 THEN (SELECT cod FROM lk_ep WHERE name='vencido')
+                 ELSE (SELECT cod FROM lk_ep WHERE name='pendiente') END)
+    END AS estado_pago_id,
+    (SELECT cod_metodo_pago FROM metodo_pago ORDER BY random() LIMIT 1) AS metodo_id,
+    (SELECT cod_comprobante FROM comprobante ORDER BY cod_comprobante
+       LIMIT 1 OFFSET ((m.cod_venta + m.cuota_nro) %
+                       GREATEST(1,(SELECT count(*) FROM comprobante)))) AS comp_id,
+    CASE
+      WHEN (ev.name='pagada' AND random() < 0.90)
+      THEN (m.fventa + ((m.cuota_nro * 10) || ' days')::interval + ((random()*10)::int || ' hours')::interval)
+      ELSE NULL
+    END AS fecha_pago_real,
+    ('Cliente ' || lpad(m.cod_venta::text, 4, '0'))::varchar(200) AS pagador,
+    ('9' || lpad(((10000000 + (random()*8999999)::int))::text, 8, '0'))::varchar(20) AS telefono
+  FROM montos m
+  JOIN lk_ev ev ON ev.cod = m.cod_estado_venta
+)
+INSERT INTO pago (
+  cod_venta, nro_cuota, monto_pago, fecha_vencimiento_pago, fecha_pago,
+  nombre_pagador, nro_telf_pagador, cod_caja, cod_comprobante,
+  cod_estado_pago, cod_metodo_pago
+)
+SELECT
+  e.cod_venta, e.cuota_nro, e.monto_cuota, e.fecha_venc, e.fecha_pago_real,
+  e.pagador, e.telefono, e.caja_id, e.comp_id, e.estado_pago_id, e.metodo_id
+FROM estado_pago_sel e
+ON CONFLICT DO NOTHING;
+
+-- Ajuste de montos de caja
+WITH mov AS (
+  SELECT pa.cod_caja,
+         sum(CASE WHEN ep.nombre_estado_pago='pagado' THEN pa.monto_pago ELSE 0 END) AS ingresos
+  FROM pago pa
+  JOIN estado_pago ep ON ep.cod_estado_pago = pa.cod_estado_pago
+  WHERE pa.cod_caja IS NOT NULL
+  GROUP BY pa.cod_caja
+)
+UPDATE caja c
+SET monto_total_ingresos = COALESCE(m.ingresos,0),
+    monto_cierre        = round((c.monto_apertura + COALESCE(m.ingresos,0))::numeric,2)
+FROM mov m
+WHERE c.cod_caja = m.cod_caja;
+
+-- Sube contador de ventas por vendedor
+WITH cont AS (
+  SELECT cod_vendedor, count(*) AS n
+  FROM venta
+  GROUP BY cod_vendedor
+)
+UPDATE vendedor v
+SET total_ventas_vendedor = c.n
+FROM cont c
+WHERE v.cod_vendedor = c.cod_vendedor;
+
+-- ---------------------------
+-- 11) POST-VENTA (JOINs a lookups)
+-- ---------------------------
+WITH lk_ev AS (
+  SELECT min(cod_estado_venta) AS cod, lower(descp_estado_venta) AS name
+  FROM estado_venta GROUP BY lower(descp_estado_venta)
+),
+v_ok AS (
+  SELECT v.cod_venta, v.cod_cliente
+  FROM venta v
+  JOIN lk_ev ev ON ev.cod = v.cod_estado_venta
+  WHERE ev.name <> 'anulada'
+  ORDER BY random()
+  LIMIT 30
+),
+rk AS (
+  INSERT INTO reclamo (cod_venta, cod_cliente, cod_estado_reclamo, fecha_hora_reclamo)
+  SELECT
+    q.cod_venta,
+    q.cod_cliente,
+    (SELECT min(cod_estado_reclamo) FROM estado_reclamo ORDER BY random() LIMIT 1),
+    now() - ((random()*20)::int || ' days')::interval
+  FROM v_ok q
+  RETURNING cod_reclamo, cod_venta
+)
+INSERT INTO anulacion (cod_reclamo, fecha_hora_anulacion, cod_motivo_anulacion, descp_anulacion)
+SELECT
+  r.cod_reclamo,
+  now() - ((random()*10)::int || ' days')::interval,
+  (SELECT min(cod_motivo_anulacion) FROM motivo_anulacion ORDER BY random() LIMIT 1),
+  'Anulación gestionada por post-venta'
+FROM (SELECT * FROM rk ORDER BY random() LIMIT 8) r;
+
+WITH r2 AS (
+  SELECT * FROM reclamo ORDER BY cod_reclamo DESC LIMIT 30
+)
+INSERT INTO devolucion (cod_reclamo, fecha_hora_devolucion, monto_devolucion, cod_motivo_devolucion, cod_caja, producto_devuelto, descp_devolucion)
+SELECT
+  r.cod_reclamo,
+  now() - ((random()*7)::int || ' days')::interval,
+  round((100 + random()*500)::numeric, 2),
+  (SELECT min(cod_motivo_devolucion) FROM motivo_devolucion ORDER BY random() LIMIT 1),
+  (SELECT cod_caja FROM caja ORDER BY random() LIMIT 1),
+  (SELECT cod_producto FROM producto ORDER BY random() LIMIT 1),
+  'Devolución parcial'
+FROM (SELECT * FROM r2 ORDER BY random() LIMIT 10) r;
+
+WITH r3 AS (
+  SELECT * FROM reclamo ORDER BY cod_reclamo DESC LIMIT 30
+),
+pp AS (
+  SELECT a.cod_producto AS prod_a, b.cod_producto AS prod_b
+  FROM (SELECT cod_producto FROM producto ORDER BY random() LIMIT 6) a
+  CROSS JOIN LATERAL (SELECT cod_producto FROM producto ORDER BY random() LIMIT 1) b
+  LIMIT 6
+)
+INSERT INTO cambio_producto (cod_reclamo, producto_retorna, producto_entrega, diferencia_cambio, cod_motivo_cambio_prod, cod_caja, descp_cambio)
+SELECT
+  r.cod_reclamo,
+  p.prod_a,
+  p.prod_b,
+  round((random()*150)::numeric, 2),
+  (SELECT min(cod_motivo_cambio_prod) FROM motivo_cambio_prod ORDER BY random() LIMIT 1),
+  (SELECT cod_caja FROM caja ORDER BY random() LIMIT 1),
+  'Cambio gestionado'
+FROM (SELECT * FROM r3 ORDER BY random() LIMIT 6) r
+JOIN pp p ON true;
+
+-- ---------------------------
+-- 12) CONSISTENCIA FINAL (JOINs)
+-- ---------------------------
+WITH lk_ev AS (
+  SELECT min(cod_estado_venta) AS cod, lower(descp_estado_venta) AS name
+  FROM estado_venta GROUP BY lower(descp_estado_venta)
+),
+lk_ep AS (
+  SELECT min(cod_estado_pago) AS cod, lower(nombre_estado_pago) AS name
+  FROM estado_pago GROUP BY lower(nombre_estado_pago)
+)
+UPDATE pago pa
+SET cod_estado_pago = (SELECT cod FROM lk_ep WHERE name='anulado')
+WHERE pa.cod_venta IN (
+  SELECT v.cod_venta
+  FROM venta v JOIN lk_ev ev ON ev.cod = v.cod_estado_venta
+  WHERE ev.name='anulada'
 );
 
--- =========================================================
--- 10) Reportes
--- =========================================================
-INSERT INTO reporte (fecha_hora_creacion,fecha_inicio_datos,fecha_fin_datos,descp_reporte,cod_tipo_grafico) VALUES
-(DEFAULT,DATE '2023-01-01',DATE '2023-12-31','Ingresos 2023 por mes',
- (SELECT cod_tipo_grafico FROM tipo_grafico WHERE descp_grafico='Gráfico de barras')),
-(DEFAULT,DATE '2024-04-01',DATE '2025-03-31','Reclamos Abril 2024 - Marzo 2025 por motivo',
- (SELECT cod_tipo_grafico FROM tipo_grafico WHERE descp_grafico='Gráfico circular')),
-(DEFAULT,DATE '2025-05-01',DATE '2025-05-31','Ingresos mensuales marzo 2025 por vendedor',
- (SELECT cod_tipo_grafico FROM tipo_grafico WHERE descp_grafico='Gráfico de barras'));
+WITH lk_ep2 AS (
+  SELECT min(cod_estado_pago) AS cod FROM estado_pago WHERE lower(nombre_estado_pago)='vencido'
+),
+lk_ep3 AS (
+  SELECT min(cod_estado_pago) AS cod FROM estado_pago WHERE lower(nombre_estado_pago)='pendiente'
+)
+UPDATE pago pa
+SET cod_estado_pago = (SELECT cod FROM lk_ep2)
+WHERE pa.fecha_vencimiento_pago < current_date
+  AND pa.cod_estado_pago = (SELECT cod FROM lk_ep3);
 
-COMMIT;
+-- =========================================================
+-- FIN
+-- =========================================================
