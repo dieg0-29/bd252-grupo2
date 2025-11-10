@@ -1,10 +1,13 @@
+-- HOLAP
+
 SET search_path TO "FERRETERIA";
+
 
 --=============================================================
 -- Módulo: CLIENTES (POBLACION DE TABLAS con datos iniciales)
 -- =============================================================
 TRUNCATE TABLE
-    -- Tablas existentes del Módulo Clientes/Maestros/Premios
+    -- Tablas existentes (Clientes, Ventas, Abastecimiento Parcial)
     canje,
     canje_consultado,
     categoria,
@@ -30,7 +33,6 @@ TRUNCATE TABLE
     rol,
     area,
     usuario,
-    venta,
     cambio_producto,
     devolucion,
     anulacion,
@@ -41,8 +43,8 @@ TRUNCATE TABLE
     comprobante,
     caja,
     vendedor,
-    -- lookups:
     estado_venta,
+    estado_usuario,
     metodo_pago,
     condicion_pago,
     estado_pago,
@@ -52,10 +54,8 @@ TRUNCATE TABLE
     motivo_anulacion,
     motivo_devolucion,
     motivo_cambio_prod,
-    -- Tablas del Módulo Abastecimiento (incluyendo lookups y detalles)
     categoria_producto,
     estado_pedido_tr,
-    instalacion,
     proveedor,
     producto_proveedor,
     solicitud_cotizacion,
@@ -77,9 +77,51 @@ TRUNCATE TABLE
     nota_credito_abast,
     cambio_producto_abast,
     incidencia_abast,
-    -- Producto (debe ir al final de los lookups/tablas maestras)
+
+    -- NUEVAS TABLAS DE TRANSPORTE (Lookups)
+    TIPO_VEHICULO,
+    ESTADO_VEHICULO,
+    ESTADO_DESPACHO,
+    ESTADO_PERMISO,
+    ESTADO_VISITA,
+    MOTIVO_TRASLADO,
+    ESTADO_DETALLE_PEDIDO,
+    TIPO_PARADA,
+    MOTIVO_CANCELACION_TR,
+    TURNO_TRANSPORTE,
+
+    -- NUEVAS TABLAS DE TRANSPORTE (Principales y Detalle)
+    VEHICULO,
+    PARADA,
+    CHOFER,
+    DESPACHO,
+    PERMISO,
+    ASIGNACION_AYUDANTE,
+    VISITA_PROGRAMADA,
+    GUIA_REMISION,
+    DETALLE_PEDIDO_TR,
+    ASIGNACION_PEDIDO_DESPACHO,
+
+    -- NUEVAS TABLAS DE ALMACÉN
+    instalacion,
+    turno_almacen,
+    tipo_incidencia_lookup,
+    ubicacion,
+    capacidad_turno,
+    inventario,
+    conteo,
+    cupo_disponible,
+    reserva_almacen,
+    detalle_conteo,
+    operador_conteo,
+    operador_reserva_almacen,
+    incidencia,
+    movimiento,
+    
+    -- Producto (debe ir al final)
     producto
 RESTART IDENTITY CASCADE;
+
 
 INSERT INTO categoria_producto (rubro, familia, clase) VALUES
     ('Construcción', 'Materiales', 'Cimiento'),        -- 1: Cemento, Arena, Piedra
@@ -101,12 +143,46 @@ INSERT INTO categoria_producto (rubro, familia, clase) VALUES
     ('Construcción', 'Materiales', 'Finos')            -- 17: Yeso
 ON CONFLICT DO NOTHING;
 
+INSERT INTO ESTADO_USUARIO (descp_estado_usuario) VALUES
+('Activo'), ('De Vacaciones'), ('Con Licencia'), ('Inactivo');
+
+INSERT INTO TIPO_VEHICULO (descp_tipo_vehiculo) VALUES
+('Camión'), ('Furgoneta'), ('Camioneta');
+
+INSERT INTO ESTADO_VEHICULO (descp_estado_vehiculo) VALUES
+('Operativo'), ('En Mantenimiento'), ('De Baja');
+
+
+INSERT INTO ESTADO_DESPACHO (descp_estado_despacho) VALUES
+('Programado'), ('En Ruta'), ('Completado'), ('Cancelado');
+
+INSERT INTO ESTADO_PERMISO (descp_estado_permiso) VALUES
+('No Habilitado'), ('Habilitado'), ('Suspendido');
+
+INSERT INTO ESTADO_VISITA (descp_estado_visita) VALUES
+('Pendiente'), ('Picking'), ('En Ruta'), ('En Camino'), ('Entregado');
+
+INSERT INTO MOTIVO_TRASLADO (descp_motivo_traslado) VALUES
+('Venta'), ('Traslado entre almacenes'), ('Devolución'), ('Otros');
+
+INSERT INTO ESTADO_DETALLE_PEDIDO (descp_estado_detalle_pedido) VALUES
+('Pendiente'), ('Programado'), ('Picking'), ('En Ruta'), ('En Camino'), ('Entregado');
+
+INSERT INTO TIPO_PARADA (descp_tipo_parada) VALUES
+('Cliente'), ('Almacen'), ('Proveedor');
+
+INSERT INTO MOTIVO_CANCELACION_TR (descp_motivo_cancelacion_tr) VALUES
+('Solicitud del cliente'), ('Error en el pedido'), ('Falta de stock'), ('Otro');
+
+INSERT INTO TURNO_TRANSPORTE (descp_turno) VALUES
+('Mañana'), ('Tarde'), ('Noche');
+
+
 -- ESTADO_PEDIDO_TR
 INSERT INTO estado_pedido_tr (descp_estado_pedido_tr) VALUES
-  ('Pendiente de Asignación'),
-  ('Asignado a Ruta'),
-  ('En Tránsito'),
-  ('Entregado al Cliente'),
+  ('Pendiente'),
+  ('En Proceso'),
+  ('Completado'),
   ('Cancelado')
 ON CONFLICT DO NOTHING;
 -- ---------------------------
@@ -4215,12 +4291,10 @@ v_ok AS (
   LIMIT 30
 ),
 rk AS (
-  INSERT INTO reclamo (cod_venta, cod_cliente, cod_estado_reclamo, fecha_hora_reclamo)
+  INSERT INTO reclamo (cod_venta, cod_cliente)
   SELECT
     q.cod_venta,
-    q.cod_cliente,
-    (SELECT min(cod_estado_reclamo) FROM estado_reclamo ORDER BY random() LIMIT 1),
-    now() - ((random()*20)::int || ' days')::interval
+    q.cod_cliente
   FROM v_ok q
   RETURNING cod_reclamo, cod_venta
 )
@@ -4598,7 +4672,7 @@ ON CONFLICT DO NOTHING;
 
 -- 18) PEDIDO_TRANSPORTE (Asociado a Recepción 1, aunque usualmente es de Venta)
 -- Cliente 29 (Juan Pérez García), Empleado 14 (David Ricardo - Almacén)
-INSERT INTO pedido_transporte (fecha_pedido_transporte, cod_recepcion, cod_estado_pedido_tr, cod_cliente, cod_usuario) VALUES
+INSERT INTO pedido_transporte (fecha_pedido_transporte, cod_recepcion, cod_estado_pedido_tr, cod_cliente, cod_empleado_registro) VALUES
 ('2025-10-26', 1, 4, 29, 14) -- Asumimos que la recepción generó un despacho. 'Entregado al Cliente'.
 ON CONFLICT DO NOTHING;
 
@@ -4626,6 +4700,1153 @@ INSERT INTO incidencia_abast (cod_detalle_recepcion, cod_reclamo, tipo_incidenci
 (3, 1, 'CALIDAD', 2, '2 Tubos PVC (Cod 27) llegaron rajados.')
 ON CONFLICT DO NOTHING;
 
+-- ==============================================================================================
+-- ==============================================================================================
+-- ========================  MODULO DE TRASNPORTE   =============================================
+-- ==============================================================================================
+-- ==============================================================================================
+
+SET search_path TO "FERRETERIA";
+
+-- =============================================================
+-- 1. CREACIÓN DE DATOS BASE PARA TRANSPORTE
+-- =============================================================
+
+-- Añadir el área de Transporte si no existe
+INSERT INTO AREA (valor_area) VALUES ('Transporte') ON CONFLICT (valor_area) DO NOTHING;
+
+-- Insertar 35 personas para el área de transporte (IDs 401-435)
+INSERT INTO PERSONA (cod_persona, nombre_persona, cod_tipo_persona) VALUES
+(401, 'Ana Torres', 1),
+(402, 'Bruno Rivas', 1),
+(403, 'Carlos Solano', 1),
+(404, 'Daniel Vega', 1),
+(405, 'Esteban Mendoza', 1),
+(406, 'Fernando Arias', 1),
+(407, 'Gabriela Luna', 1),
+(408, 'Hugo Costa', 1),
+(409, 'Ines Flores', 1),
+(410, 'Juan Paredes', 1),
+(411, 'Karla Rios', 1),
+(412, 'Luis Gomez', 1),
+(413, 'Maria Diaz', 1),
+(414, 'Nestor Silva', 1),
+(415, 'Oscar Peña', 1),
+(416, 'Pedro Ortiz', 1),
+(417, 'Quintin Salas', 1),
+(418, 'Rosa Chavez', 1),
+(419, 'Saul Guerra', 1),
+(420, 'Tania Ponce', 1),
+(421, 'Ursula Vila', 1),
+(422, 'Victor Tello', 1),
+(423, 'Wendy Zegarra', 1),
+(424, 'Ximena Roldan', 1),
+(425, 'Yuri Castro', 1),
+(426, 'Zoe Ramirez', 1),
+(427, 'Alberto Rey', 1),
+(428, 'Beatriz Leon', 1),
+(429, 'Cesar Bravo', 1),
+(430, 'Doris Ruiz', 1),
+(431, 'Elias Nieto', 1),
+(432, 'Fabiola Cueva', 1),
+(433, 'German Sosa', 1),
+(434, 'Hilda Matos', 1),
+(435, 'Ivan Pinto', 1)
+ON CONFLICT (cod_persona) DO NOTHING;
+
+-- Insertar 35 usuarios
+-- NOTA: Se quitó "ON CONFLICT (cod_persona)" porque USUARIO(cod_persona) no es UNIQUE en el schema.
+INSERT INTO USUARIO (cod_persona, cod_rol, cod_area, cod_estado_usuario)
+SELECT
+    p.cod_persona,
+    (SELECT cod_rol FROM ROL WHERE valor_rol = 'Transportista' LIMIT 1),
+    (SELECT cod_area FROM AREA WHERE valor_area = 'Transporte' LIMIT 1),
+    -- Los primeros 5 de vacaciones (estado 2), el resto activo (estado 1)
+    CASE WHEN p.cod_persona <= 405 THEN 2 ELSE 1 END
+FROM PERSONA p
+WHERE p.cod_persona BETWEEN 401 AND 435;
 
 
+-- Insertar 10 Choferes (de los usuarios activos)
+INSERT INTO CHOFER (cod_usuario, vencimiento_brevete, categoria_brevete)
+SELECT
+    cod_usuario,
+    '2028-01-01',
+    CASE WHEN (cod_usuario % 2) = 0 THEN 'A-IIb' ELSE 'A-III' END
+FROM USUARIO
+WHERE cod_persona BETWEEN 406 AND 415 -- Primeros 10 usuarios activos
+ON CONFLICT (cod_usuario) DO NOTHING;
+-- Los usuarios 416-435 (20) son los Ayudantes activos.
 
+-- Insertar 5 Vehículos
+INSERT INTO VEHICULO (placa_vehiculo, cod_tipo_vehiculo, cod_estado_vehiculo, capacidad_maxima_peso, capacidad_maxima_volumen, categoria_minima_requerida) VALUES
+('TRN-001', 1, 1, 10000.00, 30.00, 'A-III'), -- Camión
+('TRN-002', 1, 1, 12000.00, 35.00, 'A-III'), -- Camión
+('TRN-003', 2, 1, 3500.00, 15.00, 'A-IIb'),  -- Furgoneta
+('TRN-004', 3, 1, 1500.00, 5.00, 'A-IIb'),   -- Camioneta
+('TRN-005', 3, 1, 1500.00, 5.00, 'A-IIb')    -- Camioneta
+ON CONFLICT (placa_vehiculo) DO NOTHING;
+
+-- Insertar Paradas de Clientes (Dummy)
+INSERT INTO PARADA (direccion_parada, referencia_parada, cod_tipo_parada)
+SELECT
+    'Calle Ficticia ' || g.n || ', Distrito Ejemplo, Lima',
+    'Cliente ' || g.n,
+    1 -- Tipo Parada 'Cliente'
+FROM generate_series(1, 120) g(n);
+
+-- Insertar 3 Paradas (Almacenes/Ferretería)
+INSERT INTO PARADA (direccion_parada, referencia_parada, cod_tipo_parada) VALUES
+('Av. Argentina 1000, Lima', 'Ferreteria Principal', 2),
+('Av. Gambetta 500, Callao', 'Almacen Principal', 2),
+('Lurin, Panamericana Sur Km 40', 'Almacen Secundario', 2);
+
+
+-- Insertar Productos Pesados (IDs 1 y 2 ya existen: Cemento, Fierro)
+INSERT INTO producto (nombre_producto, unidad_medida, puntos_producto, precio_venta, cod_categoria_producto, marca, precio_base, peso_producto) VALUES
+('Arena Gruesa', 'm3', 100, 80.00, 1, 'Cantera', 65.00, 1600.000),
+('Piedra Chancada 1/2"', 'm3', 100, 90.00, 1, 'Cantera', 75.00, 1500.000),
+('Arena Fina', 'm3', 90, 75.00, 1, 'Cantera', 60.00, 1500.000),
+('Hormigon', 'm3', 90, 70.00, 1, 'Cantera', 55.00, 1700.000),
+('Fierro Corrugado 5/8" x 9m', 'barra', 70, 85.00, 2, 'Arequipa', 75.00, 15.000),
+('Ladrillo King Kong 18 Huecos', 'millar', 1000, 900.00, 3, 'Lark', 800.00, 2500.000),
+-- Nuevos Agregados
+('Piedra Zanja (Over)', 'm3', 80, 65.00, 1, 'Cantera', 50.00, 1400.000),
+('Confitillo (Piedra 1/4")', 'm3', 110, 95.00, 1, 'Cantera', 80.00, 1500.000),
+('Polvo de Piedra', 'm3', 85, 70.00, 1, 'Cantera', 55.00, 1450.000),
+-- Nueva variedad de Fierros
+('Fierro Corrugado 3/4" x 9m', 'barra', 90, 115.00, 2, 'Arequipa', 100.00, 22.500),
+('Fierro Corrugado 1" x 9m', 'barra', 120, 195.00, 2, 'Arequipa', 170.00, 39.500),
+('Fierro Corrugado 8mm x 9m', 'barra', 50, 45.00, 2, 'Arequipa', 38.00, 8.000)
+ON CONFLICT (nombre_producto) DO NOTHING;
+
+-- =============================================================
+-- 2. HISTORIAL DE PEDIDOS (PASADO - COMPLETADO)
+-- Día: 2025-10-25 (10 pedidos en 2 despachos)
+-- =============================================================
+
+-- Despacho D-001 (Mañana)
+WITH despacho1 AS (
+    INSERT INTO DESPACHO (fecha_despacho, cod_estado_despacho, hora_salida_estimada, hora_salida_despacho, hora_regreso_estimada, hora_regreso_despacho, cod_chofer, cod_vehiculo, tiempo_reserva_min)
+    VALUES ('2025-10-25', 3, '07:00:00', '07:05:00', '11:50:00', '11:45:00', 
+            (SELECT cod_usuario FROM CHOFER LIMIT 1 OFFSET 0), 
+            (SELECT cod_vehiculo FROM VEHICULO WHERE placa_vehiculo = 'TRN-001'), 290)
+    RETURNING cod_despacho
+),
+-- Ayudantes para Despacho D-001
+ayudantes1 AS (
+    INSERT INTO ASIGNACION_AYUDANTE (cod_usuario, cod_despacho)
+    SELECT U.cod_usuario, (SELECT cod_despacho FROM despacho1)
+    FROM USUARIO U LEFT JOIN CHOFER C ON U.cod_usuario = C.cod_usuario
+    WHERE U.cod_persona >= 401 AND U.cod_estado_usuario = 1 AND C.cod_usuario IS NULL
+    LIMIT 2 OFFSET 0
+),
+-- Pedidos (5) para Despacho D-001
+pedido1 AS (
+    INSERT INTO PEDIDO_TRANSPORTE (fecha_pedido_transporte, cod_estado_pedido_tr, cod_cliente, cod_empleado_registro)
+    VALUES ('2025-10-24', 3, (SELECT cod_cliente FROM CLIENTE LIMIT 1 OFFSET 10), (SELECT cod_usuario FROM USUARIO WHERE cod_persona = 406))
+    RETURNING cod_pedido_transporte
+),
+pedido2 AS (
+    INSERT INTO PEDIDO_TRANSPORTE (fecha_pedido_transporte, cod_estado_pedido_tr, cod_cliente, cod_empleado_registro)
+    VALUES ('2025-10-24', 3, (SELECT cod_cliente FROM CLIENTE LIMIT 1 OFFSET 11), (SELECT cod_usuario FROM USUARIO WHERE cod_persona = 406))
+    RETURNING cod_pedido_transporte
+),
+pedido3 AS (
+    INSERT INTO PEDIDO_TRANSPORTE (fecha_pedido_transporte, cod_estado_pedido_tr, cod_cliente, cod_empleado_registro)
+    VALUES ('2025-10-24', 3, (SELECT cod_cliente FROM CLIENTE LIMIT 1 OFFSET 12), (SELECT cod_usuario FROM USUARIO WHERE cod_persona = 406))
+    RETURNING cod_pedido_transporte
+),
+pedido4 AS (
+    INSERT INTO PEDIDO_TRANSPORTE (fecha_pedido_transporte, cod_estado_pedido_tr, cod_cliente, cod_empleado_registro)
+    VALUES ('2025-10-24', 3, (SELECT cod_cliente FROM CLIENTE LIMIT 1 OFFSET 13), (SELECT cod_usuario FROM USUARIO WHERE cod_persona = 406))
+    RETURNING cod_pedido_transporte
+),
+pedido5 AS (
+    INSERT INTO PEDIDO_TRANSPORTE (fecha_pedido_transporte, cod_estado_pedido_tr, cod_cliente, cod_empleado_registro)
+    VALUES ('2025-10-24', 3, (SELECT cod_cliente FROM CLIENTE LIMIT 1 OFFSET 14), (SELECT cod_usuario FROM USUARIO WHERE cod_persona = 406))
+    RETURNING cod_pedido_transporte
+),
+-- Asignación de Pedidos a Despacho D-001
+asig_pedidos1 AS (
+    INSERT INTO ASIGNACION_PEDIDO_DESPACHO (cod_pedido_transporte, cod_despacho)
+    VALUES 
+        ((SELECT cod_pedido_transporte FROM pedido1), (SELECT cod_despacho FROM despacho1)),
+        ((SELECT cod_pedido_transporte FROM pedido2), (SELECT cod_despacho FROM despacho1)),
+        ((SELECT cod_pedido_transporte FROM pedido3), (SELECT cod_despacho FROM despacho1)),
+        ((SELECT cod_pedido_transporte FROM pedido4), (SELECT cod_despacho FROM despacho1)),
+        ((SELECT cod_pedido_transporte FROM pedido5), (SELECT cod_despacho FROM despacho1))
+),
+-- Visitas para Despacho D-001 (1 Origen + 5 Clientes)
+visita_origen1 AS (
+    INSERT INTO VISITA_PROGRAMADA (cod_despacho, cod_parada, secuencia, cod_estado_visita, hora_llegada)
+    VALUES ((SELECT cod_despacho FROM despacho1), (SELECT cod_parada FROM PARADA WHERE referencia_parada = 'Almacen Principal'), 1, 5, '08:10:00')
+),
+visita_cliente1 AS (
+    INSERT INTO VISITA_PROGRAMADA (cod_despacho, cod_parada, secuencia, cod_estado_visita, hora_llegada)
+    VALUES ((SELECT cod_despacho FROM despacho1), 1, 2, 5, '09:00:00') RETURNING cod_visita
+),
+visita_cliente2 AS (
+    INSERT INTO VISITA_PROGRAMADA (cod_despacho, cod_parada, secuencia, cod_estado_visita, hora_llegada)
+    VALUES ((SELECT cod_despacho FROM despacho1), 2, 3, 5, '09:45:00') RETURNING cod_visita
+),
+visita_cliente3 AS (
+    INSERT INTO VISITA_PROGRAMADA (cod_despacho, cod_parada, secuencia, cod_estado_visita, hora_llegada)
+    VALUES ((SELECT cod_despacho FROM despacho1), 3, 4, 5, '10:30:00') RETURNING cod_visita
+),
+visita_cliente4 AS (
+    INSERT INTO VISITA_PROGRAMADA (cod_despacho, cod_parada, secuencia, cod_estado_visita, hora_llegada)
+    VALUES ((SELECT cod_despacho FROM despacho1), 4, 5, 5, '11:15:00') RETURNING cod_visita
+),
+visita_cliente5 AS (
+    INSERT INTO VISITA_PROGRAMADA (cod_despacho, cod_parada, secuencia, cod_estado_visita, hora_llegada)
+    VALUES ((SELECT cod_despacho FROM despacho1), 5, 6, 5, '12:00:00') RETURNING cod_visita
+),
+-- Guías de Remisión para Visitas
+guias1 AS (
+    INSERT INTO GUIA_REMISION (serie, cod_visita, cod_motivo_traslado)
+    VALUES 
+        ('T001-0001', (SELECT cod_visita FROM visita_cliente1), 1),
+        ('T001-0002', (SELECT cod_visita FROM visita_cliente2), 1),
+        ('T001-0003', (SELECT cod_visita FROM visita_cliente3), 1),
+        ('T001-0004', (SELECT cod_visita FROM visita_cliente4), 1),
+        ('T001-0005', (SELECT cod_visita FROM visita_cliente5), 1)
+)
+-- Detalles de Pedido (Productos Pesados desde Almacén)
+INSERT INTO DETALLE_PEDIDO_TR (cod_pedido_transporte, cod_producto, cod_visita, cantidad_detalle, cod_estado_detalle_pedido, direccion_origen_pedido, direccion_destino_pedido, fecha_detalle, cod_turno)
+VALUES 
+    -- Pedido 1
+    ((SELECT cod_pedido_transporte FROM pedido1), (SELECT cod_producto FROM PRODUCTO WHERE nombre_producto = 'Arena Gruesa'), (SELECT cod_visita FROM visita_cliente1), 2, 6, (SELECT direccion_parada FROM PARADA WHERE referencia_parada = 'Almacen Principal'), (SELECT direccion_parada FROM PARADA WHERE cod_parada=1), '2025-10-25', 1),
+    ((SELECT cod_pedido_transporte FROM pedido1), (SELECT cod_producto FROM PRODUCTO WHERE nombre_producto = 'Fierro Corrugado 5/8" x 9m'), (SELECT cod_visita FROM visita_cliente1), 20, 6, (SELECT direccion_parada FROM PARADA WHERE referencia_parada = 'Almacen Principal'), (SELECT direccion_parada FROM PARADA WHERE cod_parada=1), '2025-10-25', 1),
+    -- Pedido 2
+    ((SELECT cod_pedido_transporte FROM pedido2), (SELECT cod_producto FROM PRODUCTO WHERE nombre_producto = 'Piedra Chancada 1/2"'), (SELECT cod_visita FROM visita_cliente2), 3, 6, (SELECT direccion_parada FROM PARADA WHERE referencia_parada = 'Almacen Secundario'), (SELECT direccion_parada FROM PARADA WHERE cod_parada=2), '2025-10-25', 1),
+    -- Pedido 3
+    ((SELECT cod_pedido_transporte FROM pedido3), (SELECT cod_producto FROM PRODUCTO WHERE nombre_producto = 'Hormigon'), (SELECT cod_visita FROM visita_cliente3), 5, 6, (SELECT direccion_parada FROM PARADA WHERE referencia_parada = 'Almacen Principal'), (SELECT direccion_parada FROM PARADA WHERE cod_parada=3), '2025-10-25', 1),
+    -- Pedido 4
+    ((SELECT cod_pedido_transporte FROM pedido4), (SELECT cod_producto FROM PRODUCTO WHERE nombre_producto = 'Ladrillo King Kong 18 Huecos'), (SELECT cod_visita FROM visita_cliente4), 2, 6, (SELECT direccion_parada FROM PARADA WHERE referencia_parada = 'Almacen Secundario'), (SELECT direccion_parada FROM PARADA WHERE cod_parada=4), '2025-10-25', 1),
+    -- Pedido 5 (Producto ligero desde Ferretería)
+    ((SELECT cod_pedido_transporte FROM pedido5), (SELECT cod_producto FROM PRODUCTO WHERE nombre_producto = 'Clavos 2" 1kg'), (SELECT cod_visita FROM visita_cliente5), 10, 6, (SELECT direccion_parada FROM PARADA WHERE referencia_parada = 'Ferreteria Principal'), (SELECT direccion_parada FROM PARADA WHERE cod_parada=5), '2025-10-25', 1);
+
+-- Despacho D-002 (Tarde)
+WITH despacho2 AS (
+    INSERT INTO DESPACHO (fecha_despacho, cod_estado_despacho, hora_salida_estimada, hora_salida_despacho, hora_regreso_estimada, hora_regreso_despacho, cod_chofer, cod_vehiculo, tiempo_reserva_min)
+    VALUES ('2025-10-25', 3, '13:00:00', '13:05:00', '17:50:00', '17:45:00', 
+            (SELECT cod_usuario FROM CHOFER LIMIT 1 OFFSET 1), 
+            (SELECT cod_vehiculo FROM VEHICULO WHERE placa_vehiculo = 'TRN-002'), 290)
+    RETURNING cod_despacho
+),
+-- Ayudantes para Despacho D-002
+ayudantes2 AS (
+    INSERT INTO ASIGNACION_AYUDANTE (cod_usuario, cod_despacho)
+    SELECT U.cod_usuario, (SELECT cod_despacho FROM despacho2)
+    FROM USUARIO U LEFT JOIN CHOFER C ON U.cod_usuario = C.cod_usuario
+    WHERE U.cod_persona >= 401 AND U.cod_estado_usuario = 1 AND C.cod_usuario IS NULL
+    LIMIT 2 OFFSET 2
+),
+-- Pedidos (5) para Despacho D-002
+pedido6 AS (
+    INSERT INTO PEDIDO_TRANSPORTE (fecha_pedido_transporte, cod_estado_pedido_tr, cod_cliente, cod_empleado_registro)
+    VALUES ('2025-10-24', 3, (SELECT cod_cliente FROM CLIENTE LIMIT 1 OFFSET 15), (SELECT cod_usuario FROM USUARIO WHERE cod_persona = 407))
+    RETURNING cod_pedido_transporte
+),
+pedido7 AS (
+    INSERT INTO PEDIDO_TRANSPORTE (fecha_pedido_transporte, cod_estado_pedido_tr, cod_cliente, cod_empleado_registro)
+    VALUES ('2025-10-24', 3, (SELECT cod_cliente FROM CLIENTE LIMIT 1 OFFSET 16), (SELECT cod_usuario FROM USUARIO WHERE cod_persona = 407))
+    RETURNING cod_pedido_transporte
+),
+pedido8 AS (
+    INSERT INTO PEDIDO_TRANSPORTE (fecha_pedido_transporte, cod_estado_pedido_tr, cod_cliente, cod_empleado_registro)
+    VALUES ('2025-10-24', 3, (SELECT cod_cliente FROM CLIENTE LIMIT 1 OFFSET 17), (SELECT cod_usuario FROM USUARIO WHERE cod_persona = 407))
+    RETURNING cod_pedido_transporte
+),
+pedido9 AS (
+    INSERT INTO PEDIDO_TRANSPORTE (fecha_pedido_transporte, cod_estado_pedido_tr, cod_cliente, cod_empleado_registro)
+    VALUES ('2025-10-24', 3, (SELECT cod_cliente FROM CLIENTE LIMIT 1 OFFSET 18), (SELECT cod_usuario FROM USUARIO WHERE cod_persona = 407))
+    RETURNING cod_pedido_transporte
+),
+pedido10 AS (
+    INSERT INTO PEDIDO_TRANSPORTE (fecha_pedido_transporte, cod_estado_pedido_tr, cod_cliente, cod_empleado_registro)
+    VALUES ('2025-10-24', 3, (SELECT cod_cliente FROM CLIENTE LIMIT 1 OFFSET 19), (SELECT cod_usuario FROM USUARIO WHERE cod_persona = 407))
+    RETURNING cod_pedido_transporte
+),
+asig_pedidos2 AS (
+    INSERT INTO ASIGNACION_PEDIDO_DESPACHO (cod_pedido_transporte, cod_despacho)
+    VALUES 
+        ((SELECT cod_pedido_transporte FROM pedido6), (SELECT cod_despacho FROM despacho2)),
+        ((SELECT cod_pedido_transporte FROM pedido7), (SELECT cod_despacho FROM despacho2)),
+        ((SELECT cod_pedido_transporte FROM pedido8), (SELECT cod_despacho FROM despacho2)),
+        ((SELECT cod_pedido_transporte FROM pedido9), (SELECT cod_despacho FROM despacho2)),
+        ((SELECT cod_pedido_transporte FROM pedido10), (SELECT cod_despacho FROM despacho2))
+),
+-- Visitas para Despacho D-002
+visita_origen2 AS (
+    INSERT INTO VISITA_PROGRAMADA (cod_despacho, cod_parada, secuencia, cod_estado_visita, hora_llegada)
+    VALUES ((SELECT cod_despacho FROM despacho2), (SELECT cod_parada FROM PARADA WHERE referencia_parada = 'Almacen Principal'), 1, 5, '14:10:00')
+),
+visita_cliente6 AS (
+    INSERT INTO VISITA_PROGRAMADA (cod_despacho, cod_parada, secuencia, cod_estado_visita, hora_llegada)
+    VALUES ((SELECT cod_despacho FROM despacho2), 6, 2, 5, '15:00:00') RETURNING cod_visita
+),
+visita_cliente7 AS (
+    INSERT INTO VISITA_PROGRAMADA (cod_despacho, cod_parada, secuencia, cod_estado_visita, hora_llegada)
+    VALUES ((SELECT cod_despacho FROM despacho2), 7, 3, 5, '15:45:00') RETURNING cod_visita
+),
+visita_cliente8 AS (
+    INSERT INTO VISITA_PROGRAMADA (cod_despacho, cod_parada, secuencia, cod_estado_visita, hora_llegada)
+    VALUES ((SELECT cod_despacho FROM despacho2), 8, 4, 5, '16:30:00') RETURNING cod_visita
+),
+visita_cliente9 AS (
+    INSERT INTO VISITA_PROGRAMADA (cod_despacho, cod_parada, secuencia, cod_estado_visita, hora_llegada)
+    VALUES ((SELECT cod_despacho FROM despacho2), 9, 5, 5, '17:15:00') RETURNING cod_visita
+),
+visita_cliente10 AS (
+    INSERT INTO VISITA_PROGRAMADA (cod_despacho, cod_parada, secuencia, cod_estado_visita, hora_llegada)
+    VALUES ((SELECT cod_despacho FROM despacho2), 10, 6, 5, '17:40:00') RETURNING cod_visita
+),
+guias2 AS (
+    INSERT INTO GUIA_REMISION (serie, cod_visita, cod_motivo_traslado)
+    VALUES 
+        ('T001-0006', (SELECT cod_visita FROM visita_cliente6), 1),
+        ('T001-0007', (SELECT cod_visita FROM visita_cliente7), 1),
+        ('T001-0008', (SELECT cod_visita FROM visita_cliente8), 1),
+        ('T001-0009', (SELECT cod_visita FROM visita_cliente9), 1),
+        ('T001-0010', (SELECT cod_visita FROM visita_cliente10), 1)
+)
+INSERT INTO DETALLE_PEDIDO_TR (cod_pedido_transporte, cod_producto, cod_visita, cantidad_detalle, cod_estado_detalle_pedido, direccion_origen_pedido, direccion_destino_pedido, fecha_detalle, cod_turno)
+VALUES 
+    -- Pedido 6
+    ((SELECT cod_pedido_transporte FROM pedido6), (SELECT cod_producto FROM PRODUCTO WHERE nombre_producto = 'Cemento Tipo I 42.5kg'), (SELECT cod_visita FROM visita_cliente6), 100, 6, (SELECT direccion_parada FROM PARADA WHERE referencia_parada = 'Almacen Principal'), (SELECT direccion_parada FROM PARADA WHERE cod_parada=6), '2025-10-25', 2),
+    -- Pedido 7
+    ((SELECT cod_pedido_transporte FROM pedido7), (SELECT cod_producto FROM PRODUCTO WHERE nombre_producto = 'Fierro corrugado 1/2" x 9m'), (SELECT cod_visita FROM visita_cliente7), 50, 6, (SELECT direccion_parada FROM PARADA WHERE referencia_parada = 'Almacen Principal'), (SELECT direccion_parada FROM PARADA WHERE cod_parada=7), '2025-10-25', 2),
+    -- Pedido 8
+    ((SELECT cod_pedido_transporte FROM pedido8), (SELECT cod_producto FROM PRODUCTO WHERE nombre_producto = 'Arena Gruesa'), (SELECT cod_visita FROM visita_cliente8), 4, 6, (SELECT direccion_parada FROM PARADA WHERE referencia_parada = 'Almacen Principal'), (SELECT direccion_parada FROM PARADA WHERE cod_parada=8), '2025-10-25', 2),
+    -- Pedido 9
+    ((SELECT cod_pedido_transporte FROM pedido9), (SELECT cod_producto FROM PRODUCTO WHERE nombre_producto = 'Piedra Chancada 1/2"'), (SELECT cod_visita FROM visita_cliente9), 4, 6, (SELECT direccion_parada FROM PARADA WHERE referencia_parada = 'Almacen Secundario'), (SELECT direccion_parada FROM PARADA WHERE cod_parada=9), '2025-10-25', 2),
+    -- Pedido 10
+    ((SELECT cod_pedido_transporte FROM pedido10), (SELECT cod_producto FROM PRODUCTO WHERE nombre_producto = 'Ladrillo King Kong 18 Huecos'), (SELECT cod_visita FROM visita_cliente10), 3, 6, (SELECT direccion_parada FROM PARADA WHERE referencia_parada = 'Almacen Secundario'), (SELECT direccion_parada FROM PARADA WHERE cod_parada=10), '2025-10-25', 2);
+
+
+-- =============================================================
+-- 3. PEDIDOS FUTUROS (PROGRAMADO)
+-- Día: 2025-11-15 (15 pedidos en 3 despachos - 3 turnos)
+-- =============================================================
+
+-- Despacho D-003 (Mañana)
+WITH despacho3 AS (
+    INSERT INTO DESPACHO (fecha_despacho, cod_estado_despacho, hora_salida_estimada, hora_regreso_estimada, cod_chofer, cod_vehiculo, tiempo_reserva_min)
+    VALUES ('2025-11-15', 1, '07:00:00', '11:30:00', 
+            (SELECT cod_usuario FROM CHOFER LIMIT 1 OFFSET 2), 
+            (SELECT cod_vehiculo FROM VEHICULO WHERE placa_vehiculo = 'TRN-001'), 270)
+    RETURNING cod_despacho
+),
+-- Ayudantes para Despacho D-003
+ayudantes3 AS (
+    INSERT INTO ASIGNACION_AYUDANTE (cod_usuario, cod_despacho)
+    SELECT U.cod_usuario, (SELECT cod_despacho FROM despacho3)
+    FROM USUARIO U LEFT JOIN CHOFER C ON U.cod_usuario = C.cod_usuario
+    WHERE U.cod_persona >= 401 AND U.cod_estado_usuario = 1 AND C.cod_usuario IS NULL
+    LIMIT 2 OFFSET 4
+),
+-- Pedidos (5) para Despacho D-003
+pedido11 AS (
+    INSERT INTO PEDIDO_TRANSPORTE (fecha_pedido_transporte, cod_estado_pedido_tr, cod_cliente, cod_empleado_registro)
+    VALUES ('2025-11-14', 1, (SELECT cod_cliente FROM CLIENTE LIMIT 1 OFFSET 20), (SELECT cod_usuario FROM USUARIO WHERE cod_persona = 408))
+    RETURNING cod_pedido_transporte
+),
+pedido12 AS (
+    INSERT INTO PEDIDO_TRANSPORTE (fecha_pedido_transporte, cod_estado_pedido_tr, cod_cliente, cod_empleado_registro)
+    VALUES ('2025-11-14', 1, (SELECT cod_cliente FROM CLIENTE LIMIT 1 OFFSET 21), (SELECT cod_usuario FROM USUARIO WHERE cod_persona = 408))
+    RETURNING cod_pedido_transporte
+),
+pedido13 AS (
+    INSERT INTO PEDIDO_TRANSPORTE (fecha_pedido_transporte, cod_estado_pedido_tr, cod_cliente, cod_empleado_registro)
+    VALUES ('2025-11-14', 1, (SELECT cod_cliente FROM CLIENTE LIMIT 1 OFFSET 22), (SELECT cod_usuario FROM USUARIO WHERE cod_persona = 408))
+    RETURNING cod_pedido_transporte
+),
+pedido14 AS (
+    INSERT INTO PEDIDO_TRANSPORTE (fecha_pedido_transporte, cod_estado_pedido_tr, cod_cliente, cod_empleado_registro)
+    VALUES ('2025-11-14', 1, (SELECT cod_cliente FROM CLIENTE LIMIT 1 OFFSET 23), (SELECT cod_usuario FROM USUARIO WHERE cod_persona = 408))
+    RETURNING cod_pedido_transporte
+),
+pedido15 AS (
+    INSERT INTO PEDIDO_TRANSPORTE (fecha_pedido_transporte, cod_estado_pedido_tr, cod_cliente, cod_empleado_registro)
+    VALUES ('2025-11-14', 1, (SELECT cod_cliente FROM CLIENTE LIMIT 1 OFFSET 24), (SELECT cod_usuario FROM USUARIO WHERE cod_persona = 408))
+    RETURNING cod_pedido_transporte
+),
+asig_pedidos3 AS (
+    INSERT INTO ASIGNACION_PEDIDO_DESPACHO (cod_pedido_transporte, cod_despacho)
+    VALUES 
+        ((SELECT cod_pedido_transporte FROM pedido11), (SELECT cod_despacho FROM despacho3)),
+        ((SELECT cod_pedido_transporte FROM pedido12), (SELECT cod_despacho FROM despacho3)),
+        ((SELECT cod_pedido_transporte FROM pedido13), (SELECT cod_despacho FROM despacho3)),
+        ((SELECT cod_pedido_transporte FROM pedido14), (SELECT cod_despacho FROM despacho3)),
+        ((SELECT cod_pedido_transporte FROM pedido15), (SELECT cod_despacho FROM despacho3))
+),
+-- Visitas para Despacho D-003
+visita_origen3 AS (
+    INSERT INTO VISITA_PROGRAMADA (cod_despacho, cod_parada, secuencia, cod_estado_visita)
+    VALUES ((SELECT cod_despacho FROM despacho3), (SELECT cod_parada FROM PARADA WHERE referencia_parada = 'Almacen Principal'), 1, 1)
+),
+visita_cliente11 AS (
+    INSERT INTO VISITA_PROGRAMADA (cod_despacho, cod_parada, secuencia, cod_estado_visita)
+    VALUES ((SELECT cod_despacho FROM despacho3), 11, 2, 1) RETURNING cod_visita
+),
+visita_cliente12 AS (
+    INSERT INTO VISITA_PROGRAMADA (cod_despacho, cod_parada, secuencia, cod_estado_visita)
+    VALUES ((SELECT cod_despacho FROM despacho3), 12, 3, 1) RETURNING cod_visita
+),
+visita_cliente13 AS (
+    INSERT INTO VISITA_PROGRAMADA (cod_despacho, cod_parada, secuencia, cod_estado_visita)
+    VALUES ((SELECT cod_despacho FROM despacho3), 13, 4, 1) RETURNING cod_visita
+),
+visita_cliente14 AS (
+    INSERT INTO VISITA_PROGRAMADA (cod_despacho, cod_parada, secuencia, cod_estado_visita)
+    VALUES ((SELECT cod_despacho FROM despacho3), 14, 5, 1) RETURNING cod_visita
+),
+visita_cliente15 AS (
+    INSERT INTO VISITA_PROGRAMADA (cod_despacho, cod_parada, secuencia, cod_estado_visita)
+    VALUES ((SELECT cod_despacho FROM despacho3), 15, 6, 1) RETURNING cod_visita
+)
+-- Detalles de Pedido (Turno Mañana)
+INSERT INTO DETALLE_PEDIDO_TR (cod_pedido_transporte, cod_producto, cod_visita, cantidad_detalle, cod_estado_detalle_pedido, direccion_origen_pedido, direccion_destino_pedido, fecha_detalle, cod_turno)
+VALUES 
+    ((SELECT cod_pedido_transporte FROM pedido11), (SELECT cod_producto FROM PRODUCTO WHERE nombre_producto = 'Arena Gruesa'), (SELECT cod_visita FROM visita_cliente11), 5, 1, (SELECT direccion_parada FROM PARADA WHERE referencia_parada = 'Almacen Principal'), (SELECT direccion_parada FROM PARADA WHERE cod_parada=11), '2025-11-15', 1),
+    ((SELECT cod_pedido_transporte FROM pedido12), (SELECT cod_producto FROM PRODUCTO WHERE nombre_producto = 'Piedra Chancada 1/2"'), (SELECT cod_visita FROM visita_cliente12), 5, 1, (SELECT direccion_parada FROM PARADA WHERE referencia_parada = 'Almacen Secundario'), (SELECT direccion_parada FROM PARADA WHERE cod_parada=12), '2025-11-15', 1),
+    ((SELECT cod_pedido_transporte FROM pedido13), (SELECT cod_producto FROM PRODUCTO WHERE nombre_producto = 'Hormigon'), (SELECT cod_visita FROM visita_cliente13), 3, 1, (SELECT direccion_parada FROM PARADA WHERE referencia_parada = 'Almacen Principal'), (SELECT direccion_parada FROM PARADA WHERE cod_parada=13), '2025-11-15', 1),
+    ((SELECT cod_pedido_transporte FROM pedido14), (SELECT cod_producto FROM PRODUCTO WHERE nombre_producto = 'Fierro Corrugado 5/8" x 9m'), (SELECT cod_visita FROM visita_cliente14), 100, 1, (SELECT direccion_parada FROM PARADA WHERE referencia_parada = 'Almacen Principal'), (SELECT direccion_parada FROM PARADA WHERE cod_parada=14), '2025-11-15', 1),
+    ((SELECT cod_pedido_transporte FROM pedido15), (SELECT cod_producto FROM PRODUCTO WHERE nombre_producto = 'Taladro percutor 13mm'), (SELECT cod_visita FROM visita_cliente15), 1, 1, (SELECT direccion_parada FROM PARADA WHERE referencia_parada = 'Ferreteria Principal'), (SELECT direccion_parada FROM PARADA WHERE cod_parada=15), '2025-11-15', 1);
+
+-- Despacho D-004 (Tarde)
+WITH despacho4 AS (
+    INSERT INTO DESPACHO (fecha_despacho, cod_estado_despacho, hora_salida_estimada, hora_regreso_estimada, cod_chofer, cod_vehiculo, tiempo_reserva_min)
+    VALUES ('2025-11-15', 1, '13:00:00', '17:45:00', 
+            (SELECT cod_usuario FROM CHOFER LIMIT 1 OFFSET 3), 
+            (SELECT cod_vehiculo FROM VEHICULO WHERE placa_vehiculo = 'TRN-002'), 285)
+    RETURNING cod_despacho
+),
+-- Ayudantes para Despacho D-004
+ayudantes4 AS (
+    INSERT INTO ASIGNACION_AYUDANTE (cod_usuario, cod_despacho)
+    SELECT U.cod_usuario, (SELECT cod_despacho FROM despacho4)
+    FROM USUARIO U LEFT JOIN CHOFER C ON U.cod_usuario = C.cod_usuario
+    WHERE U.cod_persona >= 401 AND U.cod_estado_usuario = 1 AND C.cod_usuario IS NULL
+    LIMIT 2 OFFSET 6
+),
+pedido16 AS (
+    INSERT INTO PEDIDO_TRANSPORTE (fecha_pedido_transporte, cod_estado_pedido_tr, cod_cliente, cod_empleado_registro)
+    VALUES ('2025-11-14', 1, (SELECT cod_cliente FROM CLIENTE LIMIT 1 OFFSET 25), (SELECT cod_usuario FROM USUARIO WHERE cod_persona = 408))
+    RETURNING cod_pedido_transporte
+),
+pedido17 AS (
+    INSERT INTO PEDIDO_TRANSPORTE (fecha_pedido_transporte, cod_estado_pedido_tr, cod_cliente, cod_empleado_registro)
+    VALUES ('2025-11-14', 1, (SELECT cod_cliente FROM CLIENTE LIMIT 1 OFFSET 26), (SELECT cod_usuario FROM USUARIO WHERE cod_persona = 408))
+    RETURNING cod_pedido_transporte
+),
+pedido18 AS (
+    INSERT INTO PEDIDO_TRANSPORTE (fecha_pedido_transporte, cod_estado_pedido_tr, cod_cliente, cod_empleado_registro)
+    VALUES ('2025-11-14', 1, (SELECT cod_cliente FROM CLIENTE LIMIT 1 OFFSET 27), (SELECT cod_usuario FROM USUARIO WHERE cod_persona = 408))
+    RETURNING cod_pedido_transporte
+),
+pedido19 AS (
+    INSERT INTO PEDIDO_TRANSPORTE (fecha_pedido_transporte, cod_estado_pedido_tr, cod_cliente, cod_empleado_registro)
+    VALUES ('2025-11-14', 1, (SELECT cod_cliente FROM CLIENTE LIMIT 1 OFFSET 28), (SELECT cod_usuario FROM USUARIO WHERE cod_persona = 408))
+    RETURNING cod_pedido_transporte
+),
+pedido20 AS (
+    INSERT INTO PEDIDO_TRANSPORTE (fecha_pedido_transporte, cod_estado_pedido_tr, cod_cliente, cod_empleado_registro)
+    VALUES ('2025-11-14', 1, (SELECT cod_cliente FROM CLIENTE LIMIT 1 OFFSET 29), (SELECT cod_usuario FROM USUARIO WHERE cod_persona = 408))
+    RETURNING cod_pedido_transporte
+),
+asig_pedidos4 AS (
+    INSERT INTO ASIGNACION_PEDIDO_DESPACHO (cod_pedido_transporte, cod_despacho)
+    VALUES 
+        ((SELECT cod_pedido_transporte FROM pedido16), (SELECT cod_despacho FROM despacho4)),
+        ((SELECT cod_pedido_transporte FROM pedido17), (SELECT cod_despacho FROM despacho4)),
+        ((SELECT cod_pedido_transporte FROM pedido18), (SELECT cod_despacho FROM despacho4)),
+        ((SELECT cod_pedido_transporte FROM pedido19), (SELECT cod_despacho FROM despacho4)),
+        ((SELECT cod_pedido_transporte FROM pedido20), (SELECT cod_despacho FROM despacho4))
+),
+visita_origen4 AS (
+    INSERT INTO VISITA_PROGRAMADA (cod_despacho, cod_parada, secuencia, cod_estado_visita)
+    VALUES ((SELECT cod_despacho FROM despacho4), (SELECT cod_parada FROM PARADA WHERE referencia_parada = 'Ferreteria Principal'), 1, 1)
+),
+visita_cliente16 AS (
+    INSERT INTO VISITA_PROGRAMADA (cod_despacho, cod_parada, secuencia, cod_estado_visita)
+    VALUES ((SELECT cod_despacho FROM despacho4), 16, 2, 1) RETURNING cod_visita
+),
+visita_cliente17 AS (
+    INSERT INTO VISITA_PROGRAMADA (cod_despacho, cod_parada, secuencia, cod_estado_visita)
+    VALUES ((SELECT cod_despacho FROM despacho4), 17, 3, 1) RETURNING cod_visita
+),
+visita_cliente18 AS (
+    INSERT INTO VISITA_PROGRAMADA (cod_despacho, cod_parada, secuencia, cod_estado_visita)
+    VALUES ((SELECT cod_despacho FROM despacho4), 18, 4, 1) RETURNING cod_visita
+),
+visita_cliente19 AS (
+    INSERT INTO VISITA_PROGRAMADA (cod_despacho, cod_parada, secuencia, cod_estado_visita)
+    VALUES ((SELECT cod_despacho FROM despacho4), 19, 5, 1) RETURNING cod_visita
+),
+visita_cliente20 AS (
+    INSERT INTO VISITA_PROGRAMADA (cod_despacho, cod_parada, secuencia, cod_estado_visita)
+    VALUES ((SELECT cod_despacho FROM despacho4), 20, 6, 1) RETURNING cod_visita
+)
+INSERT INTO DETALLE_PEDIDO_TR (cod_pedido_transporte, cod_producto, cod_visita, cantidad_detalle, cod_estado_detalle_pedido, direccion_origen_pedido, direccion_destino_pedido, fecha_detalle, cod_turno)
+VALUES 
+    ((SELECT cod_pedido_transporte FROM pedido16), (SELECT cod_producto FROM PRODUCTO WHERE nombre_producto = 'Pintura látex 1gal'), (SELECT cod_visita FROM visita_cliente16), 10, 1, (SELECT direccion_parada FROM PARADA WHERE referencia_parada = 'Ferreteria Principal'), (SELECT direccion_parada FROM PARADA WHERE cod_parada=16), '2025-11-15', 2),
+    ((SELECT cod_pedido_transporte FROM pedido17), (SELECT cod_producto FROM PRODUCTO WHERE nombre_producto = 'Amoladora 4-1/2"'), (SELECT cod_visita FROM visita_cliente17), 2, 1, (SELECT direccion_parada FROM PARADA WHERE referencia_parada = 'Ferreteria Principal'), (SELECT direccion_parada FROM PARADA WHERE cod_parada=17), '2025-11-15', 2),
+    ((SELECT cod_pedido_transporte FROM pedido18), (SELECT cod_producto FROM PRODUCTO WHERE nombre_producto = 'Ladrillo King Kong 18 Huecos'), (SELECT cod_visita FROM visita_cliente18), 1, 1, (SELECT direccion_parada FROM PARADA WHERE referencia_parada = 'Almacen Secundario'), (SELECT direccion_parada FROM PARADA WHERE cod_parada=18), '2025-11-15', 2),
+    ((SELECT cod_pedido_transporte FROM pedido19), (SELECT cod_producto FROM PRODUCTO WHERE nombre_producto = 'Fierro corrugado 1/2" x 9m'), (SELECT cod_visita FROM visita_cliente19), 20, 1, (SELECT direccion_parada FROM PARADA WHERE referencia_parada = 'Almacen Principal'), (SELECT direccion_parada FROM PARADA WHERE cod_parada=19), '2025-11-15', 2),
+    ((SELECT cod_pedido_transporte FROM pedido20), (SELECT cod_producto FROM PRODUCTO WHERE nombre_producto = 'Cemento Tipo I 42.5kg'), (SELECT cod_visita FROM visita_cliente20), 30, 1, (SELECT direccion_parada FROM PARADA WHERE referencia_parada = 'Almacen Principal'), (SELECT direccion_parada FROM PARADA WHERE cod_parada=20), '2025-11-15', 2);
+
+-- Despacho D-005 (Noche)
+WITH despacho5 AS (
+    INSERT INTO DESPACHO (fecha_despacho, cod_estado_despacho, hora_salida_estimada, hora_regreso_estimada, cod_chofer, cod_vehiculo, tiempo_reserva_min)
+    VALUES ('2025-11-15', 1, '18:30:00', '20:50:00', 
+            (SELECT cod_usuario FROM CHOFER LIMIT 1 OFFSET 4), 
+            (SELECT cod_vehiculo FROM VEHICULO WHERE placa_vehiculo = 'TRN-003'), 140)
+    RETURNING cod_despacho
+),
+-- Ayudantes para Despacho D-005
+ayudantes5 AS (
+    INSERT INTO ASIGNACION_AYUDANTE (cod_usuario, cod_despacho)
+    SELECT U.cod_usuario, (SELECT cod_despacho FROM despacho5)
+    FROM USUARIO U LEFT JOIN CHOFER C ON U.cod_usuario = C.cod_usuario
+    WHERE U.cod_persona >= 401 AND U.cod_estado_usuario = 1 AND C.cod_usuario IS NULL
+    LIMIT 2 OFFSET 8
+),
+pedido21 AS (
+    INSERT INTO PEDIDO_TRANSPORTE (fecha_pedido_transporte, cod_estado_pedido_tr, cod_cliente, cod_empleado_registro)
+    VALUES ('2025-11-14', 1, (SELECT cod_cliente FROM CLIENTE LIMIT 1 OFFSET 30), (SELECT cod_usuario FROM USUARIO WHERE cod_persona = 408))
+    RETURNING cod_pedido_transporte
+),
+pedido22 AS (
+    INSERT INTO PEDIDO_TRANSPORTE (fecha_pedido_transporte, cod_estado_pedido_tr, cod_cliente, cod_empleado_registro)
+    VALUES ('2025-11-14', 1, (SELECT cod_cliente FROM CLIENTE LIMIT 1 OFFSET 31), (SELECT cod_usuario FROM USUARIO WHERE cod_persona = 408))
+    RETURNING cod_pedido_transporte
+),
+pedido23 AS (
+    INSERT INTO PEDIDO_TRANSPORTE (fecha_pedido_transporte, cod_estado_pedido_tr, cod_cliente, cod_empleado_registro)
+    VALUES ('2025-11-14', 1, (SELECT cod_cliente FROM CLIENTE LIMIT 1 OFFSET 32), (SELECT cod_usuario FROM USUARIO WHERE cod_persona = 408))
+    RETURNING cod_pedido_transporte
+),
+pedido24 AS (
+    INSERT INTO PEDIDO_TRANSPORTE (fecha_pedido_transporte, cod_estado_pedido_tr, cod_cliente, cod_empleado_registro)
+    VALUES ('2025-11-14', 1, (SELECT cod_cliente FROM CLIENTE LIMIT 1 OFFSET 33), (SELECT cod_usuario FROM USUARIO WHERE cod_persona = 408))
+    RETURNING cod_pedido_transporte
+),
+pedido25 AS (
+    INSERT INTO PEDIDO_TRANSPORTE (fecha_pedido_transporte, cod_estado_pedido_tr, cod_cliente, cod_empleado_registro)
+    VALUES ('2025-11-14', 1, (SELECT cod_cliente FROM CLIENTE LIMIT 1 OFFSET 34), (SELECT cod_usuario FROM USUARIO WHERE cod_persona = 408))
+    RETURNING cod_pedido_transporte
+),
+asig_pedidos5 AS (
+    INSERT INTO ASIGNACION_PEDIDO_DESPACHO (cod_pedido_transporte, cod_despacho)
+    VALUES 
+        ((SELECT cod_pedido_transporte FROM pedido21), (SELECT cod_despacho FROM despacho5)),
+        ((SELECT cod_pedido_transporte FROM pedido22), (SELECT cod_despacho FROM despacho5)),
+        ((SELECT cod_pedido_transporte FROM pedido23), (SELECT cod_despacho FROM despacho5)),
+        ((SELECT cod_pedido_transporte FROM pedido24), (SELECT cod_despacho FROM despacho5)),
+        ((SELECT cod_pedido_transporte FROM pedido25), (SELECT cod_despacho FROM despacho5))
+),
+visita_origen5 AS (
+    INSERT INTO VISITA_PROGRAMADA (cod_despacho, cod_parada, secuencia, cod_estado_visita)
+    VALUES ((SELECT cod_despacho FROM despacho5), (SELECT cod_parada FROM PARADA WHERE referencia_parada = 'Ferreteria Principal'), 1, 1)
+),
+visita_cliente21 AS (
+    INSERT INTO VISITA_PROGRAMADA (cod_despacho, cod_parada, secuencia, cod_estado_visita)
+    VALUES ((SELECT cod_despacho FROM despacho5), 21, 2, 1) RETURNING cod_visita
+),
+visita_cliente22 AS (
+    INSERT INTO VISITA_PROGRAMADA (cod_despacho, cod_parada, secuencia, cod_estado_visita)
+    VALUES ((SELECT cod_despacho FROM despacho5), 22, 3, 1) RETURNING cod_visita
+),
+visita_cliente23 AS (
+    INSERT INTO VISITA_PROGRAMADA (cod_despacho, cod_parada, secuencia, cod_estado_visita)
+    VALUES ((SELECT cod_despacho FROM despacho5), 23, 4, 1) RETURNING cod_visita
+),
+visita_cliente24 AS (
+    INSERT INTO VISITA_PROGRAMADA (cod_despacho, cod_parada, secuencia, cod_estado_visita)
+    VALUES ((SELECT cod_despacho FROM despacho5), 24, 5, 1) RETURNING cod_visita
+),
+visita_cliente25 AS (
+    INSERT INTO VISITA_PROGRAMADA (cod_despacho, cod_parada, secuencia, cod_estado_visita)
+    VALUES ((SELECT cod_despacho FROM despacho5), 25, 6, 1) RETURNING cod_visita
+)
+INSERT INTO DETALLE_PEDIDO_TR (cod_pedido_transporte, cod_producto, cod_visita, cantidad_detalle, cod_estado_detalle_pedido, direccion_origen_pedido, direccion_destino_pedido, fecha_detalle, cod_turno)
+VALUES 
+    -- CORRECCIÓN AQUÍ: 'Tubos' (plural) cambiado a 'Tubo' (singular)
+    ((SELECT cod_pedido_transporte FROM pedido21), (SELECT cod_producto FROM PRODUCTO WHERE nombre_producto = 'Tubo PVC 1/2" x 3m'), (SELECT cod_visita FROM visita_cliente21), 50, 1, (SELECT direccion_parada FROM PARADA WHERE referencia_parada = 'Ferreteria Principal'), (SELECT direccion_parada FROM PARADA WHERE cod_parada=21), '2025-11-15', 3),
+    ((SELECT cod_pedido_transporte FROM pedido22), (SELECT cod_producto FROM PRODUCTO WHERE nombre_producto = 'Cable THW 12 AWG 100m'), (SELECT cod_visita FROM visita_cliente22), 5, 1, (SELECT direccion_parada FROM PARADA WHERE referencia_parada = 'Ferreteria Principal'), (SELECT direccion_parada FROM PARADA WHERE cod_parada=22), '2025-11-15', 3),
+    ((SELECT cod_pedido_transporte FROM pedido23), (SELECT cod_producto FROM PRODUCTO WHERE nombre_producto = 'Arena Fina'), (SELECT cod_visita FROM visita_cliente23), 2, 1, (SELECT direccion_parada FROM PARADA WHERE referencia_parada = 'Almacen Principal'), (SELECT direccion_parada FROM PARADA WHERE cod_parada=23), '2025-11-15', 3),
+    ((SELECT cod_pedido_transporte FROM pedido24), (SELECT cod_producto FROM PRODUCTO WHERE nombre_producto = 'Hormigon'), (SELECT cod_visita FROM visita_cliente24), 2, 1, (SELECT direccion_parada FROM PARADA WHERE referencia_parada = 'Almacen Principal'), (SELECT direccion_parada FROM PARADA WHERE cod_parada=24), '2025-11-15', 3),
+    ((SELECT cod_pedido_transporte FROM pedido25), (SELECT cod_producto FROM PRODUCTO WHERE nombre_producto = 'Pintura esmalte 1gal'), (SELECT cod_visita FROM visita_cliente25), 10, 1, (SELECT direccion_parada FROM PARADA WHERE referencia_parada = 'Ferreteria Principal'), (SELECT direccion_parada FROM PARADA WHERE cod_parada=25), '2025-11-15', 3);
+
+-- =============================================================
+-- 4. MAS PEDIDOS FUTUROS (PROGRAMADO)
+-- Día: 2025-11-16 (16 pedidos en 3 despachos - 3 turnos, uno con 3 destinos)
+-- =============================================================
+
+-- Despacho D-006 (Mañana - 8 Pedidos)
+WITH despacho6 AS (
+    INSERT INTO DESPACHO (fecha_despacho, cod_estado_despacho, hora_salida_estimada, hora_regreso_estimada, cod_chofer, cod_vehiculo, tiempo_reserva_min)
+    VALUES ('2025-11-16', 1, '06:30:00', '11:45:00', 
+            (SELECT cod_usuario FROM CHOFER LIMIT 1 OFFSET 5), 
+            (SELECT cod_vehiculo FROM VEHICULO WHERE placa_vehiculo = 'TRN-001'), 315)
+    RETURNING cod_despacho
+),
+ayudantes6 AS (
+    INSERT INTO ASIGNACION_AYUDANTE (cod_usuario, cod_despacho)
+    SELECT U.cod_usuario, (SELECT cod_despacho FROM despacho6)
+    FROM USUARIO U LEFT JOIN CHOFER C ON U.cod_usuario = C.cod_usuario
+    WHERE U.cod_persona >= 401 AND U.cod_estado_usuario = 1 AND C.cod_usuario IS NULL
+    LIMIT 2 OFFSET 10
+),
+-- Pedidos (8) para Despacho D-006
+pedido26 AS (INSERT INTO PEDIDO_TRANSPORTE (fecha_pedido_transporte, cod_estado_pedido_tr, cod_cliente, cod_empleado_registro) VALUES ('2025-11-15', 1, (SELECT cod_cliente FROM CLIENTE LIMIT 1 OFFSET 40), (SELECT cod_usuario FROM USUARIO WHERE cod_persona = 410)) RETURNING cod_pedido_transporte),
+pedido27 AS (INSERT INTO PEDIDO_TRANSPORTE (fecha_pedido_transporte, cod_estado_pedido_tr, cod_cliente, cod_empleado_registro) VALUES ('2025-11-15', 1, (SELECT cod_cliente FROM CLIENTE LIMIT 1 OFFSET 41), (SELECT cod_usuario FROM USUARIO WHERE cod_persona = 410)) RETURNING cod_pedido_transporte),
+pedido28 AS (INSERT INTO PEDIDO_TRANSPORTE (fecha_pedido_transporte, cod_estado_pedido_tr, cod_cliente, cod_empleado_registro) VALUES ('2025-11-15', 1, (SELECT cod_cliente FROM CLIENTE LIMIT 1 OFFSET 42), (SELECT cod_usuario FROM USUARIO WHERE cod_persona = 410)) RETURNING cod_pedido_transporte),
+pedido29 AS (INSERT INTO PEDIDO_TRANSPORTE (fecha_pedido_transporte, cod_estado_pedido_tr, cod_cliente, cod_empleado_registro) VALUES ('2025-11-15', 1, (SELECT cod_cliente FROM CLIENTE LIMIT 1 OFFSET 43), (SELECT cod_usuario FROM USUARIO WHERE cod_persona = 410)) RETURNING cod_pedido_transporte),
+pedido30 AS (INSERT INTO PEDIDO_TRANSPORTE (fecha_pedido_transporte, cod_estado_pedido_tr, cod_cliente, cod_empleado_registro) VALUES ('2025-11-15', 1, (SELECT cod_cliente FROM CLIENTE LIMIT 1 OFFSET 44), (SELECT cod_usuario FROM USUARIO WHERE cod_persona = 410)) RETURNING cod_pedido_transporte),
+pedido31 AS (INSERT INTO PEDIDO_TRANSPORTE (fecha_pedido_transporte, cod_estado_pedido_tr, cod_cliente, cod_empleado_registro) VALUES ('2025-11-15', 1, (SELECT cod_cliente FROM CLIENTE LIMIT 1 OFFSET 45), (SELECT cod_usuario FROM USUARIO WHERE cod_persona = 410)) RETURNING cod_pedido_transporte),
+pedido32 AS (INSERT INTO PEDIDO_TRANSPORTE (fecha_pedido_transporte, cod_estado_pedido_tr, cod_cliente, cod_empleado_registro) VALUES ('2025-11-15', 1, (SELECT cod_cliente FROM CLIENTE LIMIT 1 OFFSET 46), (SELECT cod_usuario FROM USUARIO WHERE cod_persona = 410)) RETURNING cod_pedido_transporte),
+pedido33 AS (INSERT INTO PEDIDO_TRANSPORTE (fecha_pedido_transporte, cod_estado_pedido_tr, cod_cliente, cod_empleado_registro) VALUES ('2025-11-15', 1, (SELECT cod_cliente FROM CLIENTE LIMIT 1 OFFSET 47), (SELECT cod_usuario FROM USUARIO WHERE cod_persona = 410)) RETURNING cod_pedido_transporte),
+asig_pedidos6 AS (
+    INSERT INTO ASIGNACION_PEDIDO_DESPACHO (cod_pedido_transporte, cod_despacho)
+    VALUES 
+        ((SELECT cod_pedido_transporte FROM pedido26), (SELECT cod_despacho FROM despacho6)),
+        ((SELECT cod_pedido_transporte FROM pedido27), (SELECT cod_despacho FROM despacho6)),
+        ((SELECT cod_pedido_transporte FROM pedido28), (SELECT cod_despacho FROM despacho6)),
+        ((SELECT cod_pedido_transporte FROM pedido29), (SELECT cod_despacho FROM despacho6)),
+        ((SELECT cod_pedido_transporte FROM pedido30), (SELECT cod_despacho FROM despacho6)),
+        ((SELECT cod_pedido_transporte FROM pedido31), (SELECT cod_despacho FROM despacho6)),
+        ((SELECT cod_pedido_transporte FROM pedido32), (SELECT cod_despacho FROM despacho6)),
+        ((SELECT cod_pedido_transporte FROM pedido33), (SELECT cod_despacho FROM despacho6))
+),
+visita_origen6 AS (INSERT INTO VISITA_PROGRAMADA (cod_despacho, cod_parada, secuencia, cod_estado_visita) VALUES ((SELECT cod_despacho FROM despacho6), (SELECT cod_parada FROM PARADA WHERE referencia_parada = 'Almacen Principal'), 1, 1)),
+visita_cliente26 AS (INSERT INTO VISITA_PROGRAMADA (cod_despacho, cod_parada, secuencia, cod_estado_visita) VALUES ((SELECT cod_despacho FROM despacho6), 26, 2, 1) RETURNING cod_visita),
+visita_cliente27 AS (INSERT INTO VISITA_PROGRAMADA (cod_despacho, cod_parada, secuencia, cod_estado_visita) VALUES ((SELECT cod_despacho FROM despacho6), 27, 3, 1) RETURNING cod_visita),
+visita_cliente28 AS (INSERT INTO VISITA_PROGRAMADA (cod_despacho, cod_parada, secuencia, cod_estado_visita) VALUES ((SELECT cod_despacho FROM despacho6), 28, 4, 1) RETURNING cod_visita),
+visita_cliente29 AS (INSERT INTO VISITA_PROGRAMADA (cod_despacho, cod_parada, secuencia, cod_estado_visita) VALUES ((SELECT cod_despacho FROM despacho6), 29, 5, 1) RETURNING cod_visita),
+visita_cliente30 AS (INSERT INTO VISITA_PROGRAMADA (cod_despacho, cod_parada, secuencia, cod_estado_visita) VALUES ((SELECT cod_despacho FROM despacho6), 30, 6, 1) RETURNING cod_visita),
+visita_cliente31 AS (INSERT INTO VISITA_PROGRAMADA (cod_despacho, cod_parada, secuencia, cod_estado_visita) VALUES ((SELECT cod_despacho FROM despacho6), 31, 7, 1) RETURNING cod_visita),
+visita_cliente32 AS (INSERT INTO VISITA_PROGRAMADA (cod_despacho, cod_parada, secuencia, cod_estado_visita) VALUES ((SELECT cod_despacho FROM despacho6), 32, 8, 1) RETURNING cod_visita),
+visita_cliente33 AS (INSERT INTO VISITA_PROGRAMADA (cod_despacho, cod_parada, secuencia, cod_estado_visita) VALUES ((SELECT cod_despacho FROM despacho6), 33, 9, 1) RETURNING cod_visita)
+INSERT INTO DETALLE_PEDIDO_TR (cod_pedido_transporte, cod_producto, cod_visita, cantidad_detalle, cod_estado_detalle_pedido, direccion_origen_pedido, direccion_destino_pedido, fecha_detalle, cod_turno)
+VALUES 
+    ((SELECT cod_pedido_transporte FROM pedido26), (SELECT cod_producto FROM PRODUCTO WHERE nombre_producto = 'Fierro Corrugado 1" x 9m'), (SELECT cod_visita FROM visita_cliente26), 10, 1, (SELECT direccion_parada FROM PARADA WHERE referencia_parada = 'Almacen Principal'), (SELECT direccion_parada FROM PARADA WHERE cod_parada=26), '2025-11-16', 1),
+    ((SELECT cod_pedido_transporte FROM pedido27), (SELECT cod_producto FROM PRODUCTO WHERE nombre_producto = 'Piedra Zanja (Over)'), (SELECT cod_visita FROM visita_cliente27), 3, 1, (SELECT direccion_parada FROM PARADA WHERE referencia_parada = 'Almacen Secundario'), (SELECT direccion_parada FROM PARADA WHERE cod_parada=27), '2025-11-16', 1),
+    ((SELECT cod_pedido_transporte FROM pedido28), (SELECT cod_producto FROM PRODUCTO WHERE nombre_producto = 'Confitillo (Piedra 1/4")'), (SELECT cod_visita FROM visita_cliente28), 2, 1, (SELECT direccion_parada FROM PARADA WHERE referencia_parada = 'Almacen Secundario'), (SELECT direccion_parada FROM PARADA WHERE cod_parada=28), '2025-11-16', 1),
+    ((SELECT cod_pedido_transporte FROM pedido29), (SELECT cod_producto FROM PRODUCTO WHERE nombre_producto = 'Polvo de Piedra'), (SELECT cod_visita FROM visita_cliente29), 2, 1, (SELECT direccion_parada FROM PARADA WHERE referencia_parada = 'Almacen Secundario'), (SELECT direccion_parada FROM PARADA WHERE cod_parada=29), '2025-11-16', 1),
+    ((SELECT cod_pedido_transporte FROM pedido30), (SELECT cod_producto FROM PRODUCTO WHERE nombre_producto = 'Fierro Corrugado 3/4" x 9m'), (SELECT cod_visita FROM visita_cliente30), 30, 1, (SELECT direccion_parada FROM PARADA WHERE referencia_parada = 'Almacen Principal'), (SELECT direccion_parada FROM PARADA WHERE cod_parada=30), '2025-11-16', 1),
+    ((SELECT cod_pedido_transporte FROM pedido31), (SELECT cod_producto FROM PRODUCTO WHERE nombre_producto = 'Fierro Corrugado 8mm x 9m'), (SELECT cod_visita FROM visita_cliente31), 50, 1, (SELECT direccion_parada FROM PARADA WHERE referencia_parada = 'Almacen Principal'), (SELECT direccion_parada FROM PARADA WHERE cod_parada=31), '2025-11-16', 1),
+    ((SELECT cod_pedido_transporte FROM pedido32), (SELECT cod_producto FROM PRODUCTO WHERE nombre_producto = 'Arena Gruesa'), (SELECT cod_visita FROM visita_cliente32), 1, 1, (SELECT direccion_parada FROM PARADA WHERE referencia_parada = 'Almacen Principal'), (SELECT direccion_parada FROM PARADA WHERE cod_parada=32), '2025-11-16', 1),
+    ((SELECT cod_pedido_transporte FROM pedido33), (SELECT cod_producto FROM PRODUCTO WHERE nombre_producto = 'Cemento Tipo I 42.5kg'), (SELECT cod_visita FROM visita_cliente33), 20, 1, (SELECT direccion_parada FROM PARADA WHERE referencia_parada = 'Almacen Principal'), (SELECT direccion_parada FROM PARADA WHERE cod_parada=33), '2025-11-16', 1);
+
+-- Despacho D-007 (Tarde - 5 Pedidos)
+WITH despacho7 AS (
+    INSERT INTO DESPACHO (fecha_despacho, cod_estado_despacho, hora_salida_estimada, hora_regreso_estimada, cod_chofer, cod_vehiculo, tiempo_reserva_min)
+    VALUES ('2025-11-16', 1, '12:30:00', '17:30:00', 
+            (SELECT cod_usuario FROM CHOFER LIMIT 1 OFFSET 6), 
+            (SELECT cod_vehiculo FROM VEHICULO WHERE placa_vehiculo = 'TRN-002'), 300)
+    RETURNING cod_despacho
+),
+ayudantes7 AS (
+    INSERT INTO ASIGNACION_AYUDANTE (cod_usuario, cod_despacho)
+    SELECT U.cod_usuario, (SELECT cod_despacho FROM despacho7)
+    FROM USUARIO U LEFT JOIN CHOFER C ON U.cod_usuario = C.cod_usuario
+    WHERE U.cod_persona >= 401 AND U.cod_estado_usuario = 1 AND C.cod_usuario IS NULL
+    LIMIT 2 OFFSET 12
+),
+pedido34 AS (INSERT INTO PEDIDO_TRANSPORTE (fecha_pedido_transporte, cod_estado_pedido_tr, cod_cliente, cod_empleado_registro) VALUES ('2025-11-15', 1, (SELECT cod_cliente FROM CLIENTE LIMIT 1 OFFSET 50), (SELECT cod_usuario FROM USUARIO WHERE cod_persona = 410)) RETURNING cod_pedido_transporte),
+pedido35 AS (INSERT INTO PEDIDO_TRANSPORTE (fecha_pedido_transporte, cod_estado_pedido_tr, cod_cliente, cod_empleado_registro) VALUES ('2025-11-15', 1, (SELECT cod_cliente FROM CLIENTE LIMIT 1 OFFSET 51), (SELECT cod_usuario FROM USUARIO WHERE cod_persona = 410)) RETURNING cod_pedido_transporte),
+pedido36 AS (INSERT INTO PEDIDO_TRANSPORTE (fecha_pedido_transporte, cod_estado_pedido_tr, cod_cliente, cod_empleado_registro) VALUES ('2025-11-15', 1, (SELECT cod_cliente FROM CLIENTE LIMIT 1 OFFSET 52), (SELECT cod_usuario FROM USUARIO WHERE cod_persona = 410)) RETURNING cod_pedido_transporte),
+pedido37 AS (INSERT INTO PEDIDO_TRANSPORTE (fecha_pedido_transporte, cod_estado_pedido_tr, cod_cliente, cod_empleado_registro) VALUES ('2025-11-15', 1, (SELECT cod_cliente FROM CLIENTE LIMIT 1 OFFSET 53), (SELECT cod_usuario FROM USUARIO WHERE cod_persona = 410)) RETURNING cod_pedido_transporte),
+pedido38 AS (INSERT INTO PEDIDO_TRANSPORTE (fecha_pedido_transporte, cod_estado_pedido_tr, cod_cliente, cod_empleado_registro) VALUES ('2025-11-15', 1, (SELECT cod_cliente FROM CLIENTE LIMIT 1 OFFSET 54), (SELECT cod_usuario FROM USUARIO WHERE cod_persona = 410)) RETURNING cod_pedido_transporte),
+asig_pedidos7 AS (
+    INSERT INTO ASIGNACION_PEDIDO_DESPACHO (cod_pedido_transporte, cod_despacho)
+    VALUES 
+        ((SELECT cod_pedido_transporte FROM pedido34), (SELECT cod_despacho FROM despacho7)),
+        ((SELECT cod_pedido_transporte FROM pedido35), (SELECT cod_despacho FROM despacho7)),
+        ((SELECT cod_pedido_transporte FROM pedido36), (SELECT cod_despacho FROM despacho7)),
+        ((SELECT cod_pedido_transporte FROM pedido37), (SELECT cod_despacho FROM despacho7)),
+        ((SELECT cod_pedido_transporte FROM pedido38), (SELECT cod_despacho FROM despacho7))
+),
+visita_origen7 AS (INSERT INTO VISITA_PROGRAMADA (cod_despacho, cod_parada, secuencia, cod_estado_visita) VALUES ((SELECT cod_despacho FROM despacho7), (SELECT cod_parada FROM PARADA WHERE referencia_parada = 'Ferreteria Principal'), 1, 1)),
+visita_cliente34 AS (INSERT INTO VISITA_PROGRAMADA (cod_despacho, cod_parada, secuencia, cod_estado_visita) VALUES ((SELECT cod_despacho FROM despacho7), 34, 2, 1) RETURNING cod_visita),
+visita_cliente35 AS (INSERT INTO VISITA_PROGRAMADA (cod_despacho, cod_parada, secuencia, cod_estado_visita) VALUES ((SELECT cod_despacho FROM despacho7), 35, 3, 1) RETURNING cod_visita),
+visita_cliente36 AS (INSERT INTO VISITA_PROGRAMADA (cod_despacho, cod_parada, secuencia, cod_estado_visita) VALUES ((SELECT cod_despacho FROM despacho7), 36, 4, 1) RETURNING cod_visita),
+visita_cliente37 AS (INSERT INTO VISITA_PROGRAMADA (cod_despacho, cod_parada, secuencia, cod_estado_visita) VALUES ((SELECT cod_despacho FROM despacho7), 37, 5, 1) RETURNING cod_visita),
+visita_cliente38 AS (INSERT INTO VISITA_PROGRAMADA (cod_despacho, cod_parada, secuencia, cod_estado_visita) VALUES ((SELECT cod_despacho FROM despacho7), 38, 6, 1) RETURNING cod_visita)
+INSERT INTO DETALLE_PEDIDO_TR (cod_pedido_transporte, cod_producto, cod_visita, cantidad_detalle, cod_estado_detalle_pedido, direccion_origen_pedido, direccion_destino_pedido, fecha_detalle, cod_turno)
+VALUES 
+    ((SELECT cod_pedido_transporte FROM pedido34), (SELECT cod_producto FROM PRODUCTO WHERE nombre_producto = 'Ladrillo King Kong 18 Huecos'), (SELECT cod_visita FROM visita_cliente34), 1, 1, (SELECT direccion_parada FROM PARADA WHERE referencia_parada = 'Almacen Secundario'), (SELECT direccion_parada FROM PARADA WHERE cod_parada=34), '2025-11-16', 2),
+    ((SELECT cod_pedido_transporte FROM pedido35), (SELECT cod_producto FROM PRODUCTO WHERE nombre_producto = 'Taladro percutor 13mm'), (SELECT cod_visita FROM visita_cliente35), 2, 1, (SELECT direccion_parada FROM PARADA WHERE referencia_parada = 'Ferreteria Principal'), (SELECT direccion_parada FROM PARADA WHERE cod_parada=35), '2025-11-16', 2),
+    ((SELECT cod_pedido_transporte FROM pedido36), (SELECT cod_producto FROM PRODUCTO WHERE nombre_producto = 'Pintura látex 1gal'), (SELECT cod_visita FROM visita_cliente36), 15, 1, (SELECT direccion_parada FROM PARADA WHERE referencia_parada = 'Ferreteria Principal'), (SELECT direccion_parada FROM PARADA WHERE cod_parada=36), '2025-11-16', 2),
+    ((SELECT cod_pedido_transporte FROM pedido37), (SELECT cod_producto FROM PRODUCTO WHERE nombre_producto = 'Hormigon'), (SELECT cod_visita FROM visita_cliente37), 1, 1, (SELECT direccion_parada FROM PARADA WHERE referencia_parada = 'Almacen Principal'), (SELECT direccion_parada FROM PARADA WHERE cod_parada=37), '2025-11-16', 2),
+    ((SELECT cod_pedido_transporte FROM pedido38), (SELECT cod_producto FROM PRODUCTO WHERE nombre_producto = 'Arena Gruesa'), (SELECT cod_visita FROM visita_cliente38), 1, 1, (SELECT direccion_parada FROM PARADA WHERE referencia_parada = 'Almacen Principal'), (SELECT direccion_parada FROM PARADA WHERE cod_parada=38), '2025-11-16', 2);
+
+-- Despacho D-008 (Noche - 3 Pedidos/Destinos)
+WITH despacho8 AS (
+    INSERT INTO DESPACHO (fecha_despacho, cod_estado_despacho, hora_salida_estimada, hora_regreso_estimada, cod_chofer, cod_vehiculo, tiempo_reserva_min)
+    VALUES ('2025-11-16', 1, '18:15:00', '20:45:00', 
+            (SELECT cod_usuario FROM CHOFER LIMIT 1 OFFSET 7), 
+            (SELECT cod_vehiculo FROM VEHICULO WHERE placa_vehiculo = 'TRN-004'), 150)
+    RETURNING cod_despacho
+),
+ayudantes8 AS (
+    INSERT INTO ASIGNACION_AYUDANTE (cod_usuario, cod_despacho)
+    SELECT U.cod_usuario, (SELECT cod_despacho FROM despacho8)
+    FROM USUARIO U LEFT JOIN CHOFER C ON U.cod_usuario = C.cod_usuario
+    WHERE U.cod_persona >= 401 AND U.cod_estado_usuario = 1 AND C.cod_usuario IS NULL
+    LIMIT 1 OFFSET 14 -- Solo 1 ayudante para camioneta
+),
+pedido39 AS (INSERT INTO PEDIDO_TRANSPORTE (fecha_pedido_transporte, cod_estado_pedido_tr, cod_cliente, cod_empleado_registro) VALUES ('2025-11-15', 1, (SELECT cod_cliente FROM CLIENTE LIMIT 1 OFFSET 60), (SELECT cod_usuario FROM USUARIO WHERE cod_persona = 410)) RETURNING cod_pedido_transporte),
+pedido40 AS (INSERT INTO PEDIDO_TRANSPORTE (fecha_pedido_transporte, cod_estado_pedido_tr, cod_cliente, cod_empleado_registro) VALUES ('2025-11-15', 1, (SELECT cod_cliente FROM CLIENTE LIMIT 1 OFFSET 61), (SELECT cod_usuario FROM USUARIO WHERE cod_persona = 410)) RETURNING cod_pedido_transporte),
+pedido41 AS (INSERT INTO PEDIDO_TRANSPORTE (fecha_pedido_transporte, cod_estado_pedido_tr, cod_cliente, cod_empleado_registro) VALUES ('2025-11-15', 1, (SELECT cod_cliente FROM CLIENTE LIMIT 1 OFFSET 62), (SELECT cod_usuario FROM USUARIO WHERE cod_persona = 410)) RETURNING cod_pedido_transporte),
+asig_pedidos8 AS (
+    INSERT INTO ASIGNACION_PEDIDO_DESPACHO (cod_pedido_transporte, cod_despacho)
+    VALUES 
+        ((SELECT cod_pedido_transporte FROM pedido39), (SELECT cod_despacho FROM despacho8)),
+        ((SELECT cod_pedido_transporte FROM pedido40), (SELECT cod_despacho FROM despacho8)),
+        ((SELECT cod_pedido_transporte FROM pedido41), (SELECT cod_despacho FROM despacho8))
+),
+visita_origen8 AS (INSERT INTO VISITA_PROGRAMADA (cod_despacho, cod_parada, secuencia, cod_estado_visita) VALUES ((SELECT cod_despacho FROM despacho8), (SELECT cod_parada FROM PARADA WHERE referencia_parada = 'Ferreteria Principal'), 1, 1)),
+visita_cliente39 AS (INSERT INTO VISITA_PROGRAMADA (cod_despacho, cod_parada, secuencia, cod_estado_visita) VALUES ((SELECT cod_despacho FROM despacho8), 39, 2, 1) RETURNING cod_visita),
+visita_cliente40 AS (INSERT INTO VISITA_PROGRAMADA (cod_despacho, cod_parada, secuencia, cod_estado_visita) VALUES ((SELECT cod_despacho FROM despacho8), 40, 3, 1) RETURNING cod_visita),
+visita_cliente41 AS (INSERT INTO VISITA_PROGRAMADA (cod_despacho, cod_parada, secuencia, cod_estado_visita) VALUES ((SELECT cod_despacho FROM despacho8), 41, 4, 1) RETURNING cod_visita)
+INSERT INTO DETALLE_PEDIDO_TR (cod_pedido_transporte, cod_producto, cod_visita, cantidad_detalle, cod_estado_detalle_pedido, direccion_origen_pedido, direccion_destino_pedido, fecha_detalle, cod_turno)
+VALUES 
+    ((SELECT cod_pedido_transporte FROM pedido39), (SELECT cod_producto FROM PRODUCTO WHERE nombre_producto = 'Amoladora 4-1/2"'), (SELECT cod_visita FROM visita_cliente39), 1, 1, (SELECT direccion_parada FROM PARADA WHERE referencia_parada = 'Ferreteria Principal'), (SELECT direccion_parada FROM PARADA WHERE cod_parada=39), '2025-11-16', 3),
+    ((SELECT cod_pedido_transporte FROM pedido40), (SELECT cod_producto FROM PRODUCTO WHERE nombre_producto = 'Foco LED 12W'), (SELECT cod_visita FROM visita_cliente40), 20, 1, (SELECT direccion_parada FROM PARADA WHERE referencia_parada = 'Ferreteria Principal'), (SELECT direccion_parada FROM PARADA WHERE cod_parada=40), '2025-11-16', 3),
+    ((SELECT cod_pedido_transporte FROM pedido41), (SELECT cod_producto FROM PRODUCTO WHERE nombre_producto = 'Cinta masking 48mm x 40m'), (SELECT cod_visita FROM visita_cliente41), 10, 1, (SELECT direccion_parada FROM PARADA WHERE referencia_parada = 'Ferreteria Principal'), (SELECT direccion_parada FROM PARADA WHERE cod_parada=41), '2025-11-16', 3);
+
+-- =============================================================
+-- 5. POBLACIÓN ADICIONAL DE 9 DÍAS (TOTAL 12 DÍAS)
+-- =============================================================
+
+-- DÍA 4: 2025-10-26 (PASADO - COMPLETADO)
+-- Despacho D-009 (Mañana)
+WITH despacho_D09 AS (
+    INSERT INTO DESPACHO (fecha_despacho, cod_estado_despacho, hora_salida_estimada, hora_salida_despacho, hora_regreso_estimada, hora_regreso_despacho, cod_chofer, cod_vehiculo, tiempo_reserva_min)
+    VALUES ('2025-10-26', 3, '08:00:00', '08:02:00', '11:30:00', '11:25:00', (SELECT cod_usuario FROM CHOFER LIMIT 1 OFFSET 0), (SELECT cod_vehiculo FROM VEHICULO WHERE placa_vehiculo = 'TRN-001'), 210)
+    RETURNING cod_despacho
+),
+ayudantes_D09 AS (
+    INSERT INTO ASIGNACION_AYUDANTE (cod_usuario, cod_despacho)
+    SELECT U.cod_usuario, (SELECT cod_despacho FROM despacho_D09)
+    FROM USUARIO U LEFT JOIN CHOFER C ON U.cod_usuario = C.cod_usuario
+    WHERE U.cod_persona >= 401 AND U.cod_estado_usuario = 1 AND C.cod_usuario IS NULL
+    LIMIT 2 OFFSET 0
+),
+pedido_P42 AS (INSERT INTO PEDIDO_TRANSPORTE (fecha_pedido_transporte, cod_estado_pedido_tr, cod_cliente, cod_empleado_registro) VALUES ('2025-10-25', 3, (SELECT cod_cliente FROM CLIENTE LIMIT 1 OFFSET 70), (SELECT cod_usuario FROM USUARIO WHERE cod_persona = 406)) RETURNING cod_pedido_transporte),
+pedido_P43 AS (INSERT INTO PEDIDO_TRANSPORTE (fecha_pedido_transporte, cod_estado_pedido_tr, cod_cliente, cod_empleado_registro) VALUES ('2025-10-25', 3, (SELECT cod_cliente FROM CLIENTE LIMIT 1 OFFSET 71), (SELECT cod_usuario FROM USUARIO WHERE cod_persona = 406)) RETURNING cod_pedido_transporte),
+pedido_P44 AS (INSERT INTO PEDIDO_TRANSPORTE (fecha_pedido_transporte, cod_estado_pedido_tr, cod_cliente, cod_empleado_registro) VALUES ('2025-10-25', 3, (SELECT cod_cliente FROM CLIENTE LIMIT 1 OFFSET 72), (SELECT cod_usuario FROM USUARIO WHERE cod_persona = 406)) RETURNING cod_pedido_transporte),
+asig_pedidos_D09 AS (
+    INSERT INTO ASIGNACION_PEDIDO_DESPACHO (cod_pedido_transporte, cod_despacho)
+    VALUES 
+        ((SELECT cod_pedido_transporte FROM pedido_P42), (SELECT cod_despacho FROM despacho_D09)),
+        ((SELECT cod_pedido_transporte FROM pedido_P43), (SELECT cod_despacho FROM despacho_D09)),
+        ((SELECT cod_pedido_transporte FROM pedido_P44), (SELECT cod_despacho FROM despacho_D09))
+),
+visita_origen_D09 AS (INSERT INTO VISITA_PROGRAMADA (cod_despacho, cod_parada, secuencia, cod_estado_visita, hora_llegada) VALUES ((SELECT cod_despacho FROM despacho_D09), (SELECT cod_parada FROM PARADA WHERE referencia_parada = 'Almacen Secundario'), 1, 5, '08:15:00')),
+visita_cliente_V42 AS (INSERT INTO VISITA_PROGRAMADA (cod_despacho, cod_parada, secuencia, cod_estado_visita, hora_llegada) VALUES ((SELECT cod_despacho FROM despacho_D09), 42, 2, 5, '09:00:00') RETURNING cod_visita),
+visita_cliente_V43 AS (INSERT INTO VISITA_PROGRAMADA (cod_despacho, cod_parada, secuencia, cod_estado_visita, hora_llegada) VALUES ((SELECT cod_despacho FROM despacho_D09), 43, 3, 5, '09:45:00') RETURNING cod_visita),
+visita_cliente_V44 AS (INSERT INTO VISITA_PROGRAMADA (cod_despacho, cod_parada, secuencia, cod_estado_visita, hora_llegada) VALUES ((SELECT cod_despacho FROM despacho_D09), 44, 4, 5, '10:30:00') RETURNING cod_visita)
+INSERT INTO DETALLE_PEDIDO_TR (cod_pedido_transporte, cod_producto, cod_visita, cantidad_detalle, cod_estado_detalle_pedido, direccion_origen_pedido, direccion_destino_pedido, fecha_detalle, cod_turno)
+VALUES 
+    ((SELECT cod_pedido_transporte FROM pedido_P42), (SELECT cod_producto FROM PRODUCTO WHERE nombre_producto = 'Piedra Zanja (Over)'), (SELECT cod_visita FROM visita_cliente_V42), 5, 6, (SELECT direccion_parada FROM PARADA WHERE referencia_parada = 'Almacen Secundario'), (SELECT direccion_parada FROM PARADA WHERE cod_parada=42), '2025-10-26', 1),
+    ((SELECT cod_pedido_transporte FROM pedido_P43), (SELECT cod_producto FROM PRODUCTO WHERE nombre_producto = 'Hormigon'), (SELECT cod_visita FROM visita_cliente_V43), 3, 6, (SELECT direccion_parada FROM PARADA WHERE referencia_parada = 'Almacen Principal'), (SELECT direccion_parada FROM PARADA WHERE cod_parada=43), '2025-10-26', 1),
+    ((SELECT cod_pedido_transporte FROM pedido_P44), (SELECT cod_producto FROM PRODUCTO WHERE nombre_producto = 'Ladrillo King Kong 18 Huecos'), (SELECT cod_visita FROM visita_cliente_V44), 2, 6, (SELECT direccion_parada FROM PARADA WHERE referencia_parada = 'Almacen Secundario'), (SELECT direccion_parada FROM PARADA WHERE cod_parada=44), '2025-10-26', 1);
+
+-- Despacho D-010 (Tarde)
+WITH despacho_D10 AS (
+    INSERT INTO DESPACHO (fecha_despacho, cod_estado_despacho, hora_salida_estimada, hora_salida_despacho, hora_regreso_estimada, hora_regreso_despacho, cod_chofer, cod_vehiculo, tiempo_reserva_min)
+    VALUES ('2025-10-26', 3, '14:00:00', '14:10:00', '17:30:00', '17:20:00', (SELECT cod_usuario FROM CHOFER LIMIT 1 OFFSET 1), (SELECT cod_vehiculo FROM VEHICULO WHERE placa_vehiculo = 'TRN-002'), 210)
+    RETURNING cod_despacho
+),
+ayudantes_D10 AS (
+    INSERT INTO ASIGNACION_AYUDANTE (cod_usuario, cod_despacho)
+    SELECT U.cod_usuario, (SELECT cod_despacho FROM despacho_D10)
+    FROM USUARIO U LEFT JOIN CHOFER C ON U.cod_usuario = C.cod_usuario
+    WHERE U.cod_persona >= 401 AND U.cod_estado_usuario = 1 AND C.cod_usuario IS NULL
+    LIMIT 2 OFFSET 2
+),
+pedido_P45 AS (INSERT INTO PEDIDO_TRANSPORTE (fecha_pedido_transporte, cod_estado_pedido_tr, cod_cliente, cod_empleado_registro) VALUES ('2025-10-25', 3, (SELECT cod_cliente FROM CLIENTE LIMIT 1 OFFSET 73), (SELECT cod_usuario FROM USUARIO WHERE cod_persona = 407)) RETURNING cod_pedido_transporte),
+pedido_P46 AS (INSERT INTO PEDIDO_TRANSPORTE (fecha_pedido_transporte, cod_estado_pedido_tr, cod_cliente, cod_empleado_registro) VALUES ('2025-10-25', 3, (SELECT cod_cliente FROM CLIENTE LIMIT 1 OFFSET 74), (SELECT cod_usuario FROM USUARIO WHERE cod_persona = 407)) RETURNING cod_pedido_transporte),
+asig_pedidos_D10 AS (
+    INSERT INTO ASIGNACION_PEDIDO_DESPACHO (cod_pedido_transporte, cod_despacho)
+    VALUES 
+        ((SELECT cod_pedido_transporte FROM pedido_P45), (SELECT cod_despacho FROM despacho_D10)),
+        ((SELECT cod_pedido_transporte FROM pedido_P46), (SELECT cod_despacho FROM despacho_D10))
+),
+visita_origen_D10 AS (INSERT INTO VISITA_PROGRAMADA (cod_despacho, cod_parada, secuencia, cod_estado_visita, hora_llegada) VALUES ((SELECT cod_despacho FROM despacho_D10), (SELECT cod_parada FROM PARADA WHERE referencia_parada = 'Ferreteria Principal'), 1, 5, '14:20:00')),
+visita_cliente_V45 AS (INSERT INTO VISITA_PROGRAMADA (cod_despacho, cod_parada, secuencia, cod_estado_visita, hora_llegada) VALUES ((SELECT cod_despacho FROM despacho_D10), 45, 2, 5, '15:15:00') RETURNING cod_visita),
+visita_cliente_V46 AS (INSERT INTO VISITA_PROGRAMADA (cod_despacho, cod_parada, secuencia, cod_estado_visita, hora_llegada) VALUES ((SELECT cod_despacho FROM despacho_D10), 46, 3, 5, '16:00:00') RETURNING cod_visita)
+INSERT INTO DETALLE_PEDIDO_TR (cod_pedido_transporte, cod_producto, cod_visita, cantidad_detalle, cod_estado_detalle_pedido, direccion_origen_pedido, direccion_destino_pedido, fecha_detalle, cod_turno)
+VALUES 
+    ((SELECT cod_pedido_transporte FROM pedido_P45), (SELECT cod_producto FROM PRODUCTO WHERE nombre_producto = 'Fierro Corrugado 1" x 9m'), (SELECT cod_visita FROM visita_cliente_V45), 15, 6, (SELECT direccion_parada FROM PARADA WHERE referencia_parada = 'Almacen Principal'), (SELECT direccion_parada FROM PARADA WHERE cod_parada=45), '2025-10-26', 2),
+    ((SELECT cod_pedido_transporte FROM pedido_P46), (SELECT cod_producto FROM PRODUCTO WHERE nombre_producto = 'Cemento Tipo I 42.5kg'), (SELECT cod_visita FROM visita_cliente_V46), 50, 6, (SELECT direccion_parada FROM PARADA WHERE referencia_parada = 'Almacen Principal'), (SELECT direccion_parada FROM PARADA WHERE cod_parada=46), '2025-10-26', 2);
+
+-- DÍA 5: 2025-10-30 (PASADO - COMPLETADO)
+-- Despacho D-011 (Mañana)
+WITH despacho_D11 AS (
+    INSERT INTO DESPACHO (fecha_despacho, cod_estado_despacho, hora_salida_estimada, hora_salida_despacho, hora_regreso_estimada, hora_regreso_despacho, cod_chofer, cod_vehiculo, tiempo_reserva_min)
+    VALUES ('2025-10-30', 3, '09:00:00', '09:05:00', '11:55:00', '11:50:00', (SELECT cod_usuario FROM CHOFER LIMIT 1 OFFSET 2), (SELECT cod_vehiculo FROM VEHICULO WHERE placa_vehiculo = 'TRN-003'), 170)
+    RETURNING cod_despacho
+),
+ayudantes_D11 AS (
+    INSERT INTO ASIGNACION_AYUDANTE (cod_usuario, cod_despacho)
+    SELECT U.cod_usuario, (SELECT cod_despacho FROM despacho_D11)
+    FROM USUARIO U LEFT JOIN CHOFER C ON U.cod_usuario = C.cod_usuario
+    WHERE U.cod_persona >= 401 AND U.cod_estado_usuario = 1 AND C.cod_usuario IS NULL
+    LIMIT 1 OFFSET 4
+),
+pedido_P47 AS (INSERT INTO PEDIDO_TRANSPORTE (fecha_pedido_transporte, cod_estado_pedido_tr, cod_cliente, cod_empleado_registro) VALUES ('2025-10-29', 3, (SELECT cod_cliente FROM CLIENTE LIMIT 1 OFFSET 75), (SELECT cod_usuario FROM USUARIO WHERE cod_persona = 408)) RETURNING cod_pedido_transporte),
+pedido_P48 AS (INSERT INTO PEDIDO_TRANSPORTE (fecha_pedido_transporte, cod_estado_pedido_tr, cod_cliente, cod_empleado_registro) VALUES ('2025-10-29', 3, (SELECT cod_cliente FROM CLIENTE LIMIT 1 OFFSET 76), (SELECT cod_usuario FROM USUARIO WHERE cod_persona = 408)) RETURNING cod_pedido_transporte),
+asig_pedidos_D11 AS (
+    INSERT INTO ASIGNACION_PEDIDO_DESPACHO (cod_pedido_transporte, cod_despacho)
+    VALUES 
+        ((SELECT cod_pedido_transporte FROM pedido_P47), (SELECT cod_despacho FROM despacho_D11)),
+        ((SELECT cod_pedido_transporte FROM pedido_P48), (SELECT cod_despacho FROM despacho_D11))
+),
+visita_origen_D11 AS (INSERT INTO VISITA_PROGRAMADA (cod_despacho, cod_parada, secuencia, cod_estado_visita, hora_llegada) VALUES ((SELECT cod_despacho FROM despacho_D11), (SELECT cod_parada FROM PARADA WHERE referencia_parada = 'Ferreteria Principal'), 1, 5, '09:15:00')),
+visita_cliente_V47 AS (INSERT INTO VISITA_PROGRAMADA (cod_despacho, cod_parada, secuencia, cod_estado_visita, hora_llegada) VALUES ((SELECT cod_despacho FROM despacho_D11), 47, 2, 5, '10:00:00') RETURNING cod_visita),
+visita_cliente_V48 AS (INSERT INTO VISITA_PROGRAMADA (cod_despacho, cod_parada, secuencia, cod_estado_visita, hora_llegada) VALUES ((SELECT cod_despacho FROM despacho_D11), 48, 3, 5, '10:45:00') RETURNING cod_visita)
+INSERT INTO DETALLE_PEDIDO_TR (cod_pedido_transporte, cod_producto, cod_visita, cantidad_detalle, cod_estado_detalle_pedido, direccion_origen_pedido, direccion_destino_pedido, fecha_detalle, cod_turno)
+VALUES 
+    ((SELECT cod_pedido_transporte FROM pedido_P47), (SELECT cod_producto FROM PRODUCTO WHERE nombre_producto = 'Amoladora 4-1/2"'), (SELECT cod_visita FROM visita_cliente_V47), 2, 6, (SELECT direccion_parada FROM PARADA WHERE referencia_parada = 'Ferreteria Principal'), (SELECT direccion_parada FROM PARADA WHERE cod_parada=47), '2025-10-30', 1),
+    ((SELECT cod_pedido_transporte FROM pedido_P48), (SELECT cod_producto FROM PRODUCTO WHERE nombre_producto = 'Pintura látex 1gal'), (SELECT cod_visita FROM visita_cliente_V48), 10, 6, (SELECT direccion_parada FROM PARADA WHERE referencia_parada = 'Ferreteria Principal'), (SELECT direccion_parada FROM PARADA WHERE cod_parada=48), '2025-10-30', 1);
+
+-- Despacho D-012 (Tarde)
+WITH despacho_D12 AS (
+    INSERT INTO DESPACHO (fecha_despacho, cod_estado_despacho, hora_salida_estimada, hora_salida_despacho, hora_regreso_estimada, hora_regreso_despacho, cod_chofer, cod_vehiculo, tiempo_reserva_min)
+    VALUES ('2025-10-30', 3, '13:30:00', '13:35:00', '17:00:00', '16:50:00', (SELECT cod_usuario FROM CHOFER LIMIT 1 OFFSET 3), (SELECT cod_vehiculo FROM VEHICULO WHERE placa_vehiculo = 'TRN-001'), 210)
+    RETURNING cod_despacho
+),
+ayudantes_D12 AS (
+    INSERT INTO ASIGNACION_AYUDANTE (cod_usuario, cod_despacho)
+    SELECT U.cod_usuario, (SELECT cod_despacho FROM despacho_D12)
+    FROM USUARIO U LEFT JOIN CHOFER C ON U.cod_usuario = C.cod_usuario
+    WHERE U.cod_persona >= 401 AND U.cod_estado_usuario = 1 AND C.cod_usuario IS NULL
+    LIMIT 2 OFFSET 5
+),
+pedido_P49 AS (INSERT INTO PEDIDO_TRANSPORTE (fecha_pedido_transporte, cod_estado_pedido_tr, cod_cliente, cod_empleado_registro) VALUES ('2025-10-29', 3, (SELECT cod_cliente FROM CLIENTE LIMIT 1 OFFSET 77), (SELECT cod_usuario FROM USUARIO WHERE cod_persona = 409)) RETURNING cod_pedido_transporte),
+pedido_P50 AS (INSERT INTO PEDIDO_TRANSPORTE (fecha_pedido_transporte, cod_estado_pedido_tr, cod_cliente, cod_empleado_registro) VALUES ('2025-10-29', 3, (SELECT cod_cliente FROM CLIENTE LIMIT 1 OFFSET 78), (SELECT cod_usuario FROM USUARIO WHERE cod_persona = 409)) RETURNING cod_pedido_transporte),
+pedido_P51 AS (INSERT INTO PEDIDO_TRANSPORTE (fecha_pedido_transporte, cod_estado_pedido_tr, cod_cliente, cod_empleado_registro) VALUES ('2025-10-29', 3, (SELECT cod_cliente FROM CLIENTE LIMIT 1 OFFSET 79), (SELECT cod_usuario FROM USUARIO WHERE cod_persona = 409)) RETURNING cod_pedido_transporte),
+asig_pedidos_D12 AS (
+    INSERT INTO ASIGNACION_PEDIDO_DESPACHO (cod_pedido_transporte, cod_despacho)
+    VALUES 
+        ((SELECT cod_pedido_transporte FROM pedido_P49), (SELECT cod_despacho FROM despacho_D12)),
+        ((SELECT cod_pedido_transporte FROM pedido_P50), (SELECT cod_despacho FROM despacho_D12)),
+        ((SELECT cod_pedido_transporte FROM pedido_P51), (SELECT cod_despacho FROM despacho_D12))
+),
+visita_origen_D12 AS (INSERT INTO VISITA_PROGRAMADA (cod_despacho, cod_parada, secuencia, cod_estado_visita, hora_llegada) VALUES ((SELECT cod_despacho FROM despacho_D12), (SELECT cod_parada FROM PARADA WHERE referencia_parada = 'Almacen Principal'), 1, 5, '13:45:00')),
+visita_cliente_V49 AS (INSERT INTO VISITA_PROGRAMADA (cod_despacho, cod_parada, secuencia, cod_estado_visita, hora_llegada) VALUES ((SELECT cod_despacho FROM despacho_D12), 49, 2, 5, '14:30:00') RETURNING cod_visita),
+visita_cliente_V50 AS (INSERT INTO VISITA_PROGRAMADA (cod_despacho, cod_parada, secuencia, cod_estado_visita, hora_llegada) VALUES ((SELECT cod_despacho FROM despacho_D12), 50, 3, 5, '15:15:00') RETURNING cod_visita),
+visita_cliente_V51 AS (INSERT INTO VISITA_PROGRAMADA (cod_despacho, cod_parada, secuencia, cod_estado_visita, hora_llegada) VALUES ((SELECT cod_despacho FROM despacho_D12), 51, 4, 5, '16:00:00') RETURNING cod_visita)
+INSERT INTO DETALLE_PEDIDO_TR (cod_pedido_transporte, cod_producto, cod_visita, cantidad_detalle, cod_estado_detalle_pedido, direccion_origen_pedido, direccion_destino_pedido, fecha_detalle, cod_turno)
+VALUES 
+    ((SELECT cod_pedido_transporte FROM pedido_P49), (SELECT cod_producto FROM PRODUCTO WHERE nombre_producto = 'Fierro Corrugado 3/4" x 9m'), (SELECT cod_visita FROM visita_cliente_V49), 40, 6, (SELECT direccion_parada FROM PARADA WHERE referencia_parada = 'Almacen Principal'), (SELECT direccion_parada FROM PARADA WHERE cod_parada=49), '2025-10-30', 2),
+    ((SELECT cod_pedido_transporte FROM pedido_P50), (SELECT cod_producto FROM PRODUCTO WHERE nombre_producto = 'Arena Gruesa'), (SELECT cod_visita FROM visita_cliente_V50), 2, 6, (SELECT direccion_parada FROM PARADA WHERE referencia_parada = 'Almacen Principal'), (SELECT direccion_parada FROM PARADA WHERE cod_parada=50), '2025-10-30', 2),
+    ((SELECT cod_pedido_transporte FROM pedido_P51), (SELECT cod_producto FROM PRODUCTO WHERE nombre_producto = 'Piedra Chancada 1/2"'), (SELECT cod_visita FROM visita_cliente_V51), 2, 6, (SELECT direccion_parada FROM PARADA WHERE referencia_parada = 'Almacen Secundario'), (SELECT direccion_parada FROM PARADA WHERE cod_parada=51), '2025-10-30', 2);
+
+-- DÍA 6: 2025-11-02 (PASADO - COMPLETADO)
+-- Despacho D-013 (Mañana)
+WITH despacho_D13 AS (
+    INSERT INTO DESPACHO (fecha_despacho, cod_estado_despacho, hora_salida_estimada, hora_salida_despacho, hora_regreso_estimada, hora_regreso_despacho, cod_chofer, cod_vehiculo, tiempo_reserva_min)
+    VALUES ('2025-11-02', 3, '07:30:00', '07:35:00', '11:00:00', '10:55:00', (SELECT cod_usuario FROM CHOFER LIMIT 1 OFFSET 4), (SELECT cod_vehiculo FROM VEHICULO WHERE placa_vehiculo = 'TRN-004'), 210)
+    RETURNING cod_despacho
+),
+ayudantes_D13 AS (
+    INSERT INTO ASIGNACION_AYUDANTE (cod_usuario, cod_despacho)
+    SELECT U.cod_usuario, (SELECT cod_despacho FROM despacho_D13)
+    FROM USUARIO U LEFT JOIN CHOFER C ON U.cod_usuario = C.cod_usuario
+    WHERE U.cod_persona >= 401 AND U.cod_estado_usuario = 1 AND C.cod_usuario IS NULL
+    LIMIT 1 OFFSET 7
+),
+pedido_P52 AS (INSERT INTO PEDIDO_TRANSPORTE (fecha_pedido_transporte, cod_estado_pedido_tr, cod_cliente, cod_empleado_registro) VALUES ('2025-11-01', 3, (SELECT cod_cliente FROM CLIENTE LIMIT 1 OFFSET 80), (SELECT cod_usuario FROM USUARIO WHERE cod_persona = 410)) RETURNING cod_pedido_transporte),
+pedido_P53 AS (INSERT INTO PEDIDO_TRANSPORTE (fecha_pedido_transporte, cod_estado_pedido_tr, cod_cliente, cod_empleado_registro) VALUES ('2025-11-01', 3, (SELECT cod_cliente FROM CLIENTE LIMIT 1 OFFSET 81), (SELECT cod_usuario FROM USUARIO WHERE cod_persona = 410)) RETURNING cod_pedido_transporte),
+asig_pedidos_D13 AS (
+    INSERT INTO ASIGNACION_PEDIDO_DESPACHO (cod_pedido_transporte, cod_despacho)
+    VALUES 
+        ((SELECT cod_pedido_transporte FROM pedido_P52), (SELECT cod_despacho FROM despacho_D13)),
+        ((SELECT cod_pedido_transporte FROM pedido_P53), (SELECT cod_despacho FROM despacho_D13))
+),
+visita_origen_D13 AS (INSERT INTO VISITA_PROGRAMADA (cod_despacho, cod_parada, secuencia, cod_estado_visita, hora_llegada) VALUES ((SELECT cod_despacho FROM despacho_D13), (SELECT cod_parada FROM PARADA WHERE referencia_parada = 'Ferreteria Principal'), 1, 5, '07:45:00')),
+visita_cliente_V52 AS (INSERT INTO VISITA_PROGRAMADA (cod_despacho, cod_parada, secuencia, cod_estado_visita, hora_llegada) VALUES ((SELECT cod_despacho FROM despacho_D13), 52, 2, 5, '08:30:00') RETURNING cod_visita),
+visita_cliente_V53 AS (INSERT INTO VISITA_PROGRAMADA (cod_despacho, cod_parada, secuencia, cod_estado_visita, hora_llegada) VALUES ((SELECT cod_despacho FROM despacho_D13), 53, 3, 5, '09:15:00') RETURNING cod_visita)
+INSERT INTO DETALLE_PEDIDO_TR (cod_pedido_transporte, cod_producto, cod_visita, cantidad_detalle, cod_estado_detalle_pedido, direccion_origen_pedido, direccion_destino_pedido, fecha_detalle, cod_turno)
+VALUES 
+    ((SELECT cod_pedido_transporte FROM pedido_P52), (SELECT cod_producto FROM PRODUCTO WHERE nombre_producto = 'Fierro Corrugado 8mm x 9m'), (SELECT cod_visita FROM visita_cliente_V52), 10, 6, (SELECT direccion_parada FROM PARADA WHERE referencia_parada = 'Almacen Principal'), (SELECT direccion_parada FROM PARADA WHERE cod_parada=52), '2025-11-02', 1),
+    ((SELECT cod_pedido_transporte FROM pedido_P53), (SELECT cod_producto FROM PRODUCTO WHERE nombre_producto = 'Clavos 2" 1kg'), (SELECT cod_visita FROM visita_cliente_V53), 20, 6, (SELECT direccion_parada FROM PARADA WHERE referencia_parada = 'Ferreteria Principal'), (SELECT direccion_parada FROM PARADA WHERE cod_parada=53), '2025-11-02', 1);
+
+-- DÍA 7: 2025-11-06 (PASADO - COMPLETADO)
+-- Despacho D-014 (Mañana)
+WITH despacho_D14 AS (
+    INSERT INTO DESPACHO (fecha_despacho, cod_estado_despacho, hora_salida_estimada, hora_salida_despacho, hora_regreso_estimada, hora_regreso_despacho, cod_chofer, cod_vehiculo, tiempo_reserva_min)
+    VALUES ('2025-11-06', 3, '06:30:00', '06:35:00', '11:30:00', '11:20:00', (SELECT cod_usuario FROM CHOFER LIMIT 1 OFFSET 5), (SELECT cod_vehiculo FROM VEHICULO WHERE placa_vehiculo = 'TRN-001'), 300)
+    RETURNING cod_despacho
+),
+ayudantes_D14 AS (
+    INSERT INTO ASIGNACION_AYUDANTE (cod_usuario, cod_despacho)
+    SELECT U.cod_usuario, (SELECT cod_despacho FROM despacho_D14)
+    FROM USUARIO U LEFT JOIN CHOFER C ON U.cod_usuario = C.cod_usuario
+    WHERE U.cod_persona >= 401 AND U.cod_estado_usuario = 1 AND C.cod_usuario IS NULL
+    LIMIT 2 OFFSET 8
+),
+pedido_P54 AS (INSERT INTO PEDIDO_TRANSPORTE (fecha_pedido_transporte, cod_estado_pedido_tr, cod_cliente, cod_empleado_registro) VALUES ('2025-11-05', 3, (SELECT cod_cliente FROM CLIENTE LIMIT 1 OFFSET 82), (SELECT cod_usuario FROM USUARIO WHERE cod_persona = 411)) RETURNING cod_pedido_transporte),
+pedido_P55 AS (INSERT INTO PEDIDO_TRANSPORTE (fecha_pedido_transporte, cod_estado_pedido_tr, cod_cliente, cod_empleado_registro) VALUES ('2025-11-05', 3, (SELECT cod_cliente FROM CLIENTE LIMIT 1 OFFSET 83), (SELECT cod_usuario FROM USUARIO WHERE cod_persona = 411)) RETURNING cod_pedido_transporte),
+pedido_P56 AS (INSERT INTO PEDIDO_TRANSPORTE (fecha_pedido_transporte, cod_estado_pedido_tr, cod_cliente, cod_empleado_registro) VALUES ('2025-11-05', 3, (SELECT cod_cliente FROM CLIENTE LIMIT 1 OFFSET 84), (SELECT cod_usuario FROM USUARIO WHERE cod_persona = 411)) RETURNING cod_pedido_transporte),
+asig_pedidos_D14 AS (
+    INSERT INTO ASIGNACION_PEDIDO_DESPACHO (cod_pedido_transporte, cod_despacho)
+    VALUES 
+        ((SELECT cod_pedido_transporte FROM pedido_P54), (SELECT cod_despacho FROM despacho_D14)),
+        ((SELECT cod_pedido_transporte FROM pedido_P55), (SELECT cod_despacho FROM despacho_D14)),
+        ((SELECT cod_pedido_transporte FROM pedido_P56), (SELECT cod_despacho FROM despacho_D14))
+),
+visita_origen_D14 AS (INSERT INTO VISITA_PROGRAMADA (cod_despacho, cod_parada, secuencia, cod_estado_visita, hora_llegada) VALUES ((SELECT cod_despacho FROM despacho_D14), (SELECT cod_parada FROM PARADA WHERE referencia_parada = 'Almacen Principal'), 1, 5, '06:45:00')),
+visita_cliente_V54 AS (INSERT INTO VISITA_PROGRAMADA (cod_despacho, cod_parada, secuencia, cod_estado_visita, hora_llegada) VALUES ((SELECT cod_despacho FROM despacho_D14), 54, 2, 5, '07:30:00') RETURNING cod_visita),
+visita_cliente_V55 AS (INSERT INTO VISITA_PROGRAMADA (cod_despacho, cod_parada, secuencia, cod_estado_visita, hora_llegada) VALUES ((SELECT cod_despacho FROM despacho_D14), 55, 3, 5, '08:15:00') RETURNING cod_visita),
+visita_cliente_V56 AS (INSERT INTO VISITA_PROGRAMADA (cod_despacho, cod_parada, secuencia, cod_estado_visita, hora_llegada) VALUES ((SELECT cod_despacho FROM despacho_D14), 56, 4, 5, '09:00:00') RETURNING cod_visita)
+INSERT INTO DETALLE_PEDIDO_TR (cod_pedido_transporte, cod_producto, cod_visita, cantidad_detalle, cod_estado_detalle_pedido, direccion_origen_pedido, direccion_destino_pedido, fecha_detalle, cod_turno)
+VALUES 
+    ((SELECT cod_pedido_transporte FROM pedido_P54), (SELECT cod_producto FROM PRODUCTO WHERE nombre_producto = 'Polvo de Piedra'), (SELECT cod_visita FROM visita_cliente_V54), 3, 6, (SELECT direccion_parada FROM PARADA WHERE referencia_parada = 'Almacen Secundario'), (SELECT direccion_parada FROM PARADA WHERE cod_parada=54), '2025-11-06', 1),
+    ((SELECT cod_pedido_transporte FROM pedido_P55), (SELECT cod_producto FROM PRODUCTO WHERE nombre_producto = 'Confitillo (Piedra 1/4")'), (SELECT cod_visita FROM visita_cliente_V55), 3, 6, (SELECT direccion_parada FROM PARADA WHERE referencia_parada = 'Almacen Secundario'), (SELECT direccion_parada FROM PARADA WHERE cod_parada=55), '2025-11-06', 1),
+    ((SELECT cod_pedido_transporte FROM pedido_P56), (SELECT cod_producto FROM PRODUCTO WHERE nombre_producto = 'Arena Fina'), (SELECT cod_visita FROM visita_cliente_V56), 4, 6, (SELECT direccion_parada FROM PARADA WHERE referencia_parada = 'Almacen Principal'), (SELECT direccion_parada FROM PARADA WHERE cod_parada=56), '2025-11-06', 1);
+
+-- DÍA 8: 2025-11-17 (FUTURO - PROGRAMADO)
+-- Despacho D-015 (Mañana)
+WITH despacho_D15 AS (
+    INSERT INTO DESPACHO (fecha_despacho, cod_estado_despacho, hora_salida_estimada, hora_regreso_estimada, cod_chofer, cod_vehiculo, tiempo_reserva_min)
+    VALUES ('2025-11-17', 1, '08:30:00', '11:30:00', (SELECT cod_usuario FROM CHOFER LIMIT 1 OFFSET 8), (SELECT cod_vehiculo FROM VEHICULO WHERE placa_vehiculo = 'TRN-005'), 180)
+    RETURNING cod_despacho
+),
+ayudantes_D15 AS (
+    INSERT INTO ASIGNACION_AYUDANTE (cod_usuario, cod_despacho)
+    SELECT U.cod_usuario, (SELECT cod_despacho FROM despacho_D15)
+    FROM USUARIO U LEFT JOIN CHOFER C ON U.cod_usuario = C.cod_usuario
+    WHERE U.cod_persona >= 401 AND U.cod_estado_usuario = 1 AND C.cod_usuario IS NULL
+    LIMIT 1 OFFSET 10
+),
+pedido_P57 AS (INSERT INTO PEDIDO_TRANSPORTE (fecha_pedido_transporte, cod_estado_pedido_tr, cod_cliente, cod_empleado_registro) VALUES ('2025-11-16', 1, (SELECT cod_cliente FROM CLIENTE LIMIT 1 OFFSET 85), (SELECT cod_usuario FROM USUARIO WHERE cod_persona = 412)) RETURNING cod_pedido_transporte),
+pedido_P58 AS (INSERT INTO PEDIDO_TRANSPORTE (fecha_pedido_transporte, cod_estado_pedido_tr, cod_cliente, cod_empleado_registro) VALUES ('2025-11-16', 1, (SELECT cod_cliente FROM CLIENTE LIMIT 1 OFFSET 86), (SELECT cod_usuario FROM USUARIO WHERE cod_persona = 412)) RETURNING cod_pedido_transporte),
+asig_pedidos_D15 AS (
+    INSERT INTO ASIGNACION_PEDIDO_DESPACHO (cod_pedido_transporte, cod_despacho)
+    VALUES 
+        ((SELECT cod_pedido_transporte FROM pedido_P57), (SELECT cod_despacho FROM despacho_D15)),
+        ((SELECT cod_pedido_transporte FROM pedido_P58), (SELECT cod_despacho FROM despacho_D15))
+),
+visita_origen_D15 AS (INSERT INTO VISITA_PROGRAMADA (cod_despacho, cod_parada, secuencia, cod_estado_visita) VALUES ((SELECT cod_despacho FROM despacho_D15), (SELECT cod_parada FROM PARADA WHERE referencia_parada = 'Ferreteria Principal'), 1, 1)),
+visita_cliente_V57 AS (INSERT INTO VISITA_PROGRAMADA (cod_despacho, cod_parada, secuencia, cod_estado_visita) VALUES ((SELECT cod_despacho FROM despacho_D15), 57, 2, 1) RETURNING cod_visita),
+visita_cliente_V58 AS (INSERT INTO VISITA_PROGRAMADA (cod_despacho, cod_parada, secuencia, cod_estado_visita) VALUES ((SELECT cod_despacho FROM despacho_D15), 58, 3, 1) RETURNING cod_visita)
+INSERT INTO DETALLE_PEDIDO_TR (cod_pedido_transporte, cod_producto, cod_visita, cantidad_detalle, cod_estado_detalle_pedido, direccion_origen_pedido, direccion_destino_pedido, fecha_detalle, cod_turno)
+VALUES 
+    ((SELECT cod_pedido_transporte FROM pedido_P57), (SELECT cod_producto FROM PRODUCTO WHERE nombre_producto = 'Taladro percutor 13mm'), (SELECT cod_visita FROM visita_cliente_V57), 1, 1, (SELECT direccion_parada FROM PARADA WHERE referencia_parada = 'Ferreteria Principal'), (SELECT direccion_parada FROM PARADA WHERE cod_parada=57), '2025-11-17', 1),
+    ((SELECT cod_pedido_transporte FROM pedido_P58), (SELECT cod_producto FROM PRODUCTO WHERE nombre_producto = 'Foco LED 12W'), (SELECT cod_visita FROM visita_cliente_V58), 30, 1, (SELECT direccion_parada FROM PARADA WHERE referencia_parada = 'Ferreteria Principal'), (SELECT direccion_parada FROM PARADA WHERE cod_parada=58), '2025-11-17', 1);
+
+-- Despacho D-016 (Tarde)
+WITH despacho_D16 AS (
+    INSERT INTO DESPACHO (fecha_despacho, cod_estado_despacho, hora_salida_estimada, hora_regreso_estimada, cod_chofer, cod_vehiculo, tiempo_reserva_min)
+    VALUES ('2025-11-17', 1, '14:00:00', '17:45:00', (SELECT cod_usuario FROM CHOFER LIMIT 1 OFFSET 9), (SELECT cod_vehiculo FROM VEHICULO WHERE placa_vehiculo = 'TRN-001'), 225)
+    RETURNING cod_despacho
+),
+ayudantes_D16 AS (
+    INSERT INTO ASIGNACION_AYUDANTE (cod_usuario, cod_despacho)
+    SELECT U.cod_usuario, (SELECT cod_despacho FROM despacho_D16)
+    FROM USUARIO U LEFT JOIN CHOFER C ON U.cod_usuario = C.cod_usuario
+    WHERE U.cod_persona >= 401 AND U.cod_estado_usuario = 1 AND C.cod_usuario IS NULL
+    LIMIT 2 OFFSET 11
+),
+pedido_P59 AS (INSERT INTO PEDIDO_TRANSPORTE (fecha_pedido_transporte, cod_estado_pedido_tr, cod_cliente, cod_empleado_registro) VALUES ('2025-11-16', 1, (SELECT cod_cliente FROM CLIENTE LIMIT 1 OFFSET 87), (SELECT cod_usuario FROM USUARIO WHERE cod_persona = 412)) RETURNING cod_pedido_transporte),
+pedido_P60 AS (INSERT INTO PEDIDO_TRANSPORTE (fecha_pedido_transporte, cod_estado_pedido_tr, cod_cliente, cod_empleado_registro) VALUES ('2025-11-16', 1, (SELECT cod_cliente FROM CLIENTE LIMIT 1 OFFSET 88), (SELECT cod_usuario FROM USUARIO WHERE cod_persona = 412)) RETURNING cod_pedido_transporte),
+pedido_P61 AS (INSERT INTO PEDIDO_TRANSPORTE (fecha_pedido_transporte, cod_estado_pedido_tr, cod_cliente, cod_empleado_registro) VALUES ('2025-11-16', 1, (SELECT cod_cliente FROM CLIENTE LIMIT 1 OFFSET 89), (SELECT cod_usuario FROM USUARIO WHERE cod_persona = 412)) RETURNING cod_pedido_transporte),
+asig_pedidos_D16 AS (
+    INSERT INTO ASIGNACION_PEDIDO_DESPACHO (cod_pedido_transporte, cod_despacho)
+    VALUES 
+        ((SELECT cod_pedido_transporte FROM pedido_P59), (SELECT cod_despacho FROM despacho_D16)),
+        ((SELECT cod_pedido_transporte FROM pedido_P60), (SELECT cod_despacho FROM despacho_D16)),
+        ((SELECT cod_pedido_transporte FROM pedido_P61), (SELECT cod_despacho FROM despacho_D16))
+),
+visita_origen_D16 AS (INSERT INTO VISITA_PROGRAMADA (cod_despacho, cod_parada, secuencia, cod_estado_visita) VALUES ((SELECT cod_despacho FROM despacho_D16), (SELECT cod_parada FROM PARADA WHERE referencia_parada = 'Almacen Principal'), 1, 1)),
+visita_cliente_V59 AS (INSERT INTO VISITA_PROGRAMADA (cod_despacho, cod_parada, secuencia, cod_estado_visita) VALUES ((SELECT cod_despacho FROM despacho_D16), 59, 2, 1) RETURNING cod_visita),
+visita_cliente_V60 AS (INSERT INTO VISITA_PROGRAMADA (cod_despacho, cod_parada, secuencia, cod_estado_visita) VALUES ((SELECT cod_despacho FROM despacho_D16), 60, 3, 1) RETURNING cod_visita),
+visita_cliente_V61 AS (INSERT INTO VISITA_PROGRAMADA (cod_despacho, cod_parada, secuencia, cod_estado_visita) VALUES ((SELECT cod_despacho FROM despacho_D16), 61, 4, 1) RETURNING cod_visita)
+INSERT INTO DETALLE_PEDIDO_TR (cod_pedido_transporte, cod_producto, cod_visita, cantidad_detalle, cod_estado_detalle_pedido, direccion_origen_pedido, direccion_destino_pedido, fecha_detalle, cod_turno)
+VALUES 
+    ((SELECT cod_pedido_transporte FROM pedido_P59), (SELECT cod_producto FROM PRODUCTO WHERE nombre_producto = 'Fierro Corrugado 5/8" x 9m'), (SELECT cod_visita FROM visita_cliente_V59), 100, 1, (SELECT direccion_parada FROM PARADA WHERE referencia_parada = 'Almacen Principal'), (SELECT direccion_parada FROM PARADA WHERE cod_parada=59), '2025-11-17', 2),
+    ((SELECT cod_pedido_transporte FROM pedido_P60), (SELECT cod_producto FROM PRODUCTO WHERE nombre_producto = 'Arena Gruesa'), (SELECT cod_visita FROM visita_cliente_V60), 4, 1, (SELECT direccion_parada FROM PARADA WHERE referencia_parada = 'Almacen Principal'), (SELECT direccion_parada FROM PARADA WHERE cod_parada=60), '2025-11-17', 2),
+    ((SELECT cod_pedido_transporte FROM pedido_P61), (SELECT cod_producto FROM PRODUCTO WHERE nombre_producto = 'Hormigon'), (SELECT cod_visita FROM visita_cliente_V61), 3, 1, (SELECT direccion_parada FROM PARADA WHERE referencia_parada = 'Almacen Principal'), (SELECT direccion_parada FROM PARADA WHERE cod_parada=61), '2025-11-17', 2);
+
+-- DÍA 9: 2025-11-19 (FUTURO - PROGRAMADO)
+-- Despacho D-017 (Mañana)
+WITH despacho_D17 AS (
+    INSERT INTO DESPACHO (fecha_despacho, cod_estado_despacho, hora_salida_estimada, hora_regreso_estimada, cod_chofer, cod_vehiculo, tiempo_reserva_min)
+    VALUES ('2025-11-19', 1, '07:00:00', '11:00:00', (SELECT cod_usuario FROM CHOFER LIMIT 1 OFFSET 0), (SELECT cod_vehiculo FROM VEHICULO WHERE placa_vehiculo = 'TRN-002'), 240)
+    RETURNING cod_despacho
+),
+ayudantes_D17 AS (
+    INSERT INTO ASIGNACION_AYUDANTE (cod_usuario, cod_despacho)
+    SELECT U.cod_usuario, (SELECT cod_despacho FROM despacho_D17)
+    FROM USUARIO U LEFT JOIN CHOFER C ON U.cod_usuario = C.cod_usuario
+    WHERE U.cod_persona >= 401 AND U.cod_estado_usuario = 1 AND C.cod_usuario IS NULL
+    LIMIT 2 OFFSET 13
+),
+pedido_P62 AS (INSERT INTO PEDIDO_TRANSPORTE (fecha_pedido_transporte, cod_estado_pedido_tr, cod_cliente, cod_empleado_registro) VALUES ('2025-11-18', 1, (SELECT cod_cliente FROM CLIENTE LIMIT 1 OFFSET 90), (SELECT cod_usuario FROM USUARIO WHERE cod_persona = 413)) RETURNING cod_pedido_transporte),
+pedido_P63 AS (INSERT INTO PEDIDO_TRANSPORTE (fecha_pedido_transporte, cod_estado_pedido_tr, cod_cliente, cod_empleado_registro) VALUES ('2025-11-18', 1, (SELECT cod_cliente FROM CLIENTE LIMIT 1 OFFSET 91), (SELECT cod_usuario FROM USUARIO WHERE cod_persona = 413)) RETURNING cod_pedido_transporte),
+asig_pedidos_D17 AS (
+    INSERT INTO ASIGNACION_PEDIDO_DESPACHO (cod_pedido_transporte, cod_despacho)
+    VALUES 
+        ((SELECT cod_pedido_transporte FROM pedido_P62), (SELECT cod_despacho FROM despacho_D17)),
+        ((SELECT cod_pedido_transporte FROM pedido_P63), (SELECT cod_despacho FROM despacho_D17))
+),
+visita_origen_D17 AS (INSERT INTO VISITA_PROGRAMADA (cod_despacho, cod_parada, secuencia, cod_estado_visita) VALUES ((SELECT cod_despacho FROM despacho_D17), (SELECT cod_parada FROM PARADA WHERE referencia_parada = 'Almacen Secundario'), 1, 1)),
+visita_cliente_V62 AS (INSERT INTO VISITA_PROGRAMADA (cod_despacho, cod_parada, secuencia, cod_estado_visita) VALUES ((SELECT cod_despacho FROM despacho_D17), 62, 2, 1) RETURNING cod_visita),
+visita_cliente_V63 AS (INSERT INTO VISITA_PROGRAMADA (cod_despacho, cod_parada, secuencia, cod_estado_visita) VALUES ((SELECT cod_despacho FROM despacho_D17), 63, 3, 1) RETURNING cod_visita)
+INSERT INTO DETALLE_PEDIDO_TR (cod_pedido_transporte, cod_producto, cod_visita, cantidad_detalle, cod_estado_detalle_pedido, direccion_origen_pedido, direccion_destino_pedido, fecha_detalle, cod_turno)
+VALUES 
+    ((SELECT cod_pedido_transporte FROM pedido_P62), (SELECT cod_producto FROM PRODUCTO WHERE nombre_producto = 'Ladrillo King Kong 18 Huecos'), (SELECT cod_visita FROM visita_cliente_V62), 4, 1, (SELECT direccion_parada FROM PARADA WHERE referencia_parada = 'Almacen Secundario'), (SELECT direccion_parada FROM PARADA WHERE cod_parada=62), '2025-11-19', 1),
+    ((SELECT cod_pedido_transporte FROM pedido_P63), (SELECT cod_producto FROM PRODUCTO WHERE nombre_producto = 'Piedra Chancada 1/2"'), (SELECT cod_visita FROM visita_cliente_V63), 3, 1, (SELECT direccion_parada FROM PARADA WHERE referencia_parada = 'Almacen Secundario'), (SELECT direccion_parada FROM PARADA WHERE cod_parada=63), '2025-11-19', 1);
+
+-- Despacho D-018 (Tarde)
+WITH despacho_D18 AS (
+    INSERT INTO DESPACHO (fecha_despacho, cod_estado_despacho, hora_salida_estimada, hora_regreso_estimada, cod_chofer, cod_vehiculo, tiempo_reserva_min)
+    VALUES ('2025-11-19', 1, '15:00:00', '17:50:00', (SELECT cod_usuario FROM CHOFER LIMIT 1 OFFSET 1), (SELECT cod_vehiculo FROM VEHICULO WHERE placa_vehiculo = 'TRN-003'), 170)
+    RETURNING cod_despacho
+),
+ayudantes_D18 AS (
+    INSERT INTO ASIGNACION_AYUDANTE (cod_usuario, cod_despacho)
+    SELECT U.cod_usuario, (SELECT cod_despacho FROM despacho_D18)
+    FROM USUARIO U LEFT JOIN CHOFER C ON U.cod_usuario = C.cod_usuario
+    WHERE U.cod_persona >= 401 AND U.cod_estado_usuario = 1 AND C.cod_usuario IS NULL
+    LIMIT 1 OFFSET 15
+),
+pedido_P64 AS (INSERT INTO PEDIDO_TRANSPORTE (fecha_pedido_transporte, cod_estado_pedido_tr, cod_cliente, cod_empleado_registro) VALUES ('2025-11-18', 1, (SELECT cod_cliente FROM CLIENTE LIMIT 1 OFFSET 92), (SELECT cod_usuario FROM USUARIO WHERE cod_persona = 413)) RETURNING cod_pedido_transporte),
+asig_pedidos_D18 AS (
+    INSERT INTO ASIGNACION_PEDIDO_DESPACHO (cod_pedido_transporte, cod_despacho)
+    VALUES 
+        ((SELECT cod_pedido_transporte FROM pedido_P64), (SELECT cod_despacho FROM despacho_D18))
+),
+visita_origen_D18 AS (INSERT INTO VISITA_PROGRAMADA (cod_despacho, cod_parada, secuencia, cod_estado_visita) VALUES ((SELECT cod_despacho FROM despacho_D18), (SELECT cod_parada FROM PARADA WHERE referencia_parada = 'Ferreteria Principal'), 1, 1)),
+visita_cliente_V64 AS (INSERT INTO VISITA_PROGRAMADA (cod_despacho, cod_parada, secuencia, cod_estado_visita) VALUES ((SELECT cod_despacho FROM despacho_D18), 64, 2, 1) RETURNING cod_visita)
+INSERT INTO DETALLE_PEDIDO_TR (cod_pedido_transporte, cod_producto, cod_visita, cantidad_detalle, cod_estado_detalle_pedido, direccion_origen_pedido, direccion_destino_pedido, fecha_detalle, cod_turno)
+VALUES 
+    ((SELECT cod_pedido_transporte FROM pedido_P64), (SELECT cod_producto FROM PRODUCTO WHERE nombre_producto = 'Cable THW 12 AWG 100m'), (SELECT cod_visita FROM visita_cliente_V64), 3, 1, (SELECT direccion_parada FROM PARADA WHERE referencia_parada = 'Ferreteria Principal'), (SELECT direccion_parada FROM PARADA WHERE cod_parada=64), '2025-11-19', 2);
+
+-- DÍA 10: 2025-11-21 (FUTURO - PROGRAMADO)
+-- Despacho D-019 (Mañana)
+WITH despacho_D19 AS (
+    INSERT INTO DESPACHO (fecha_despacho, cod_estado_despacho, hora_salida_estimada, hora_regreso_estimada, cod_chofer, cod_vehiculo, tiempo_reserva_min)
+    VALUES ('2025-11-21', 1, '09:00:00', '11:45:00', (SELECT cod_usuario FROM CHOFER LIMIT 1 OFFSET 2), (SELECT cod_vehiculo FROM VEHICULO WHERE placa_vehiculo = 'TRN-001'), 165)
+    RETURNING cod_despacho
+),
+ayudantes_D19 AS (
+    INSERT INTO ASIGNACION_AYUDANTE (cod_usuario, cod_despacho)
+    SELECT U.cod_usuario, (SELECT cod_despacho FROM despacho_D19)
+    FROM USUARIO U LEFT JOIN CHOFER C ON U.cod_usuario = C.cod_usuario
+    WHERE U.cod_persona >= 401 AND U.cod_estado_usuario = 1 AND C.cod_usuario IS NULL
+    LIMIT 2 OFFSET 16
+),
+pedido_P65 AS (INSERT INTO PEDIDO_TRANSPORTE (fecha_pedido_transporte, cod_estado_pedido_tr, cod_cliente, cod_empleado_registro) VALUES ('2025-11-20', 1, (SELECT cod_cliente FROM CLIENTE LIMIT 1 OFFSET 95), (SELECT cod_usuario FROM USUARIO WHERE cod_persona = 414)) RETURNING cod_pedido_transporte),
+pedido_P66 AS (INSERT INTO PEDIDO_TRANSPORTE (fecha_pedido_transporte, cod_estado_pedido_tr, cod_cliente, cod_empleado_registro) VALUES ('2025-11-20', 1, (SELECT cod_cliente FROM CLIENTE LIMIT 1 OFFSET 96), (SELECT cod_usuario FROM USUARIO WHERE cod_persona = 414)) RETURNING cod_pedido_transporte),
+asig_pedidos_D19 AS (
+    INSERT INTO ASIGNACION_PEDIDO_DESPACHO (cod_pedido_transporte, cod_despacho)
+    VALUES 
+        ((SELECT cod_pedido_transporte FROM pedido_P65), (SELECT cod_despacho FROM despacho_D19)),
+        ((SELECT cod_pedido_transporte FROM pedido_P66), (SELECT cod_despacho FROM despacho_D19))
+),
+visita_origen_D19 AS (INSERT INTO VISITA_PROGRAMADA (cod_despacho, cod_parada, secuencia, cod_estado_visita) VALUES ((SELECT cod_despacho FROM despacho_D19), (SELECT cod_parada FROM PARADA WHERE referencia_parada = 'Almacen Principal'), 1, 1)),
+visita_cliente_V65 AS (INSERT INTO VISITA_PROGRAMADA (cod_despacho, cod_parada, secuencia, cod_estado_visita) VALUES ((SELECT cod_despacho FROM despacho_D19), 65, 2, 1) RETURNING cod_visita),
+visita_cliente_V66 AS (INSERT INTO VISITA_PROGRAMADA (cod_despacho, cod_parada, secuencia, cod_estado_visita) VALUES ((SELECT cod_despacho FROM despacho_D19), 66, 3, 1) RETURNING cod_visita)
+INSERT INTO DETALLE_PEDIDO_TR (cod_pedido_transporte, cod_producto, cod_visita, cantidad_detalle, cod_estado_detalle_pedido, direccion_origen_pedido, direccion_destino_pedido, fecha_detalle, cod_turno)
+VALUES 
+    ((SELECT cod_pedido_transporte FROM pedido_P65), (SELECT cod_producto FROM PRODUCTO WHERE nombre_producto = 'Fierro Corrugado 1" x 9m'), (SELECT cod_visita FROM visita_cliente_V65), 50, 1, (SELECT direccion_parada FROM PARADA WHERE referencia_parada = 'Almacen Principal'), (SELECT direccion_parada FROM PARADA WHERE cod_parada=65), '2025-11-21', 1),
+    ((SELECT cod_pedido_transporte FROM pedido_P66), (SELECT cod_producto FROM PRODUCTO WHERE nombre_producto = 'Fierro corrugado 1/2" x 9m'), (SELECT cod_visita FROM visita_cliente_V66), 100, 1, (SELECT direccion_parada FROM PARADA WHERE referencia_parada = 'Almacen Principal'), (SELECT direccion_parada FROM PARADA WHERE cod_parada=66), '2025-11-21', 1);
+
+-- DÍA 11: 2025-11-25 (FUTURO - PROGRAMADO)
+-- Despacho D-020 (Tarde)
+WITH despacho_D20 AS (
+    INSERT INTO DESPACHO (fecha_despacho, cod_estado_despacho, hora_salida_estimada, hora_regreso_estimada, cod_chofer, cod_vehiculo, tiempo_reserva_min)
+    VALUES ('2025-11-25', 1, '14:00:00', '17:00:00', (SELECT cod_usuario FROM CHOFER LIMIT 1 OFFSET 3), (SELECT cod_vehiculo FROM VEHICULO WHERE placa_vehiculo = 'TRN-002'), 180)
+    RETURNING cod_despacho
+),
+ayudantes_D20 AS (
+    INSERT INTO ASIGNACION_AYUDANTE (cod_usuario, cod_despacho)
+    SELECT U.cod_usuario, (SELECT cod_despacho FROM despacho_D20)
+    FROM USUARIO U LEFT JOIN CHOFER C ON U.cod_usuario = C.cod_usuario
+    WHERE U.cod_persona >= 401 AND U.cod_estado_usuario = 1 AND C.cod_usuario IS NULL
+    LIMIT 2 OFFSET 18
+),
+pedido_P67 AS (INSERT INTO PEDIDO_TRANSPORTE (fecha_pedido_transporte, cod_estado_pedido_tr, cod_cliente, cod_empleado_registro) VALUES ('2025-11-24', 1, (SELECT cod_cliente FROM CLIENTE LIMIT 1 OFFSET 100), (SELECT cod_usuario FROM USUARIO WHERE cod_persona = 415)) RETURNING cod_pedido_transporte),
+pedido_P68 AS (INSERT INTO PEDIDO_TRANSPORTE (fecha_pedido_transporte, cod_estado_pedido_tr, cod_cliente, cod_empleado_registro) VALUES ('2025-11-24', 1, (SELECT cod_cliente FROM CLIENTE LIMIT 1 OFFSET 101), (SELECT cod_usuario FROM USUARIO WHERE cod_persona = 415)) RETURNING cod_pedido_transporte),
+pedido_P69 AS (INSERT INTO PEDIDO_TRANSPORTE (fecha_pedido_transporte, cod_estado_pedido_tr, cod_cliente, cod_empleado_registro) VALUES ('2025-11-24', 1, (SELECT cod_cliente FROM CLIENTE LIMIT 1 OFFSET 102), (SELECT cod_usuario FROM USUARIO WHERE cod_persona = 415)) RETURNING cod_pedido_transporte),
+asig_pedidos_D20 AS (
+    INSERT INTO ASIGNACION_PEDIDO_DESPACHO (cod_pedido_transporte, cod_despacho)
+    VALUES 
+        ((SELECT cod_pedido_transporte FROM pedido_P67), (SELECT cod_despacho FROM despacho_D20)),
+        ((SELECT cod_pedido_transporte FROM pedido_P68), (SELECT cod_despacho FROM despacho_D20)),
+        ((SELECT cod_pedido_transporte FROM pedido_P69), (SELECT cod_despacho FROM despacho_D20))
+),
+visita_origen_D20 AS (INSERT INTO VISITA_PROGRAMADA (cod_despacho, cod_parada, secuencia, cod_estado_visita) VALUES ((SELECT cod_despacho FROM despacho_D20), (SELECT cod_parada FROM PARADA WHERE referencia_parada = 'Almacen Principal'), 1, 1)),
+visita_cliente_V67 AS (INSERT INTO VISITA_PROGRAMADA (cod_despacho, cod_parada, secuencia, cod_estado_visita) VALUES ((SELECT cod_despacho FROM despacho_D20), 67, 2, 1) RETURNING cod_visita),
+visita_cliente_V68 AS (INSERT INTO VISITA_PROGRAMADA (cod_despacho, cod_parada, secuencia, cod_estado_visita) VALUES ((SELECT cod_despacho FROM despacho_D20), 68, 3, 1) RETURNING cod_visita),
+visita_cliente_V69 AS (INSERT INTO VISITA_PROGRAMADA (cod_despacho, cod_parada, secuencia, cod_estado_visita) VALUES ((SELECT cod_despacho FROM despacho_D20), 69, 4, 1) RETURNING cod_visita)
+INSERT INTO DETALLE_PEDIDO_TR (cod_pedido_transporte, cod_producto, cod_visita, cantidad_detalle, cod_estado_detalle_pedido, direccion_origen_pedido, direccion_destino_pedido, fecha_detalle, cod_turno)
+VALUES 
+    ((SELECT cod_pedido_transporte FROM pedido_P67), (SELECT cod_producto FROM PRODUCTO WHERE nombre_producto = 'Polvo de Piedra'), (SELECT cod_visita FROM visita_cliente_V67), 4, 1, (SELECT direccion_parada FROM PARADA WHERE referencia_parada = 'Almacen Secundario'), (SELECT direccion_parada FROM PARADA WHERE cod_parada=67), '2025-11-25', 2),
+    ((SELECT cod_pedido_transporte FROM pedido_P68), (SELECT cod_producto FROM PRODUCTO WHERE nombre_producto = 'Arena Gruesa'), (SELECT cod_visita FROM visita_cliente_V68), 3, 1, (SELECT direccion_parada FROM PARADA WHERE referencia_parada = 'Almacen Principal'), (SELECT direccion_parada FROM PARADA WHERE cod_parada=68), '2025-11-25', 2),
+    ((SELECT cod_pedido_transporte FROM pedido_P69), (SELECT cod_producto FROM PRODUCTO WHERE nombre_producto = 'Fierro Corrugado 3/4" x 9m'), (SELECT cod_visita FROM visita_cliente_V69), 20, 1, (SELECT direccion_parada FROM PARADA WHERE referencia_parada = 'Almacen Principal'), (SELECT direccion_parada FROM PARADA WHERE cod_parada=69), '2025-11-25', 2);
+
+-- DÍA 12: 2025-11-28 (FUTURO - PROGRAMADO)
+-- Despacho D-021 (Mañana)
+WITH despacho_D21 AS (
+    INSERT INTO DESPACHO (fecha_despacho, cod_estado_despacho, hora_salida_estimada, hora_regreso_estimada, cod_chofer, cod_vehiculo, tiempo_reserva_min)
+    VALUES ('2025-11-28', 1, '09:30:00', '11:45:00', (SELECT cod_usuario FROM CHOFER LIMIT 1 OFFSET 4), (SELECT cod_vehiculo FROM VEHICULO WHERE placa_vehiculo = 'TRN-003'), 135)
+    RETURNING cod_despacho
+),
+ayudantes_D21 AS (
+    INSERT INTO ASIGNACION_AYUDANTE (cod_usuario, cod_despacho)
+    SELECT U.cod_usuario, (SELECT cod_despacho FROM despacho_D21)
+    FROM USUARIO U LEFT JOIN CHOFER C ON U.cod_usuario = C.cod_usuario
+    WHERE U.cod_persona >= 401 AND U.cod_estado_usuario = 1 AND C.cod_usuario IS NULL
+    LIMIT 1 OFFSET 0
+),
+pedido_P70 AS (INSERT INTO PEDIDO_TRANSPORTE (fecha_pedido_transporte, cod_estado_pedido_tr, cod_cliente, cod_empleado_registro) VALUES ('2025-11-27', 1, (SELECT cod_cliente FROM CLIENTE LIMIT 1 OFFSET 105), (SELECT cod_usuario FROM USUARIO WHERE cod_persona = 406)) RETURNING cod_pedido_transporte),
+asig_pedidos_D21 AS (
+    INSERT INTO ASIGNACION_PEDIDO_DESPACHO (cod_pedido_transporte, cod_despacho)
+    VALUES 
+        ((SELECT cod_pedido_transporte FROM pedido_P70), (SELECT cod_despacho FROM despacho_D21))
+),
+visita_origen_D21 AS (INSERT INTO VISITA_PROGRAMADA (cod_despacho, cod_parada, secuencia, cod_estado_visita) VALUES ((SELECT cod_despacho FROM despacho_D21), (SELECT cod_parada FROM PARADA WHERE referencia_parada = 'Ferreteria Principal'), 1, 1)),
+visita_cliente_V70 AS (INSERT INTO VISITA_PROGRAMADA (cod_despacho, cod_parada, secuencia, cod_estado_visita) VALUES ((SELECT cod_despacho FROM despacho_D21), 70, 2, 1) RETURNING cod_visita)
+INSERT INTO DETALLE_PEDIDO_TR (cod_pedido_transporte, cod_producto, cod_visita, cantidad_detalle, cod_estado_detalle_pedido, direccion_origen_pedido, direccion_destino_pedido, fecha_detalle, cod_turno)
+VALUES 
+    ((SELECT cod_pedido_transporte FROM pedido_P70), (SELECT cod_producto FROM PRODUCTO WHERE nombre_producto = 'Pintura esmalte 1gal'), (SELECT cod_visita FROM visita_cliente_V70), 5, 1, (SELECT direccion_parada FROM PARADA WHERE referencia_parada = 'Ferreteria Principal'), (SELECT direccion_parada FROM PARADA WHERE cod_parada=70), '2025-11-28', 1);
+
+-- Despacho D-022 (Tarde)
+WITH despacho_D22 AS (
+    INSERT INTO DESPACHO (fecha_despacho, cod_estado_despacho, hora_salida_estimada, hora_regreso_estimada, cod_chofer, cod_vehiculo, tiempo_reserva_min)
+    VALUES ('2025-11-28', 1, '13:00:00', '17:00:00', (SELECT cod_usuario FROM CHOFER LIMIT 1 OFFSET 5), (SELECT cod_vehiculo FROM VEHICULO WHERE placa_vehiculo = 'TRN-001'), 240)
+    RETURNING cod_despacho
+),
+ayudantes_D22 AS (
+    INSERT INTO ASIGNACION_AYUDANTE (cod_usuario, cod_despacho)
+    SELECT U.cod_usuario, (SELECT cod_despacho FROM despacho_D22)
+    FROM USUARIO U LEFT JOIN CHOFER C ON U.cod_usuario = C.cod_usuario
+    WHERE U.cod_persona >= 401 AND U.cod_estado_usuario = 1 AND C.cod_usuario IS NULL
+    LIMIT 2 OFFSET 1
+),
+pedido_P71 AS (INSERT INTO PEDIDO_TRANSPORTE (fecha_pedido_transporte, cod_estado_pedido_tr, cod_cliente, cod_empleado_registro) VALUES ('2025-11-27', 1, (SELECT cod_cliente FROM CLIENTE LIMIT 1 OFFSET 110), (SELECT cod_usuario FROM USUARIO WHERE cod_persona = 406)) RETURNING cod_pedido_transporte),
+pedido_P72 AS (INSERT INTO PEDIDO_TRANSPORTE (fecha_pedido_transporte, cod_estado_pedido_tr, cod_cliente, cod_empleado_registro) VALUES ('2025-11-27', 1, (SELECT cod_cliente FROM CLIENTE LIMIT 1 OFFSET 111), (SELECT cod_usuario FROM USUARIO WHERE cod_persona = 406)) RETURNING cod_pedido_transporte),
+asig_pedidos_D22 AS (
+    INSERT INTO ASIGNACION_PEDIDO_DESPACHO (cod_pedido_transporte, cod_despacho)
+    VALUES 
+        ((SELECT cod_pedido_transporte FROM pedido_P71), (SELECT cod_despacho FROM despacho_D22)),
+        ((SELECT cod_pedido_transporte FROM pedido_P72), (SELECT cod_despacho FROM despacho_D22))
+),
+visita_origen_D22 AS (INSERT INTO VISITA_PROGRAMADA (cod_despacho, cod_parada, secuencia, cod_estado_visita) VALUES ((SELECT cod_despacho FROM despacho_D22), (SELECT cod_parada FROM PARADA WHERE referencia_parada = 'Almacen Principal'), 1, 1)),
+visita_cliente_V71 AS (INSERT INTO VISITA_PROGRAMADA (cod_despacho, cod_parada, secuencia, cod_estado_visita) VALUES ((SELECT cod_despacho FROM despacho_D22), 71, 2, 1) RETURNING cod_visita),
+visita_cliente_V72 AS (INSERT INTO VISITA_PROGRAMADA (cod_despacho, cod_parada, secuencia, cod_estado_visita) VALUES ((SELECT cod_despacho FROM despacho_D22), 72, 3, 1) RETURNING cod_visita)
+INSERT INTO DETALLE_PEDIDO_TR (cod_pedido_transporte, cod_producto, cod_visita, cantidad_detalle, cod_estado_detalle_pedido, direccion_origen_pedido, direccion_destino_pedido, fecha_detalle, cod_turno)
+VALUES 
+    ((SELECT cod_pedido_transporte FROM pedido_P71), (SELECT cod_producto FROM PRODUCTO WHERE nombre_producto = 'Confitillo (Piedra 1/4")'), (SELECT cod_visita FROM visita_cliente_V71), 5, 1, (SELECT direccion_parada FROM PARADA WHERE referencia_parada = 'Almacen Secundario'), (SELECT direccion_parada FROM PARADA WHERE cod_parada=71), '2025-11-28', 2),
+    ((SELECT cod_pedido_transporte FROM pedido_P72), (SELECT cod_producto FROM PRODUCTO WHERE nombre_producto = 'Fierro Corrugado 8mm x 9m'), (SELECT cod_visita FROM visita_cliente_V72), 200, 1, (SELECT direccion_parada FROM PARADA WHERE referencia_parada = 'Almacen Principal'), (SELECT direccion_parada FROM PARADA WHERE cod_parada=72), '2025-11-28', 2);
