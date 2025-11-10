@@ -1003,6 +1003,11 @@ CREATE TABLE "FERRETERIA".movimiento (
   FOREIGN KEY (cod_venta, cod_producto_vta) REFERENCES "FERRETERIA".producto_venta(cod_venta, cod_producto)
 );
 
+ALTER TABLE "FERRETERIA".reclamo
+ADD COLUMN cod_estado_reclamo INTEGER NOT NULL 
+    DEFAULT 1 -- Asume que '1' es un estado válido por defecto, ej: 'Pendiente'
+    REFERENCES "FERRETERIA".estado_reclamo(cod_estado_reclamo);
+
 --Generacion de codigos para pantallas
 SET search_path TO "FERRETERIA";
 ALTER TABLE venta
