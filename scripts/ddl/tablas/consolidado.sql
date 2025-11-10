@@ -291,9 +291,7 @@ CREATE TABLE IF NOT EXISTS caja (
   vendedor_cierre      INTEGER REFERENCES vendedor(cod_vendedor),
   monto_apertura       NUMERIC(12,2) NOT NULL DEFAULT 0,
   monto_cierre         NUMERIC(12,2),
-  monto_total_ingresos NUMERIC(12,2) NOT NULL DEFAULT 0,
-  cod_intermediario	   INTEGER REFERENCES maestro(cod_maestro),
-  puntos_venta         NUMERIC(12,2)
+  monto_total_ingresos NUMERIC(12,2) NOT NULL DEFAULT 0
 );
 
 CREATE TABLE IF NOT EXISTS comprobante (
