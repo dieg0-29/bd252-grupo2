@@ -8,6 +8,14 @@ SET search_path TO "FERRETERIA";
 -- -------------------------------------------------------------
 -- LOOKUPS (Clientes, Ventas, Abastecimiento y Transporte)
 -- -------------------------------------------------------------
+CREATE TABLE "FERRETERIA".instalacion (
+  cod_instalacion VARCHAR(10) PRIMARY KEY,
+  nombre_instalacion VARCHAR(100) UNIQUE NOT NULL,
+  direccion TEXT
+);
+
+
+
 CREATE TABLE IF NOT EXISTS ESTADO_USUARIO (
   cod_estado_usuario SERIAL PRIMARY KEY,
   descp_estado_usuario VARCHAR(50) NOT NULL UNIQUE
@@ -317,7 +325,7 @@ CREATE TABLE IF NOT EXISTS venta (
   monto_venta       NUMERIC(12,2) NOT NULL DEFAULT 0 CHECK (monto_venta >= 0),
   igv               NUMERIC(12,2) NOT NULL CHECK(igv >= 0),
   descuento         NUMERIC(12,2) NOT NULL DEFAULT 0 CHECK (descuento >= 0),
-  puntos_venta 	    INTEGER NOT NULL,
+  puntos_venta 	    INTEGER,
   cod_estado_venta  INTEGER NOT NULL REFERENCES estado_venta(cod_estado_venta),
   cod_cond_pago    INTEGER NOT NULL REFERENCES condicion_pago(cod_cond_pago),
   nro_cuotas        INTEGER NOT NULL DEFAULT 1 CHECK (nro_cuotas >=1),
@@ -390,6 +398,10 @@ CREATE TABLE IF NOT EXISTS pedido_abastecimiento (
 CREATE TABLE IF NOT EXISTS recepcion (
   cod_recepcion SERIAL PRIMARY KEY,
   cod_orden INTEGER NOT NULL REFERENCES orden_compra(cod_orden) ON UPDATE CASCADE ON DELETE RESTRICT,
+  
+  -- LÍNEA QUE DEBES AGREGAR --
+  cod_instalacion VARCHAR(10) NOT NULL REFERENCES instalacion(cod_instalacion),
+  
   fecha_recepcion DATE NOT NULL DEFAULT CURRENT_DATE,
   hora_inicio_recepcion TIME NOT NULL,
   hora_fin_recepcion    TIME NOT NULL,
@@ -417,7 +429,7 @@ CREATE TABLE IF NOT EXISTS guia_remision_externa (
 CREATE TABLE IF NOT EXISTS PEDIDO_TRANSPORTE (
     cod_pedido_transporte SERIAL PRIMARY KEY,
     fecha_pedido_transporte DATE NOT NULL DEFAULT CURRENT_DATE,
-    cod_recepcion INT NOT NULL REFERENCES RECEPCION(cod_recepcion),
+    cod_recepcion INT REFERENCES RECEPCION(cod_recepcion),
     cod_estado_pedido_tr INT NOT NULL DEFAULT 1 
         REFERENCES ESTADO_PEDIDO_TR(cod_estado_pedido_tr),
     cod_cliente INT NOT NULL REFERENCES CLIENTE(cod_cliente),
@@ -829,12 +841,6 @@ CREATE TABLE IF NOT EXISTS ASIGNACION_PEDIDO_DESPACHO (
 -- -----------------------------------------------------
 -- TABLAS DEL MÓDULO ALMACÉN (AHORA EN ESQUEMA FERRETERIA)
 -- -----------------------------------------------------
-
-CREATE TABLE "FERRETERIA".instalacion (
-  cod_instalacion VARCHAR(10) PRIMARY KEY,
-  nombre_instalacion VARCHAR(100) UNIQUE NOT NULL,
-  direccion TEXT
-);
 
 CREATE TABLE "FERRETERIA".turno_almacen (
   cod_turno VARCHAR(20) PRIMARY KEY,
