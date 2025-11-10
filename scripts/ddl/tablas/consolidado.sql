@@ -1,5 +1,5 @@
 -- -----------------------------------------------------
--- ESQUEMA FERRETERIA (Abastecimiento, Clientes, Ventas, Transporte)
+-- ESQUEMA ÚNICO FERRETERIA (Todo en un solo cuerpo)
 -- -----------------------------------------------------
 DROP SCHEMA IF EXISTS "FERRETERIA" CASCADE;
 CREATE SCHEMA "FERRETERIA";
@@ -8,8 +8,6 @@ SET search_path TO "FERRETERIA";
 -- -------------------------------------------------------------
 -- LOOKUPS (Clientes, Ventas, Abastecimiento y Transporte)
 -- -------------------------------------------------------------
-
--- (AÑADIDO: Lookup de Transporte, movido aquí para dependencia de USUARIO)
 CREATE TABLE IF NOT EXISTS ESTADO_USUARIO (
   cod_estado_usuario SERIAL PRIMARY KEY,
   descp_estado_usuario VARCHAR(50) NOT NULL UNIQUE
@@ -169,9 +167,6 @@ CREATE TABLE PREMIOS (
   CONSTRAINT chk_nombre_premio CHECK (btrim(nombre_premio) <> '')
 );
 
--- -------------------------------------------------------------
--- (AÑADIDO: Lookups del Módulo de Transporte)
--- -------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS TIPO_VEHICULO (
   cod_tipo_vehiculo SERIAL PRIMARY KEY,
   descp_tipo_vehiculo VARCHAR(50) NOT NULL UNIQUE
@@ -217,7 +212,7 @@ CREATE TABLE IF NOT EXISTS MOTIVO_CANCELACION_TR (
   descp_motivo_cancelacion_tr VARCHAR(150) NOT NULL UNIQUE
 );
 
-CREATE TABLE IF NOT EXISTS TURNO (
+CREATE TABLE IF NOT EXISTS TURNO_TRANSPORTE ( -- Renombrado para evitar colisión
   cod_turno SERIAL PRIMARY KEY,
   descp_turno VARCHAR(20) NOT NULL UNIQUE
 );
@@ -251,7 +246,6 @@ CREATE TABLE USUARIO (
   cod_rol INTEGER NOT NULL,
   cod_area INTEGER NOT NULL,
   cod_persona INTEGER NOT NULL,
-  -- (MODIFICADO: Se añadió la columna cod_estado_usuario según tu petición)
   cod_estado_usuario INT NOT NULL DEFAULT 1 REFERENCES ESTADO_USUARIO(cod_estado_usuario),
   PRIMARY KEY (cod_usuario),
   FOREIGN KEY (cod_rol) REFERENCES ROL(cod_rol),
@@ -270,7 +264,7 @@ CREATE TABLE MAESTRO (
   cod_especialidad INTEGER NOT NULL,
   PRIMARY KEY (cod_maestro),
   FOREIGN KEY (cod_cliente) REFERENCES CLIENTE(cod_cliente),
-  FOREIGN KEY (cod_persona) REFERENCES CLIENTE(cod_persona), -- (Corregido, apuntaba a CLIENTE)
+  FOREIGN KEY (cod_persona) REFERENCES CLIENTE(cod_persona),
   FOREIGN KEY (cod_especialidad) REFERENCES ESPECIALIDADES(cod_especialidad),
   UNIQUE (cod_cliente),
   UNIQUE (cod_persona)
@@ -291,7 +285,9 @@ CREATE TABLE IF NOT EXISTS caja (
   vendedor_cierre      INTEGER REFERENCES vendedor(cod_vendedor),
   monto_apertura       NUMERIC(12,2) NOT NULL DEFAULT 0,
   monto_cierre         NUMERIC(12,2),
-  monto_total_ingresos NUMERIC(12,2) NOT NULL DEFAULT 0
+  monto_total_ingresos NUMERIC(12,2) NOT NULL DEFAULT 0,
+  cod_intermediario	   INTEGER REFERENCES maestro(cod_maestro),
+  puntos_venta         NUMERIC(12,2)
 );
 
 CREATE TABLE IF NOT EXISTS comprobante (
@@ -302,9 +298,8 @@ CREATE TABLE IF NOT EXISTS comprobante (
   CONSTRAINT uq_tipo_nro UNIQUE (cod_tipo_comprobante, nro_comprobante)
 );
 
--- (MODIFICADO: Esta es la tabla PRODUCTO maestra)
 CREATE TABLE IF NOT EXISTS producto (
-  cod_producto    SERIAL PRIMARY KEY, -- Es SERIAL (INT)
+  cod_producto    SERIAL PRIMARY KEY,
   nombre_producto  VARCHAR(200) NOT NULL UNIQUE,
   unidad_medida    VARCHAR(30)  NOT NULL,
   puntos_producto  INTEGER NOT NULL CHECK (puntos_producto >= 0),
@@ -419,8 +414,6 @@ CREATE TABLE IF NOT EXISTS guia_remision_externa (
   CONSTRAINT chk_gre_fechas CHECK (fecha_traslado_guia >= fecha_emision_guia)
 );
 
--- (MODIFICADO: Esta tabla se REEMPLAZA por la nueva definición de Transporte)
--- La tabla original fue eliminada y reemplazada por la siguiente:
 CREATE TABLE IF NOT EXISTS PEDIDO_TRANSPORTE (
     cod_pedido_transporte SERIAL PRIMARY KEY,
     fecha_pedido_transporte DATE NOT NULL DEFAULT CURRENT_DATE,
@@ -428,7 +421,6 @@ CREATE TABLE IF NOT EXISTS PEDIDO_TRANSPORTE (
     cod_estado_pedido_tr INT NOT NULL DEFAULT 1 
         REFERENCES ESTADO_PEDIDO_TR(cod_estado_pedido_tr),
     cod_cliente INT NOT NULL REFERENCES CLIENTE(cod_cliente),
-    -- (MODIFICADO: nombre de columna 'cod_empleado_registro' y FK a USUARIO)
     cod_empleado_registro INT NOT NULL REFERENCES USUARIO(cod_usuario)
 );
 
@@ -523,10 +515,6 @@ CREATE TABLE IF NOT EXISTS cambio_producto_abast (
   descripcion_cambio VARCHAR(255) NOT NULL
 );
 
--- -------------------------------------------------------------
--- (AÑADIDO: Tablas Principales del Módulo de Transporte)
--- -------------------------------------------------------------
-
 CREATE TABLE IF NOT EXISTS VEHICULO (
 	cod_vehiculo SERIAL PRIMARY KEY,
     placa_vehiculo VARCHAR(10) NOT NULL UNIQUE,
@@ -554,7 +542,8 @@ CREATE TABLE IF NOT EXISTS CHOFER (
     categoria_brevete VARCHAR(5) NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS DESPACHO (
+-- (MODIFICADO: Renombrado de DESPACHO_TRANSPORTE a DESPACHO)
+CREATE TABLE IF NOT EXISTS DESPACHO ( 
     cod_despacho SERIAL PRIMARY KEY,
     fecha_despacho DATE NOT NULL,
     cod_estado_despacho INT NOT NULL DEFAULT 1 
@@ -563,8 +552,6 @@ CREATE TABLE IF NOT EXISTS DESPACHO (
     hora_salida_despacho TIME,
     hora_regreso_estimada TIME NOT NULL,
     hora_regreso_despacho TIME, 
-    -- (MODIFICADO: Se corrigió la FK. 'cod_empleado' no existe en CHOFER)
-    -- (MODIFICADO: Se renombró 'cod_empleado_chofer' a 'cod_chofer' por claridad)
     cod_chofer INT NOT NULL REFERENCES CHOFER(cod_usuario),
     cod_vehiculo INT NOT NULL REFERENCES VEHICULO(cod_vehiculo),
     tiempo_reserva_min INT NOT NULL,
@@ -619,7 +606,7 @@ CREATE TABLE IF NOT EXISTS producto_venta (
   cod_estado_prodv   INTEGER REFERENCES estado_producto_venta(cod_estado_prodv),
   direccion_entrega  VARCHAR(200),
   fecha_entrega		 DATE,
-  CONSTRAINT uq_item UNIQUE (cod_venta, cod_producto)
+  CONSTRAINT pk_producto_venta PRIMARY KEY (cod_venta, cod_producto)
 );
 
 CREATE TABLE IF NOT EXISTS pago (
@@ -729,15 +716,14 @@ CREATE TABLE IF NOT EXISTS detalle_pedido (
   CONSTRAINT chk_dp_estado      CHECK (estado IN ('Pendiente','Revisado','En Cotización','Adjudicado','En Camino','Recibido Parcial','Recibido Total','Cancelado'))
 );
 
--- (MODIFICADO: Esta es la tabla DETALLE_RECEPCION maestra, se mantiene)
 CREATE TABLE IF NOT EXISTS detalle_recepcion (
   cod_detalle_recepcion SERIAL PRIMARY KEY,
   cod_recepcion INTEGER NOT NULL REFERENCES recepcion(cod_recepcion) ON UPDATE CASCADE ON DELETE CASCADE,
   cod_producto  INTEGER NOT NULL REFERENCES producto(cod_producto)  ON UPDATE CASCADE ON DELETE RESTRICT,
   cantidad_programada INTEGER NOT NULL,
   cantidad_recibida   INTEGER NOT NULL,
-  cantidad_conforme   INTEGER NOT NULL, -- Esta es tu "cantidad buena"
-  cantidad_defectuosa INTEGER NOT NULL, -- Esta es la que va a incidencia
+  cantidad_conforme   INTEGER NOT NULL,
+  cantidad_defectuosa INTEGER NOT NULL,
   UNIQUE (cod_recepcion, cod_producto),
   CONSTRAINT chk_dr_prog_pos CHECK (cantidad_programada > 0),
   CONSTRAINT chk_dr_rec_pos  CHECK (cantidad_recibida  >= 0),
@@ -773,10 +759,6 @@ CREATE TABLE IF NOT EXISTS incidencia_abast (
   CONSTRAINT chk_iab_cant  CHECK (cantidad_incidencia > 0)
 );
 
--- -------------------------------------------------------------
--- (AÑADIDO: Tablas de Detalle del Módulo de Transporte)
--- -------------------------------------------------------------
-
 CREATE TABLE IF NOT EXISTS PERMISO (
     cod_usuario INT NOT NULL REFERENCES CHOFER(cod_usuario),
     cod_vehiculo INT NOT NULL REFERENCES VEHICULO(cod_vehiculo), 
@@ -791,6 +773,7 @@ CREATE TABLE IF NOT EXISTS PERMISO (
 
 CREATE TABLE IF NOT EXISTS ASIGNACION_AYUDANTE (
     cod_usuario INT NOT NULL REFERENCES USUARIO(cod_usuario),
+    -- (MODIFICADO: FK apunta a la nueva tabla DESPACHO)
     cod_despacho INT NOT NULL REFERENCES DESPACHO(cod_despacho),
    
     PRIMARY KEY (cod_usuario, cod_despacho)
@@ -798,6 +781,7 @@ CREATE TABLE IF NOT EXISTS ASIGNACION_AYUDANTE (
 
 CREATE TABLE IF NOT EXISTS VISITA_PROGRAMADA (
     cod_visita SERIAL PRIMARY KEY, 
+    -- (MODIFICADO: FK apunta a la nueva tabla DESPACHO)
     cod_despacho INT NOT NULL REFERENCES DESPACHO(cod_despacho),
     cod_parada INT NOT NULL REFERENCES PARADA(cod_parada),
     secuencia INT NOT NULL CHECK (secuencia > 0),
@@ -817,9 +801,6 @@ CREATE TABLE IF NOT EXISTS GUIA_REMISION (
         REFERENCES MOTIVO_TRASLADO(cod_motivo_traslado)
 );
 
--- (AÑADIDO: Tabla de detalle de Pedido Transporte)
--- (MODIFICADO: Se renombró de 'DETALLE_PEDIDO' a 'DETALLE_PEDIDO_TR' 
---  para evitar colisión con 'detalle_pedido' de Abastecimiento)
 CREATE TABLE IF NOT EXISTS DETALLE_PEDIDO_TR (
     cod_detalle_pedido_tr SERIAL PRIMARY KEY,
     cod_pedido_transporte INT NOT NULL REFERENCES PEDIDO_TRANSPORTE(cod_pedido_transporte),
@@ -831,7 +812,7 @@ CREATE TABLE IF NOT EXISTS DETALLE_PEDIDO_TR (
     direccion_origen_pedido VARCHAR(255),
     direccion_destino_pedido VARCHAR(255) NOT NULL,
     fecha_detalle DATE DEFAULT CURRENT_DATE,
-    cod_turno INT REFERENCES TURNO(cod_turno), 
+    cod_turno INT REFERENCES TURNO_TRANSPORTE(cod_turno), 
     cod_motivo_cancelacion_tr INT DEFAULT NULL 
         REFERENCES MOTIVO_CANCELACION_TR(cod_motivo_cancelacion_tr)
 );
@@ -839,48 +820,34 @@ CREATE TABLE IF NOT EXISTS DETALLE_PEDIDO_TR (
 CREATE TABLE IF NOT EXISTS ASIGNACION_PEDIDO_DESPACHO (
     cod_pedido_transporte INT NOT NULL 
         REFERENCES PEDIDO_TRANSPORTE(cod_pedido_transporte) ON DELETE CASCADE,
+    -- (MODIFICADO: FK apunta a la nueva tabla DESPACHO)
     cod_despacho INT NOT NULL 
         REFERENCES DESPACHO(cod_despacho) ON DELETE CASCADE,
     PRIMARY KEY (cod_pedido_transporte, cod_despacho)
 );
 
 -- -----------------------------------------------------
--- ESQUEMA ALMACEN (Tu Módulo Integrado)
--- -----------------------------------------------------
-DROP SCHEMA IF EXISTS almacen CASCADE;
-CREATE SCHEMA almacen;
-SET search_path TO almacen;
-
--- -----------------------------------------------------
--- TABLAS MAESTRAS DE ALMACEN
+-- TABLAS DEL MÓDULO ALMACÉN (AHORA EN ESQUEMA FERRETERIA)
 -- -----------------------------------------------------
 
--- (MODIFICADO: Esta es tu tabla de Instalacion, ahora maestra de todo)
-CREATE TABLE almacen.instalacion (
+CREATE TABLE "FERRETERIA".instalacion (
   cod_instalacion VARCHAR(10) PRIMARY KEY,
   nombre_instalacion VARCHAR(100) UNIQUE NOT NULL,
   direccion TEXT
 );
 
-CREATE TABLE almacen.turno (
+CREATE TABLE "FERRETERIA".turno_almacen (
   cod_turno VARCHAR(20) PRIMARY KEY,
   hora_inicio TIME NOT NULL,
   hora_fin TIME NOT NULL
 );
 
--- (MODIFICADO: Tu Lookup Table para Incidencias Internas)
-CREATE TABLE almacen.tipo_incidencia_lookup (
+CREATE TABLE "FERRETERIA".tipo_incidencia_lookup (
   cod_tipo_incidencia SERIAL PRIMARY KEY,
   descripcion VARCHAR(100) UNIQUE NOT NULL
-  -- Llenar con: ('Faltante'), ('Sobrante'), ('Producto Incorrecto'), ('Roto / Dañado'), ('Húmedo'), ('Oxidado'), ('Vencido'), ('Empaque Dañado')
 );
 
--- -----------------------------------------------------
--- TABLAS DE JERARQUÍA Y PLANTILLAS
--- -----------------------------------------------------
-
--- (MODIFICADO: Tu tabla maestra de Ubicaciones auto-referenciada)
-CREATE TABLE almacen.ubicacion (
+CREATE TABLE "FERRETERIA".ubicacion (
   cod_ubicacion VARCHAR(20) PRIMARY KEY, 
   cod_instalacion VARCHAR(10) NOT NULL,
   cod_ubicacion_padre VARCHAR(20) NULL, 
@@ -891,54 +858,40 @@ CREATE TABLE almacen.ubicacion (
   nombre_logico VARCHAR(50) NOT NULL, 
   cod_ubicacion_calculado VARCHAR(200) UNIQUE NOT NULL, 
 
-  FOREIGN KEY (cod_instalacion) REFERENCES almacen.instalacion(cod_instalacion),
-  FOREIGN KEY (cod_ubicacion_padre) REFERENCES almacen.ubicacion(cod_ubicacion)
+  FOREIGN KEY (cod_instalacion) REFERENCES "FERRETERIA".instalacion(cod_instalacion),
+  FOREIGN KEY (cod_ubicacion_padre) REFERENCES "FERRETERIA".ubicacion(cod_ubicacion)
 );
 
--- (MODIFICADO: Tu "Plantilla" de Cupos)
-CREATE TABLE almacen.capacidad_turno (
+CREATE TABLE "FERRETERIA".capacidad_turno (
   cod_instalacion VARCHAR(10) NOT NULL,
   cod_turno VARCHAR(20) NOT NULL,
   dia_semana INT NOT NULL CHECK (dia_semana BETWEEN 1 AND 7), 
   capacidad_total INT NOT NULL CHECK (capacidad_total >= 0),
  
   PRIMARY KEY (cod_instalacion, cod_turno, dia_semana), 
-  FOREIGN KEY (cod_instalacion) REFERENCES almacen.instalacion(cod_instalacion),
-  FOREIGN KEY (cod_turno) REFERENCES almacen.turno(cod_turno)
+  FOREIGN KEY (cod_instalacion) REFERENCES "FERRETERIA".instalacion(cod_instalacion),
+  FOREIGN KEY (cod_turno) REFERENCES "FERRETERIA".turno_almacen(cod_turno)
 );
 
--- -----------------------------------------------------
--- TABLA DE INVENTARIO
--- -----------------------------------------------------
-CREATE TABLE almacen.inventario (
+CREATE TABLE "FERRETERIA".inventario (
   cod_inventario SERIAL PRIMARY KEY, 
   stock_fisico INT NOT NULL DEFAULT 0,
   stock_comprometido INT NOT NULL DEFAULT 0,
   stock_minimo INT NOT NULL DEFAULT 0,
   stock_maximo INT,
  
-  cod_producto INT NOT NULL, -- (MODIFICADO: Es INT para coincidir con FERRETERIA.producto)
+  cod_producto INT NOT NULL, 
   cod_ubicacion VARCHAR(20) NOT NULL,
  
   FOREIGN KEY (cod_producto) REFERENCES "FERRETERIA".producto(cod_producto),
-  FOREIGN KEY (cod_ubicacion) REFERENCES almacen.ubicacion(cod_ubicacion),
+  FOREIGN KEY (cod_ubicacion) REFERENCES "FERRETERIA".ubicacion(cod_ubicacion),
  
   CONSTRAINT uq_producto_ubicacion UNIQUE (cod_producto, cod_ubicacion)
 );
 
--- -----------------------------------------------------
--- TABLAS DE TAREAS (Tus tareas)
--- -----------------------------------------------------
+-- (MODIFICADO: Tabla 'despacho_almacen' ELIMINADA)
 
--- (MODIFICADO: Simplificado a SERIAL PK como pediste)
-CREATE TABLE almacen.despacho (
-  cod_despacho SERIAL PRIMARY KEY,
-  fecha_planificada DATE NOT NULL,
-  estado VARCHAR(50) NOT NULL DEFAULT 'Pendiente'
-    CHECK (estado IN ('Pendiente', 'En Proceso', 'Completado', 'Cancelado'))
-);
-
-CREATE TABLE almacen.conteo (
+CREATE TABLE "FERRETERIA".conteo (
   cod_conteo VARCHAR(50) PRIMARY KEY,
   fecha_conteo DATE NOT NULL,
   hora_conteo TIME,
@@ -946,10 +899,7 @@ CREATE TABLE almacen.conteo (
     CHECK (estado IN ('Pendiente', 'En Proceso', 'Completado'))
 );
 
--- -----------------------------------------------------
--- TABLAS DE RESERVAS
--- -----------------------------------------------------
-CREATE TABLE almacen.cupo_disponible (
+CREATE TABLE "FERRETERIA".cupo_disponible (
   cod_cupo SERIAL PRIMARY KEY,
   fecha_cupo DATE NOT NULL,
   estado VARCHAR(20) NOT NULL DEFAULT 'Disponible'
@@ -957,23 +907,24 @@ CREATE TABLE almacen.cupo_disponible (
   cod_turno VARCHAR(20) NOT NULL,
   cod_instalacion VARCHAR(10) NOT NULL,
  
-  FOREIGN KEY (cod_instalacion) REFERENCES almacen.instalacion(cod_instalacion),
-  FOREIGN KEY (cod_turno) REFERENCES almacen.turno(cod_turno)
+  FOREIGN KEY (cod_instalacion) REFERENCES "FERRETERIA".instalacion(cod_instalacion),
+  FOREIGN KEY (cod_turno) REFERENCES "FERRETERIA".turno_almacen(cod_turno)
 );
 
-CREATE TABLE almacen.reserva_almacen (
+CREATE TABLE "FERRETERIA".reserva_almacen (
   cod_reserva VARCHAR(50) PRIMARY KEY,
   tipo_reserva VARCHAR(50) NOT NULL CHECK (tipo_reserva IN ('Recepcion', 'Despacho')),
   fecha_reserva DATE NOT NULL DEFAULT CURRENT_DATE,
   estado VARCHAR(50) NOT NULL DEFAULT 'Confirmado'
     CHECK (estado IN ('Pendiente', 'Confirmado', 'En Proceso', 'Completado', 'Cancelado')),
  
-  cod_recepcion INT NULL, -- (MODIFICADO: Es INT para coincidir con FERRETERIA.recepcion)
-  cod_despacho INT NULL, -- (MODIFICADO: Es INT para coincidir con almacen.despacho)
+  cod_recepcion INT NULL, 
+  cod_despacho INT NULL, 
   cod_cupo INT UNIQUE NOT NULL, 
  
-  FOREIGN KEY (cod_cupo) REFERENCES almacen.cupo_disponible(cod_cupo),
-  FOREIGN KEY (cod_despacho) REFERENCES almacen.despacho(cod_despacho),
+  FOREIGN KEY (cod_cupo) REFERENCES "FERRETERIA".cupo_disponible(cod_cupo),
+  -- (MODIFICADO: FK ahora apunta a la tabla unificada 'DESPACHO')
+  FOREIGN KEY (cod_despacho) REFERENCES "FERRETERIA".DESPACHO(cod_despacho),
   FOREIGN KEY (cod_recepcion) REFERENCES "FERRETERIA".recepcion(cod_recepcion),
  
   CONSTRAINT chk_tipo_operacion CHECK (
@@ -982,46 +933,35 @@ CREATE TABLE almacen.reserva_almacen (
   )
 );
 
--- -----------------------------------------------------
--- TABLAS DE DETALLE Y ASIGNACIÓN (Tus tablas)
--- -----------------------------------------------------
-
--- (MODIFICADO: Se quitó detalle_despacho como pediste)
-
-CREATE TABLE almacen.detalle_conteo (
+CREATE TABLE "FERRETERIA".detalle_conteo (
   cod_detalle_conteo SERIAL PRIMARY KEY,
-  cantidad_sistema INT NOT NULL, -- (MODIFICADO: El "Pantallazo")
+  cantidad_sistema INT NOT NULL, 
   cantidad_contada INT NOT NULL, 
   discrepancia INT, 
   cod_conteo VARCHAR(50) NOT NULL,
-  cod_producto INT NOT NULL, -- (MODIFICADO: Es INT para coincidir con FERRETERIA.producto)
+  cod_producto INT NOT NULL, 
  
-  FOREIGN KEY (cod_conteo) REFERENCES almacen.conteo(cod_conteo),
+  FOREIGN KEY (cod_conteo) REFERENCES "FERRETERIA".conteo(cod_conteo),
   FOREIGN KEY (cod_producto) REFERENCES "FERRETERIA".producto(cod_producto)
 );
 
--- (MODIFICADO: Conectado a FERRETERIA.usuario en lugar de operador)
-CREATE TABLE almacen.operador_conteo (
+CREATE TABLE "FERRETERIA".operador_conteo (
   cod_usuario INT NOT NULL, 
   cod_conteo VARCHAR(50) NOT NULL,
   PRIMARY KEY (cod_usuario, cod_conteo),
   FOREIGN KEY (cod_usuario) REFERENCES "FERRETERIA".usuario(cod_usuario),
-  FOREIGN KEY (cod_conteo) REFERENCES almacen.conteo(cod_conteo)
+  FOREIGN KEY (cod_conteo) REFERENCES "FERRETERIA".conteo(cod_conteo)
 );
 
--- (MODIFICADO: Conectado a FERRETERIA.usuario en lugar de operador)
-CREATE TABLE almacen.operador_reserva_almacen (
+CREATE TABLE "FERRETERIA".operador_reserva_almacen (
   cod_usuario INT NOT NULL,
   cod_reserva VARCHAR(50) NOT NULL,
   PRIMARY KEY (cod_usuario, cod_reserva),
   FOREIGN KEY (cod_usuario) REFERENCES "FERRETERIA".usuario(cod_usuario),
-  FOREIGN KEY (cod_reserva) REFERENCES almacen.reserva_almacen(cod_reserva)
+  FOREIGN KEY (cod_reserva) REFERENCES "FERRETERIA".reserva_almacen(cod_reserva)
 );
 
--- -----------------------------------------------------
--- TABLAS DE AUDITORÍA (Tus tablas)
--- -----------------------------------------------------
-CREATE TABLE almacen.incidencia (
+CREATE TABLE "FERRETERIA".incidencia (
   cod_incidencia VARCHAR(50) PRIMARY KEY,
   cod_tipo_incidencia INT NOT NULL, 
   cantidad_afectada INT NOT NULL,
@@ -1031,16 +971,15 @@ CREATE TABLE almacen.incidencia (
  
   descripcion TEXT,
  
-  -- (MODIFICADO: FKs apuntan a SERIALs, ahora son INT)
   cod_detalle_recepcion INT NULL,
   cod_detalle_conteo INT NULL,
  
-  FOREIGN KEY (cod_tipo_incidencia) REFERENCES almacen.tipo_incidencia_lookup(cod_tipo_incidencia),
+  FOREIGN KEY (cod_tipo_incidencia) REFERENCES "FERRETERIA".tipo_incidencia_lookup(cod_tipo_incidencia),
   FOREIGN KEY (cod_detalle_recepcion) REFERENCES "FERRETERIA".detalle_recepcion(cod_detalle_recepcion),
-  FOREIGN KEY (cod_detalle_conteo) REFERENCES almacen.detalle_conteo(cod_detalle_conteo)
+  FOREIGN KEY (cod_detalle_conteo) REFERENCES "FERRETERIA".detalle_conteo(cod_detalle_conteo)
 );
 
-CREATE TABLE almacen.movimiento (
+CREATE TABLE "FERRETERIA".movimiento (
   cod_movimiento SERIAL PRIMARY KEY,
   fecha_movimiento DATE NOT NULL DEFAULT CURRENT_DATE,
   hora_movimiento TIME NOT NULL DEFAULT CURRENT_TIME,
@@ -1050,19 +989,17 @@ CREATE TABLE almacen.movimiento (
  
   cod_inventario INT NOT NULL, 
  
-  -- (MODIFICADO: FKs apuntan a SERIALs, ahora son INT)
   cod_detalle_recepcion INT NULL,
   cod_detalle_conteo INT NULL,
   cod_incidencia VARCHAR(50) NULL,
-
-  -- (MODIFICADO: Trazabilidad a VENTAS, como pediste)
+  
   cod_venta INT NULL,
   cod_producto_vta INT NULL,
  
-  FOREIGN KEY (cod_inventario) REFERENCES almacen.inventario(cod_inventario),
+  FOREIGN KEY (cod_inventario) REFERENCES "FERRETERIA".inventario(cod_inventario),
   FOREIGN KEY (cod_detalle_recepcion) REFERENCES "FERRETERIA".detalle_recepcion(cod_detalle_recepcion),
-  FOREIGN KEY (cod_detalle_conteo) REFERENCES almacen.detalle_conteo(cod_detalle_conteo),
-  FOREIGN KEY (cod_incidencia) REFERENCES almacen.incidencia(cod_incidencia),
+  FOREIGN KEY (cod_detalle_conteo) REFERENCES "FERRETERIA".detalle_conteo(cod_detalle_conteo),
+  FOREIGN KEY (cod_incidencia) REFERENCES "FERRETERIA".incidencia(cod_incidencia),
   FOREIGN KEY (cod_venta, cod_producto_vta) REFERENCES "FERRETERIA".producto_venta(cod_venta, cod_producto)
 );
 
@@ -1087,5 +1024,4 @@ ALTER TABLE pago
   ADD COLUMN cod_pago_fmt text
   GENERATED ALWAYS AS ('PG-' || lpad(cod_pago::text, 3, '0')) STORED;
 
--- (MODIFICADO: Añadido para que puedas consultar entre esquemas)
-ALTER ROLE CURRENT_USER SET search_path TO "FERRETERIA", almacen;
+ALTER ROLE CURRENT_USER SET search_path TO "FERRETERIA";
