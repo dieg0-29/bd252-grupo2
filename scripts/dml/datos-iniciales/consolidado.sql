@@ -4380,8 +4380,34 @@ SELECT * FROM DETALLE_CANJE;
 --CATEGORIAS_PREMIO
 INSERT INTO CATEGORIAS_PREMIO (cod_categoria, cod_premio)
 VALUES 
-(1,1),
-(13,1);
+-- Premio 1: Taladro Inalámbrico 12V
+(1, 1),  -- Categoria: Herramienta
+(13, 1), -- Categoria: Carpinteria
+(14, 1), -- Categoria: Maquinaria
+-- Premio 2: Audífonos Inalámbricos Bluetooth JBL
+(12, 2), -- Categoria: Accesorios
+-- Premio 3: Set de Cuchillos de Chef 5 Piezas
+(12, 3), -- Categoria: Accesorios
+-- Premio 4: Power Bank Xiaomi 10000mAh
+(5, 4),  -- Categoria: Eléctrico
+(12, 4), -- Categoria: Accesorios
+-- Premio 5: Licuadora Oster Xpert Series
+(12, 5), -- Categoria: Accesorios
+-- Premio 6: Google Chromecast con Google TV (HD)
+(5, 6),  -- Categoria: Eléctrico
+(12, 6), -- Categoria: Accesorios
+-- Premio 7: Mochila Antirrobo para Laptop 15.6"
+(12, 7), -- Categoria: Accesorios
+(7, 7),  -- Categoria: Seguridad
+-- Premio 8: Reloj Inteligente (Smartwatch) Deportivo
+(12, 8), -- Categoria: Accesorios
+-- Premio 9: Cafetera Eléctrica de Goteo
+(12, 9), -- Categoria: Accesorios
+-- Premio 10: Kit de Limpieza para PC y Electrónicos
+(12, 10), -- Categoria: Accesorios
+-- Premio 11: Disco Duro Externo Portátil 1TB
+(5, 11),  -- Categoria: Eléctrico
+(12, 11);  -- Categoria: Accesorios
 SELECT * FROM CATEGORIAS_PREMIO;
 
 --REPORTE
@@ -4599,6 +4625,7 @@ ON CONFLICT DO NOTHING;
 INSERT INTO incidencia_abast (cod_detalle_recepcion, cod_reclamo, tipo_incidencia, cantidad_incidencia, descripcion_incidencia) VALUES
 (3, 1, 'CALIDAD', 2, '2 Tubos PVC (Cod 27) llegaron rajados.')
 ON CONFLICT DO NOTHING;
+
 
 
 
