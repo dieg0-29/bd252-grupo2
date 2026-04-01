@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Proyecto Grupal - Diseño de Bases de Datos
 
 ## Tabla de Contenido
@@ -138,3 +139,6 @@
     - [12.3.4. Módulo 4 / Integrante 4](./12/12.3/12.3.4/12.3.4.md)
     - [12.3.5. Módulo 5 / Integrante 5](./12/12.3/12.3.5/12.3.5.md)
   - [12.4. Próximos pasos](./12/12.4/12.4.md)
+=======
+a
+>>>>>>> 77defe419b2cce70027bce1c11f5b02bbc69f603
